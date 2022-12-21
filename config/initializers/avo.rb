@@ -7,8 +7,8 @@ Avo.configure do |config|
   # config.home_path = nil
 
   ## == Licensing ==
-  config.license = 'community' # change this to 'pro' when you add the license key
-  # config.license_key = ENV['AVO_LICENSE_KEY']
+  config.license = 'pro' # change this to 'pro' when you add the license key
+  config.license_key = "add29394-baf1-4c95-9453-15981cefd362"
 
   ## == Set the context ==
   config.set_context do
