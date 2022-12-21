@@ -1,5 +1,5 @@
 module CorePayment
-  class pay 
+  class Pay 
     def initialize(argv)
       @phone = argv[:phone]
       @amount = argv[:amount]
