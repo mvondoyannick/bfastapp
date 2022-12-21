@@ -97,12 +97,12 @@ Avo.configure do |config|
       all_dashboards
     end
 
-    section "Market", icon: "resources" do
+    section "Market", icon: "library" do
       # all_resources
       resource :reservation, label: "Reservation"
     end
 
-    section "Travel", icon: "resources" do
+    section "Travel", icon: "location-marker" do
       # all_resources
       resource :reservation, label: "Reservation"
       resource :user, label: "Utilisateur & compte"
