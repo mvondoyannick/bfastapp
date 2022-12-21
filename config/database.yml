@@ -53,4 +53,4 @@ production:
   database: bfast_travel_production
   username: bfast_travel
   password: <%= ENV["BFAST_TRAVEL_DATABASE_PASSWORD"] %>
-  url: "mysql2://q0e54fdqxln152zi:h82j5lr2f267wwj5@grp6m5lz95d9exiz.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/dgts3aw6e1jgxhvf"
+  url: <%= ENV["JAWSDB_URL"] %>
