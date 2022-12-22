@@ -91,6 +91,7 @@ class MainController < ApiController
     lt = 'Littoral'
     ce = 'Centre'
     puts "Headers informations : #{request.headers['HTTP_LATITUDE']} -- #{request.headers['HTTP_LONGITUDE']}"
+    puts Geocoder.search(request.remote_ip).first.address
     if request.headers['HTTP_LATITUDE'].present? && request.headers['HTTP_LONGITUDE'].present? && !request.headers['HTTP_LATITUDE'].nil?
       results = Geocoder.search([request.headers['HTTP_LATITUDE'], request.headers['HTTP_LONGITUDE']])
       render json: {
