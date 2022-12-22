@@ -92,7 +92,7 @@ class MainController < ApiController
     ce = 'Centre'
     puts "Headers informations : #{request.headers['HTTP_LATITUDE']} -- #{request.headers['HTTP_LONGITUDE']}"
     puts Geocoder.search(request.remote_ip).first.address
-    if request.headers['HTTP_LATITUDE'].present? && request.headers['HTTP_LONGITUDE'].present? && !request.headers['HTTP_LATITUDE'].nil?
+    if request.headers['HTTP_LATITUDE'].present? && request.headers['HTTP_LONGITUDE'].present? && request.headers['HTTP_LATITUDE'] =! 'undefined' && request.headers['HTTP_LONGITUDE'] =! 'undefined'
       results = Geocoder.search([request.headers['HTTP_LATITUDE'], request.headers['HTTP_LONGITUDE']])
       render json: {
         geolocation: results.nil? ? Geocoder.search(request.remote_ip).first.address : "#{results.first.address.split(",")[0]} - #{results.first.address.split(",")[1]}",
