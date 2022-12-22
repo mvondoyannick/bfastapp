@@ -90,7 +90,8 @@ class MainController < ApiController
     # geolocation cordinate
     lt = 'Littoral'
     ce = 'Centre'
-    if request.headers['HTTP_LATITUDE'].present? && request.headers['HTTP_LATITUDE'].present? && !request.headers['HTTP_LATITUDE'].nil?
+    puts "Headers informations : #{request.headers['HTTP_LATITUDE']} -- #{request.headers['HTTP_LONGITUDE']}"
+    if request.headers['HTTP_LATITUDE'].present? && request.headers['HTTP_LONGITUDE'].present? && !request.headers['HTTP_LATITUDE'].nil?
       results = Geocoder.search([request.headers['HTTP_LATITUDE'], request.headers['HTTP_LONGITUDE']])
       render json: {
         geolocation: results.nil? ? Geocoder.search(request.remote_ip).first.address : "#{results.first.address.split(",")[0]} - #{results.first.address.split(",")[1]}",
