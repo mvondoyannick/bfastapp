@@ -1,6 +1,8 @@
 class Horaire < ApplicationRecord
   #has_many :buses, dependent: :destroy
-  belongs_to :bus
-  belongs_to :food
-  belongs_to :drink
+
+  before_create do 
+    self.name = self.departure.strftime('%H')
+  end
+
 end

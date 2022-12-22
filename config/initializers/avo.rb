@@ -109,6 +109,7 @@ Avo.configure do |config|
       resource :ville, label: "Ville"
       resource :bus, label: "Mes Bus"
       resource :horaire, label: "Mes horaires"
+      resource :customer, label: "Passagers"
     end
 
     section "Foods & drinks", icon: "tools" do

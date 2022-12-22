@@ -7,13 +7,8 @@ class HoraireResource < Avo::BaseResource
 
   field :id, as: :id
   # Fields generated from the model
-  field :name, as: :text
-  field :amount, as: :number, required: true
-  field :departure, as: :date_time
+  field :name, as: :text, readonly: true, help: "Genéré automatiquement"
+  field :departure, as: :time, name: "Heure de départ", picker_format: "H:i", relative: true, picker_options: { time_24hr: true }
   field :created_at, as: :date_time
-  field :food, as: :belongs_to 
-  field :drink, as: :belongs_to
-  field :buses, as: :has_many
-  field :bus, as: :belongs_to
   # add fields here
 end

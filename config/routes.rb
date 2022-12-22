@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  devise_for :customers
   get 'main/index'
   get 'home/index'
   devise_for :users
@@ -22,6 +23,11 @@ Rails.application.routes.draw do
           post 'makepayment', to: 'main#makepayment'
           post 'time', to: 'main#give_hours'
           post 'geolocation', to: "main#geolocate_this"
+
+          # security scope
+          scope :security do
+            post 'request_otp', to: 'main#request_otp'
+          end
         end
       end
 

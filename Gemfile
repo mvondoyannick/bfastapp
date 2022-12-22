@@ -87,3 +87,5 @@ gem "httparty"
 gem "chartkick"
 
 gem "pundit", "~> 2.2"
+
+gem "rotp", "~> 6.2"

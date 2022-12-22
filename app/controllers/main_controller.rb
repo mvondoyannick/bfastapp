@@ -88,6 +88,8 @@ class MainController < ApiController
   # enabled devise deolocation
   def geolocate_this
     # geolocation cordinate
+    lt = 'Littoral'
+    ce = 'Centre'
     if request.headers['HTTP_LATITUDE'].present? && request.headers['HTTP_LATITUDE'].present? && !request.headers['HTTP_LATITUDE'].nil?
       results = Geocoder.search([request.headers['HTTP_LATITUDE'], request.headers['HTTP_LONGITUDE']])
       render json: {
@@ -101,6 +103,8 @@ class MainController < ApiController
           arr: results.first.address.split(",")[1].nil? ? nil : results.first.address.split(",")[1],
           quartier: results.first.address.split(",")[0].nil? ? nil : results.first.address.split(",")[0],
         },
+        departure: results.first.address.split(",")[4].delete(" ").eql?("Littoral") ? "Douala" : "Yaoundé",
+        destination: results.first.address.split(",")[4].delete(" ").eql?("Littoral") ? "Yaoundé" : "Douala"
       }, status: :ok
       return
     else
@@ -113,6 +117,63 @@ class MainController < ApiController
         message: "Geolocalized via IP address"
       }, status: :ok
       return
+    end
+  end
+
+  # request OTP
+  def request_otp
+    if params[:phone].present? && params[:customer].present?
+      @phone = params[:phone]
+
+      # check if this customer exist
+      if Customer.exists?(phone: params[:customer][:phone])
+        @current_customer = Customer.find_by(phone: params[:customer][:phone])
+        # generate OTP
+        totp = ROTP::TOTP.new("base32secret3232", issuer: "BFast")
+        @otp = totp.now
+
+        # put this customer update
+        @customer.otp = @otp 
+        if @customer.save 
+
+          render json: {
+            message: "Saisir le code à six chiffres reçu par SMS au numéro #{@phone} pour confirmer que vous êtes propriétaire de ce compte"
+          }, status: :ok
+        else
+          render json: {
+            message: @customer.errors.messages
+          }, status: :unauthorized
+        end
+      else
+        
+        # generate OTP
+        totp = ROTP::TOTP.new("base32secret3232", issuer: "BFast")
+        @otp = totp.now
+
+        # create new customer
+        @customer = Customer.new(phone: params[:customer][:phone], otp: @otp)
+        if @customer.save 
+          # send via SMS Gateway
+          sms = Sms::Sms.new(phone: @phone, message: "Votre code de vérification OTP BFAST est le suivant #{@customer.otp}, \nil est valable 1 minute")
+          sms.generate_token
+          sms.send
+
+          render json: {
+            message: "Saisir le code à six chiffres reçu par SMS au numéro #{@phone} pour confirmer que vous êtes propriétaire de ce compte"
+          }, status: :ok
+
+        else
+          render json: {
+            message: @customer.errors.messages
+          }, status: :unauthorized
+        end
+      end
+
+    else
+
+      render json: {
+        message: "Informations invalides ou manquantes"
+      }, status: :unauthorized
     end
   end
 

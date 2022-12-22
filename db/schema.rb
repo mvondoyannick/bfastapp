@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_12_09_094250) do
+ActiveRecord::Schema[7.0].define(version: 2022_12_22_133910) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -51,6 +51,24 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_09_094250) do
     t.index ["ville_id"], name: "index_buses_on_ville_id"
   end
 
+  create_table "customers", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.string "name"
+    t.string "second_name"
+    t.string "phone"
+    t.string "sexe"
+    t.string "token"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "otp"
+    t.index ["email"], name: "index_customers_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true
+  end
+
   create_table "drinks", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name"
     t.string "amount"
@@ -71,13 +89,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_09_094250) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "departure"
-    t.string "amount"
-    t.bigint "food_id"
-    t.bigint "drink_id"
-    t.bigint "bus_id"
-    t.index ["bus_id"], name: "index_horaires_on_bus_id"
-    t.index ["drink_id"], name: "index_horaires_on_drink_id"
-    t.index ["food_id"], name: "index_horaires_on_food_id"
   end
 
   create_table "reservations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -123,9 +134,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_09_094250) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "buses", "villes"
-  add_foreign_key "horaires", "buses"
-  add_foreign_key "horaires", "drinks"
-  add_foreign_key "horaires", "foods"
   add_foreign_key "reservations", "buses"
   add_foreign_key "reservations", "horaires"
   add_foreign_key "reservations", "villes"

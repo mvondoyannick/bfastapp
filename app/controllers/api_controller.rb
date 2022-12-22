@@ -1,4 +1,5 @@
 class ApiController < ActionController::API
+  require "active_support/all"
   before_action :read_url
   
 

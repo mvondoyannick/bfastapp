@@ -5,3 +5,11 @@
 #
 #   movies = Movie.create([{ name: "Star Wars" }, { name: "Lord of the Rings" }])
 #   Character.create(name: "Luke", movie: movies.first)
+Horaire.create([
+  {departure: DateTime.now.change(hour: 04, min: 00)},
+  {departure: DateTime.now.change(hour: 05, min: 00)},
+  {departure: DateTime.now.change(hour: 06, min: 00)},
+  {departure: DateTime.now.change(hour: 07, min: 00)},
+  {departure: DateTime.now.change(hour: 8, min: 00)}, 
+  {departure: DateTime.now.change(hour: 9, min: 00)},
+])
