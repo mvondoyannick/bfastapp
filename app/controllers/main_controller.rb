@@ -95,6 +95,7 @@ class MainController < ApiController
     if request.headers['HTTP_LATITUDE'].present? && request.headers['HTTP_LONGITUDE'].present? && request.headers['HTTP_LATITUDE'] =! 'undefined' && request.headers['HTTP_LONGITUDE'] =! 'undefined'
       results = Geocoder.search([request.headers['HTTP_LATITUDE'], request.headers['HTTP_LONGITUDE']])
       render json: {
+        mode: :coordonnees,
         geolocation: results.nil? ? Geocoder.search(request.remote_ip).first.address : "#{results.first.address.split(",")[0]} - #{results.first.address.split(",")[1]}",
         message: "Geolocalized via coordinates",
         datas: {
@@ -115,6 +116,7 @@ class MainController < ApiController
 
       # call geocoder for IP Adress request
       render json: {
+        mode: :ip,
         geolocation: Geocoder.search(request.remote_ip),
         message: "Geolocalized via IP address"
       }, status: :ok
