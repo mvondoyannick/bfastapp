@@ -133,15 +133,15 @@ class MainController < ApiController
         @otp = totp.now
 
         # put this customer update
-        @customer.otp = @otp 
-        if @customer.save 
+        @current_customer.otp = @otp 
+        if @current_customer.save 
 
           render json: {
             message: "Saisir le code à six chiffres reçu par SMS au numéro #{@phone} pour confirmer que vous êtes propriétaire de ce compte"
           }, status: :ok
         else
           render json: {
-            message: @customer.errors.messages
+            message: @current_customer.errors.messages
           }, status: :unauthorized
         end
       else
@@ -151,7 +151,7 @@ class MainController < ApiController
         @otp = totp.now
 
         # create new customer
-        @customer = Customer.new(phone: params[:customer][:phone], otp: @otp)
+        @customer = Customer.new(phone: params[:customer][:phone], otp: @otp, email: "#{@phone}@bfast.com", password: 123456)
         if @customer.save 
           # send via SMS Gateway
           sms = Sms::Sms.new(phone: @phone, message: "Votre code de vérification OTP BFAST est le suivant #{@customer.otp}, \nil est valable 1 minute")
