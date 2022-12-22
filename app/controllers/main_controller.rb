@@ -141,6 +141,7 @@ class MainController < ApiController
           }, status: :ok
         else
           render json: {
+            token: @current_customer.token,
             message: @current_customer.errors.messages
           }, status: :unauthorized
         end
@@ -159,6 +160,7 @@ class MainController < ApiController
           sms.send
 
           render json: {
+            token: @customer.token,
             message: "Saisir le code à six chiffres reçu par SMS au numéro #{@phone} pour confirmer que vous êtes propriétaire de ce compte"
           }, status: :ok
 
