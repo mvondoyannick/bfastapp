@@ -12,4 +12,15 @@ Horaire.create([
   {departure: DateTime.now.change(hour: 07, min: 00)},
   {departure: DateTime.now.change(hour: 8, min: 00)}, 
   {departure: DateTime.now.change(hour: 9, min: 00)},
+  {departure: DateTime.now.change(hour: 10, min: 00)},
+  {departure: DateTime.now.change(hour: 11, min: 00)},
+  {departure: DateTime.now.change(hour: 12, min: 00)},
+  {departure: DateTime.now.change(hour: 13, min: 00)},
+  {departure: DateTime.now.change(hour: 14, min: 00)},
+  {departure: DateTime.now.change(hour: 15, min: 00)},
+  {departure: DateTime.now.change(hour: 16, min: 00)},
+  {departure: DateTime.now.change(hour: 17, min: 00)},
+  {departure: DateTime.now.change(hour: 18, min: 00)},
+  {departure: DateTime.now.change(hour: 19, min: 00)},
 ])
+puts "Done!"
