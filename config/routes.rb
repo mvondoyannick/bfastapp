@@ -28,6 +28,9 @@ Rails.application.routes.draw do
           post 'time', to: 'main#give_hours'
           post 'geolocation', to: "main#geolocate_this"
 
+          # check if payment has been validated via OM or MOMO
+          post 'check_paiement', to: "main#check_paiement"
+
           # security scope
           scope :security do
             post 'request_otp', to: 'main#request_otp'

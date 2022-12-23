@@ -2,37 +2,93 @@ class MainController < ApiController
   def index
   end
 
+  def check_paiement
+    if params[:reservation_token].present?
+      if Reservation.exists?(token: params[:reservation_token])
+        @reservation = Reservation.find_by(token: params[:reservation_token])
+        if @reservation.paid == true 
+          render json: {
+            message: "Paiement effectuée et validé"
+          }, status: :ok
+        else
+          render json: {
+            message: "Paiement en attente de validation"
+          }, status: :unauthorized
+        end
+      else
+        render json: {
+          message: "Cette reservation n'existe pas ou a été supprimée"
+        }, status: :unauthorized
+      end
+    else
+      render json: {
+        message: "Information de paiement manquant"
+      }, status: :unauthorized
+    end
+  end
+
   def webhook
     if params[:external_reference].present?
       if Reservation.exists?(token: params[:external_reference], paid: false)
         @reservation = Reservation.find_by(token: params[:external_reference], paid: false)
-        @reservation.paid = true 
-        if @reservation.save
-          # create paiment object
-          @pay = TravelTransaction.new(
-            reservation_id: @reservation.id,
-            amount: params[:amount],
-            reference: params[:reference],
-            tstatus: params[:status],
-            currency: params[:currency],
-            operator: params[:operator],
-            code: params[:code],
-            external_reference: params[:external_reference]
-          )
-
-          if @pay.save 
-            sms = Sms::Sms.new(phone: @phone, message: "Le paiement de votre billet à destination de #{@reservation.depart} à été validé, vous pouvez commencer à faire vos valides. Le lien tu billet electronique est ici https://google.com/ici")
-            sms.generate_token
-            sms.send
+        if params[:status] == "FAILED"
+          @reservation.paid = false
+          if @reservation.save
+            # create paiment object
+            @pay = TravelTransaction.new(
+              reservation_id: @reservation.id,
+              amount: params[:amount],
+              reference: params[:reference],
+              tstatus: params[:status],
+              currency: params[:currency],
+              operator: params[:operator],
+              code: params[:code],
+              external_reference: params[:external_reference]
+            )
+  
+            if @pay.save 
+              sms = Sms::Sms.new(phone: @phone, message: "Le paiement de votre billet à destination de #{@reservation.depart} n'a pas été validé, il sera annulé dans quelques minutes. Merci de nous faire confiance")
+              sms.generate_token
+              sms.send
+            else
+              render json: {
+                message: "Impoossible de creer votre ticket"
+              }, status: :unauthorized
+            end
           else
             render json: {
-              message: "Impoossible de creer votre ticket"
+              message: "La reservation n'a pas pu être mise à jour"
             }, status: :unauthorized
           end
         else
-          render json: {
-            message: "La reservation n'a pas pu être mise à jour"
-          }, status: :unauthorized
+          @reservation.paid = true 
+          if @reservation.save
+            # create paiment object
+            @pay = TravelTransaction.new(
+              reservation_id: @reservation.id,
+              amount: params[:amount],
+              reference: params[:reference],
+              tstatus: params[:status],
+              currency: params[:currency],
+              operator: params[:operator],
+              code: params[:code],
+              external_reference: params[:external_reference]
+            )
+  
+            if @pay.save 
+              sms = Sms::Sms.new(phone: @phone, message: "Le paiement de votre billet à destination de #{@reservation.depart} à été validé, vous pouvez commencer à faire vos valides. Le lien tu billet electronique est ici https://google.com/ici")
+              sms.generate_token
+              sms.send
+            else
+              render json: {
+                message: "Impoossible de creer votre ticket"
+              }, status: :unauthorized
+            end
+          else
+            render json: {
+              message: "La reservation n'a pas pu être mise à jour"
+            }, status: :unauthorized
+          end
         end
       else
         render json: {
