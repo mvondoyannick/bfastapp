@@ -11,9 +11,9 @@ class TravelTransactionResource < Avo::BaseResource
   field :amount, as: :text
   field :reference, as: :text
   field :tstatus, as: :text
-  field :currency, as: :text
+  field :currency, as: :text, hide_on: [:index]
   field :operator, as: :text
-  field :code, as: :text
-  field :external_reference, as: :text
+  field :code, as: :text, hide_on: [:index]
+  field :external_reference, as: :text, hide_on: [:index]
   # add fields here
 end

@@ -12,7 +12,7 @@ class CustomerResource < Avo::BaseResource
   field :second_name, as: :text
   field :phone, as: :text
   field :sexe, as: :text
-  field :token, as: :text
+  field :token, as: :text, hide_on[: index]
   field :otp, as: :text
   field :password, as: :password, required: true
   # add fields here

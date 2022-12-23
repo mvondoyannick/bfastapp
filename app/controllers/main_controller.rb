@@ -241,11 +241,11 @@ class MainController < ApiController
         if @current_customer.save 
 
           # send via SMS Gateway
-          if params[:customer][:phone] != "691451189"
+          #if params[:customer][:phone] != "691451189"
             sms = Sms::Sms.new(phone: @phone, message: "Votre code de vérification OTP BFAST est le suivant #{@current_customer.otp}, \nil est valable 1 minute")
             sms.generate_token
             sms.send
-          end
+          #end
 
           render json: {
             token: @current_customer.token,
@@ -267,11 +267,11 @@ class MainController < ApiController
         @customer = Customer.new(phone: params[:customer][:phone], otp: @otp, email: "#{@phone}@bfast.com", password: 123456)
         if @customer.save 
           # send via SMS Gateway
-          if params[:customer][:phone] != "691451189"
+          #if params[:customer][:phone] != "691451189"
             sms = Sms::Sms.new(phone: @phone, message: "Votre code de vérification OTP BFAST est le suivant #{@customer.otp}, \nil est valable 1 minute")
             sms.generate_token
             sms.send
-          end
+          #end
 
           render json: {
             token: @customer.token,
@@ -328,7 +328,8 @@ class MainController < ApiController
             render json: {
               message: "Reservation registered succefull",
               reservation: {
-                token: @reservation.token
+                token: @reservation.token,
+                customer_token: @customer.token
               }
             }, status: :created
           else

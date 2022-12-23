@@ -7,17 +7,17 @@ class ReservationResource < Avo::BaseResource
 
   field :id, as: :id
   field :customer, as: :belongs_to
-  field :token, as: :text, readonly: true
+  field :token, as: :text, readonly: true, hide_on: [:index]
   # Fields generated from the model
   #field :horaire, as: :belongs_to
   field :depart, as: :text 
   field :arrivee, as: :text 
   field :date_depart, as: :text 
   field :heure, as: :text 
-  field :customer_phone_payment, as: :number
-  field :amount, as: :number 
-  field :paid, as: :boolean 
-  field :fee, as: :number
+  field :customer_phone_payment, as: :number, hide_on: [:index]
+  field :amount, as: :number, name: "Montant"
+  field :paid, as: :boolean, name: "deja payé?"
+  field :fee, as: :number, hide_on: [:index]
   field 'durée', as: :text, name: "Durée du trajet", hide_on: [:index, :edit, :new] do |model|
     "04 heures"
   end

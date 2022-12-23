@@ -105,7 +105,6 @@ Avo.configure do |config|
     section "Travel", icon: "location-marker" do
       # all_resources
       resource :reservation, label: "Reservation"
-      resource :user, label: "Utilisateur & compte"
       resource :ville, label: "Ville"
       resource :bus, label: "Mes Bus"
       resource :horaire, label: "Mes horaires"
@@ -120,6 +119,7 @@ Avo.configure do |config|
 
     section "Tools", icon: "tools" do
       all_tools
+      resource :user, label: "Utilisateur & compte"
     end
   }
   config.profile_menu = -> {
