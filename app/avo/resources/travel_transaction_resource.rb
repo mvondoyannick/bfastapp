@@ -6,6 +6,7 @@ class TravelTransactionResource < Avo::BaseResource
   # end
 
   field :id, as: :id
+  field :reservation, as: :belongs_to
   # Fields generated from the model
   field :amount, as: :text
   field :reference, as: :text

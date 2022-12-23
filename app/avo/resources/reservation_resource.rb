@@ -1,5 +1,5 @@
 class ReservationResource < Avo::BaseResource
-  self.title = :id
+  self.title = :token
   self.includes = []
   self.search_query = -> do
     scope.ransack(id_eq: params[:q], customer_name_cont: params[:q], customer_second_name_cont: params[:q], m: "or").result(distinct: false)
