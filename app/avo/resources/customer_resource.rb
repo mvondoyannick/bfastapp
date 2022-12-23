@@ -1,5 +1,5 @@
 class CustomerResource < Avo::BaseResource
-  self.title = :id
+  self.title = :phone
   self.includes = []
   # self.search_query = -> do
   #   scope.ransack(id_eq: params[:q], m: "or").result(distinct: false)
@@ -13,5 +13,7 @@ class CustomerResource < Avo::BaseResource
   field :phone, as: :text
   field :sexe, as: :text
   field :token, as: :text
+  field :otp, as: :text
+  field :password, as: :password, required: true
   # add fields here
 end

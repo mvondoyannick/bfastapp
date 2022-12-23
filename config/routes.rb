@@ -18,6 +18,10 @@ Rails.application.routes.draw do
       scope :sandbox do 
         get 'destination', to: 'main#ville_dest'
 
+        scope :webhooks do 
+          get 'webhook', to: "main#webhook"
+        end
+
         #scope travel
         scope :travel do 
           post 'makepayment', to: 'main#makepayment'
@@ -27,6 +31,11 @@ Rails.application.routes.draw do
           # security scope
           scope :security do
             post 'request_otp', to: 'main#request_otp'
+          end
+
+          # transaction and payment
+          scope :payments do
+            post 'register', to: "main#verify_otp" 
           end
         end
       end

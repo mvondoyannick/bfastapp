@@ -1,8 +1,6 @@
 class Reservation < ApplicationRecord
-  belongs_to :horaire
-  belongs_to :bus
-  belongs_to :ville
   has_one_attached :qr_code
+  belongs_to :customer
 
   before_create do 
     self.token = SecureRandom.uuid

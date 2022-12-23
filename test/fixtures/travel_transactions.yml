@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  amount: MyString
+  reference: MyString
+  tstatus: MyString
+  currency: MyString
+  operator: MyString
+  code: MyString
+  external_reference: MyString
+
+two:
+  amount: MyString
+  reference: MyString
+  tstatus: MyString
+  currency: MyString
+  operator: MyString
+  code: MyString
+  external_reference: MyString

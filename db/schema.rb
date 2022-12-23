@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_12_22_133910) do
+ActiveRecord::Schema[7.0].define(version: 2022_12_22_234919) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -92,18 +92,36 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_133910) do
   end
 
   create_table "reservations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "horaire_id"
-    t.bigint "bus_id"
-    t.bigint "ville_id"
     t.string "customer_name"
     t.string "customer_second_name"
     t.string "customer_phone"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "token"
-    t.index ["bus_id"], name: "index_reservations_on_bus_id"
-    t.index ["horaire_id"], name: "index_reservations_on_horaire_id"
-    t.index ["ville_id"], name: "index_reservations_on_ville_id"
+    t.string "depart"
+    t.string "arrivee"
+    t.string "date_depart"
+    t.string "heure"
+    t.string "customer_phone_payment"
+    t.string "amount"
+    t.boolean "paid"
+    t.string "fee"
+    t.bigint "customer_id"
+    t.index ["customer_id"], name: "index_reservations_on_customer_id"
+  end
+
+  create_table "travel_transactions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "amount"
+    t.string "reference"
+    t.string "tstatus"
+    t.string "currency"
+    t.string "operator"
+    t.string "code"
+    t.string "external_reference"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "reservation_id"
+    t.index ["reservation_id"], name: "index_travel_transactions_on_reservation_id"
   end
 
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -134,7 +152,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_133910) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "buses", "villes"
-  add_foreign_key "reservations", "buses"
-  add_foreign_key "reservations", "horaires"
-  add_foreign_key "reservations", "villes"
+  add_foreign_key "reservations", "customers"
+  add_foreign_key "travel_transactions", "reservations"
 end

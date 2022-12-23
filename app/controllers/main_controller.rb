@@ -2,6 +2,50 @@ class MainController < ApiController
   def index
   end
 
+  def webhook
+    if params[:external_reference].present?
+      if Reservation.exists?(token: params[:external_reference], paid: false)
+        @reservation = Reservation.find_by(token: params[:external_reference], paid: false)
+        @reservation.paid = true 
+        if @reservation.save
+          # create paiment object
+          @pay = TravelTransaction.new(
+            reservation_id: @reservation.id,
+            amount: params[:amount],
+            reference: params[:reference],
+            tstatus: params[:status],
+            currency: params[:currency],
+            operator: params[:operator],
+            code: params[:code],
+            external_reference: params[:external_reference]
+          )
+
+          if @pay.save 
+            sms = Sms::Sms.new(phone: @phone, message: "Le paiement de votre billet à destination de #{@reservation.depart} à été validé, vous pouvez commencer à faire vos valides. Le lien tu billet electronique est ici https://google.com/ici")
+            sms.generate_token
+            sms.send
+          else
+            render json: {
+              message: "Impoossible de creer votre ticket"
+            }, status: :unauthorized
+          end
+        else
+          render json: {
+            message: "La reservation n'a pas pu être mise à jour"
+          }, status: :unauthorized
+        end
+      else
+        render json: {
+          message: "Cette reservation n'existe pas"
+        }, status: :unauthorized
+      end
+    else
+      render json: {
+        message: "Information manquantes"
+      }, status: :unauthorized
+    end
+  end
+
   def give_hours
     if (params[:day].to_i == Date.today.year.to_i)
       
@@ -140,7 +184,15 @@ class MainController < ApiController
         @current_customer.otp = @otp 
         if @current_customer.save 
 
+          # send via SMS Gateway
+          if params[:customer][:phone] != "691451189"
+            sms = Sms::Sms.new(phone: @phone, message: "Votre code de vérification OTP BFAST est le suivant #{@current_customer.otp}, \nil est valable 1 minute")
+            sms.generate_token
+            sms.send
+          end
+
           render json: {
+            token: @current_customer.token,
             message: "Saisir le code à six chiffres reçu par SMS au numéro #{@phone} pour confirmer que vous êtes propriétaire de ce compte"
           }, status: :ok
         else
@@ -159,9 +211,11 @@ class MainController < ApiController
         @customer = Customer.new(phone: params[:customer][:phone], otp: @otp, email: "#{@phone}@bfast.com", password: 123456)
         if @customer.save 
           # send via SMS Gateway
-          sms = Sms::Sms.new(phone: @phone, message: "Votre code de vérification OTP BFAST est le suivant #{@customer.otp}, \nil est valable 1 minute")
-          sms.generate_token
-          sms.send
+          if params[:customer][:phone] != "691451189"
+            sms = Sms::Sms.new(phone: @phone, message: "Votre code de vérification OTP BFAST est le suivant #{@customer.otp}, \nil est valable 1 minute")
+            sms.generate_token
+            sms.send
+          end
 
           render json: {
             token: @customer.token,
@@ -179,6 +233,67 @@ class MainController < ApiController
 
       render json: {
         message: "Informations invalides ou manquantes"
+      }, status: :unauthorized
+    end
+  end
+
+  # validate OPT
+  def verify_otp
+    if params[:otp].present? && params[:token].present? && params[:user][:phone].present?
+      # find this customer
+      if Customer.exists?(phone: params[:user][:phone], otp: params[:otp], token: params[:token])
+        @customer = Customer.find_by(phone: params[:user][:phone], otp: params[:otp], token: params[:token])
+
+        # remove this otp
+        @customer.otp = nil
+
+        # try to save
+        if @customer.save 
+          # create transaction
+          @reservation = Reservation.new(
+            customer_id: @customer.id,
+            depart: params[:voyage][:depart],
+            arrivee: params[:voyage][:arrivee],
+            date_depart: params[:voyage][:date_depart],
+            heure: params[:voyage][:heure],
+            customer_phone_payment: params[:pay][:phone_pay],
+            amount: params[:pay][:amount],
+            paid: false,
+            fee: 0
+          )
+
+          # try to save
+          if @reservation.save 
+            # lauche Mobile money payment request
+            @transaction = CorePayment::Pay.new(phone: params[:user][:phone], amount: params[:pay][:amount], external_reference: @reservation.token)
+            @transaction.getToken
+            @transaction.makeRequestToPay
+
+            render json: {
+              message: "Reservation registered succefull",
+              reservation: {
+                token: @reservation.token
+              }
+            }, status: :created
+          else
+            render json: {
+              message: "Impossible d'enregistrer votre reservation : #{@r.errors.messages}"
+            }, status: :unauthorized
+          end
+        else
+          render json: {
+            message: "Impossible de valider cet OTP : #{@customer.errors.messages}"
+          }, status: :unauthorized
+        end
+
+      else
+        render json: {
+          message: "Impossible de continuer, compte ou  utilisateur inexistant"
+        }, status: :unauthorized
+      end
+    else
+      render json: {
+        message: "Informations manquantes ou incompletes"
       }, status: :unauthorized
     end
   end

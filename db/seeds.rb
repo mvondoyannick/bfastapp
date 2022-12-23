@@ -22,5 +22,8 @@ Horaire.create([
   {departure: DateTime.now.change(hour: 17, min: 00)},
   {departure: DateTime.now.change(hour: 18, min: 00)},
   {departure: DateTime.now.change(hour: 19, min: 00)},
+  {departure: DateTime.now.change(hour: 23, min: 00)},
+  {departure: DateTime.now.change(hour: 23, min: 30)},
+  {departure: DateTime.now.change(hour: 23, min: 50)},
 ])
 puts "Done!"
