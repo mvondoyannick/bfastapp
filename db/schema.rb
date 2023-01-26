@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_12_22_234919) do
+ActiveRecord::Schema[7.0].define(version: 2023_01_26_083817) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -51,6 +51,13 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_234919) do
     t.index ["ville_id"], name: "index_buses_on_ville_id"
   end
 
+  create_table "categories", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.string "token"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "customers", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -69,9 +76,31 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_234919) do
     t.index ["reset_password_token"], name: "index_customers_on_reset_password_token", unique: true
   end
 
+  create_table "distributions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.string "phone"
+    t.string "email"
+    t.string "ville"
+    t.bigint "entreprise_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.float "latitude"
+    t.float "longitude"
+    t.text "token"
+    t.index ["entreprise_id"], name: "index_distributions_on_entreprise_id"
+  end
+
   create_table "drinks", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name"
     t.string "amount"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "entreprises", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.string "email"
+    t.string "phone"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -91,6 +120,21 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_234919) do
     t.datetime "departure"
   end
 
+  create_table "products", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.string "amount"
+    t.bigint "category_id", null: false
+    t.boolean "promotion"
+    t.string "promotion_amount"
+    t.datetime "promotion_begin"
+    t.datetime "promotion_end"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "distribution_id"
+    t.index ["category_id"], name: "index_products_on_category_id"
+    t.index ["distribution_id"], name: "index_products_on_distribution_id"
+  end
+
   create_table "reservations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "customer_name"
     t.string "customer_second_name"
@@ -108,6 +152,35 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_234919) do
     t.string "fee"
     t.bigint "customer_id"
     t.index ["customer_id"], name: "index_reservations_on_customer_id"
+  end
+
+  create_table "roles", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "travel_agences", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.float "latitude"
+    t.float "longitude"
+    t.boolean "active"
+    t.bigint "travel_entreprise_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "ville_id"
+    t.index ["travel_entreprise_id"], name: "index_travel_agences_on_travel_entreprise_id"
+    t.index ["ville_id"], name: "index_travel_agences_on_ville_id"
+  end
+
+  create_table "travel_entreprises", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.string "phone"
+    t.string "email"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "token"
   end
 
   create_table "travel_transactions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -137,8 +210,10 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_234919) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "admin"
+    t.bigint "role_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["role_id"], name: "index_users_on_role_id"
   end
 
   create_table "villes", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -147,11 +222,21 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_234919) do
     t.string "token"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.float "latitude"
+    t.float "longitude"
+    t.boolean "active"
+    t.text "resume"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "buses", "villes"
+  add_foreign_key "distributions", "entreprises"
+  add_foreign_key "products", "categories"
+  add_foreign_key "products", "distributions"
   add_foreign_key "reservations", "customers"
+  add_foreign_key "travel_agences", "travel_entreprises"
+  add_foreign_key "travel_agences", "villes"
   add_foreign_key "travel_transactions", "reservations"
+  add_foreign_key "users", "roles"
 end

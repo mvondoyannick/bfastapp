@@ -97,27 +97,55 @@ Avo.configure do |config|
       all_dashboards
     end
 
-    section "Market", icon: "library" do
+    section "Markets", icon: "library", collapsable: true, collapsed: true do
       # all_resources
-      resource :reservation, label: "Reservation"
+      group "Entreprises" do 
+        resource :entreprise, label: "Entreprises"
+        resource :distribution, label: "Supermarchés"
+        resource :category, label: "Categorie produits"
+      end
+
+      group "activités" do 
+        resource :product, label: "Produits"
+      end
+    end
+    
+    # gaz et produits petroliers
+    section "Gaz & petrol", icon: "fire", collapsable: true, collapsed: true do
     end
 
-    section "Travel", icon: "location-marker" do
-      # all_resources
-      resource :reservation, label: "Reservation"
-      resource :ville, label: "Ville"
-      resource :bus, label: "Mes Bus"
-      resource :horaire, label: "Mes horaires"
-      resource :customer, label: "Passagers"
-      resource :travel_transaction, label: "Transactions Travel"
+    # points relais
+    section "Points relais", icon: "map", collapsable: true, collapsed: true do 
     end
 
-    section "Foods & drinks", icon: "tools" do
+    # taxi via drive
+    section "Taxi and drive", icon: "key", collapsable: true, collapsed: true do 
+    end
+
+
+    section "Travel", icon: "location-marker", collapsable: true, collapsed: true do
+      # all_resources
+      group "Entreprises" do 
+        resource :travel_entreprise, label: "Entreprises"
+        resource :travel_agence, label: "Agences"
+      end
+
+      group "activités" do 
+        resource :reservation, label: "Reservation"
+        resource :ville, label: "Ville"
+        resource :bus, label: "Mes Bus"
+        resource :horaire, label: "Mes horaires"
+        resource :customer, label: "Passagers"
+        resource :travel_transaction, label: "Transactions Travel"
+      end
+    end
+
+    section "Foods & drinks", icon: "tools", collapsable: true, collapsed: true do
       resource :food, label: "Nourritures"
       resource :drink, label: "Boissons"
     end
 
-    section "Tools", icon: "tools" do
+    section "Tools", icon: "tools", collapsable: true, collapsed: true do
       all_tools
       resource :user, label: "Utilisateur & compte"
     end

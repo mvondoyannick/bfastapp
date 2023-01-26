@@ -1,5 +1,285 @@
 class MainController < ApiController
-  def index
+
+  # geolocation
+  def geolocation
+    results = Geocoder.search([params[:latitude], params[:longitude]])
+    render json: {
+      data: results.first.address
+    }, status: :ok
+  end
+
+  # ======== MARKET
+  # show categories
+  def rayons
+  end
+
+  # search entreprise
+  def search_entreprise
+    @entreprise = Entreprise.ransack(params[:q]).result
+    render json: {
+      data: @entreprise.map do |entreprise|
+        {
+          name: entreprise.name
+        }
+      end
+    }
+  end
+
+  # show entreprises
+  def entreprises
+    render json: {
+      data: Entreprise.all.map do |entreprise|
+        {
+          name: entreprise.name.upcase,
+          id: entreprise.id,
+          image: "#{request.base_url}#{Rails.application.routes.url_helpers.rails_blob_path(entreprise.logo, only_path: true)}"
+        }
+      end
+    }
+  end
+
+
+  # show supermarche
+  def supermarches
+    #@entreprise = Entreprise.find(params[:supermarche_id]) 
+    @supermarches = Distribution.where(entreprise_id: params[:supermarche_id])
+    render json: {
+      data: @supermarches.near([params[:latitude], params[:longitude]], 50).map do |supermarche|
+        {
+          id: supermarche.id,
+          name: supermarche.name,
+          logo: "#{request.base_url}#{Rails.application.routes.url_helpers.rails_blob_path(supermarche.logo, only_path: true)}",
+          images: supermarche.images.map do |img|
+            {
+              "img_": "#{request.base_url}#{rails_blob_path(img)}"
+            }
+          end,
+          distant: supermarche.distance_to([params[:latitude], params[:longitude]]).round(2),
+          bearing: supermarche.bearing_to([params[:latitude], params[:longitude]])
+        }
+      end
+    }, status: :ok
+  end
+
+  # show products
+  def products
+    @products = Product.where(distribution_id: params[:market_id])
+    render json: {
+      data: @products.map do |product|
+        {
+          supermarche: {
+            name: product.distribution.name.upcase,
+            logo: "#{request.base_url}#{Rails.application.routes.url_helpers.rails_blob_path(product.distribution.logo, only_path: true)}"
+          },
+          name: product.name,
+          id: product.id,
+          amount: product.amount,
+          photos: "#{request.base_url}#{Rails.application.routes.url_helpers.rails_blob_path(product.image, only_path: true)}",
+          galeries: product.galeries.map do |img|
+            {
+              "image": "#{request.base_url}#{rails_blob_path(img)}"
+            }
+          end
+        }
+      end
+    }, status: :ok
+  end
+
+  # categories
+  def product_categories
+    @c = Category.all
+    render json: {
+      data: @c.map do |cate|
+        {
+          id: cate.id,
+          name: cate.name,
+          image: "#{request.base_url}#{Rails.application.routes.url_helpers.rails_blob_path(cate.logo, only_path: true)}"
+        }
+      end
+    }, status: :ok
+  end
+
+  # lister tous les produits d'un rayon
+  def rayons_products
+    @rayon_products = Category.find(params[:cat_id]).products
+    render json: {
+      data: @rayon_products.map do |product|
+        {
+          name: product.name,
+          id: product.id,
+          image: "#{request.base_url}#{Rails.application.routes.url_helpers.rails_blob_path(product.image, only_path: true)}"
+        }
+      end
+    }, status: :ok
+  end
+
+  # market payment
+  def makeMarketPayment
+    puts params.as_json
+    render json: {
+      message: "Paiement effectué"
+    }, status: :ok
+  end
+
+  # ======== END MARKET
+
+  # ======== TRAVEL BFAST
+  # show all travel entreprises
+  def travel_entreprise 
+    @entreprises = TravelEntreprise.all 
+    render json: {
+      data: @entreprises.map do |entreprise|
+        {
+          name: entreprise.name.upcase,
+          id: entreprise.id,
+          token: entreprise.token,
+          email: entreprise.email,
+          phone: entreprise.phone,
+          image: "#{request.base_url}#{Rails.application.routes.url_helpers.rails_blob_path(entreprise.image, only_path: true)}"
+        }
+      end
+    }, status: :ok
+  end
+
+  # show travel_agences from selected entreprise
+  def travel_agences
+    if params[:travel_entreprise_id].present? && params[:latitude].present? && params[:longitude].present?
+      @agences = TravelAgence.where(travel_entreprise_id: params[:travel_entreprise_id])
+      render json: {
+        data: @agences.near([params[:latitude], params[:longitude]], 50).map do |agence|
+          {
+            name: agence.name.upcase,
+            image: "#{request.base_url}#{Rails.application.routes.url_helpers.rails_blob_path(agence.image, only_path: true)}",
+            distant: agence.distance_to([params[:latitude], params[:longitude]]).round(2),
+          }
+        end
+      }, status: :ok
+    else
+      render json: {
+        message: "Impossible de comprendre votre demande, informations manquantes"
+      }, status: :unauthorized
+    end
+  end
+
+  # @name create user account
+  def create 
+    if params[:phone].present? && params[:name].present? && prams[:password].present? && params[:confirm_password].present?
+      # validate the phone
+      if Phonelib.valid_for_country? params[:phone], 'CM'
+        # check password
+        if params[:password] == params[:confirm_password]
+          # we can create
+          @query = User.new(
+            phone: params[:phone],
+            password: params[:password],
+            name: params[:name],
+            admin: false,
+            role_id: Role.find_by_name('bfast').id
+          )
+
+          if @query.save 
+            # generate OTP
+            @otp = generate_otp(phone, @query.id)
+            render json: {
+              message: "Welcome",
+              verification_token: "78768"
+            }, status: :ok
+          else
+            render json: {
+              message: @query.errors.messages
+            }, status: :unauthorized
+          end
+        else
+          render json: {
+            message: "Les mots de passe diffèrent, merci de les modifier et de réessayer"
+          }, status: :unauthorized
+        end
+
+      else
+        render json: {
+          message: "Numéro de téléphone inconnu ou invalide, merci de vérifier ou de réessayer"
+        }, status: :unauthorized
+      end
+    else
+      render json: {
+        message: ""
+      }, status: :unauthorized
+    end
+  end
+
+  # generate magic OTP
+  def generate_otp(phone, user_id)
+    @phone = phone 
+    @user = User.find(user_id)
+  end
+
+  # check verification login
+  def login
+    if params[:credential].present?
+      @credential = params[:credential]
+      # check if it's a password
+      if "@".in? @credential
+        # ok, this is an email
+        @query = email_login(@credential)
+        if @query[0] == false
+          render json: {
+            message: @query[1],
+            type: :email
+          }, status: :not_found
+        else
+          render json: {
+            data: @query[1],
+            element: {
+              token: SecureRandom.uuid, #store this on user profil
+              data: @credential
+            }
+          }, status: :ok
+        end
+      else
+        # ok, this is a phone,so we have to verify it
+        @query = phone_login(@credential)
+        if @query[0] == false
+          render json: {
+            message: @query[1],
+            type: :phone
+          }, status: :not_found
+        else
+          render json: {
+            data: @query[1],
+            element: {
+              token: SecureRandom.uuid,
+              data: @credential
+            }
+          }, status: :ok
+        end
+      end
+    else
+      render json: {
+        message: "Impossible de vous authentifier, informations manquantes"
+      }, status: :unauthorized
+    end
+  end
+
+  # login with email
+  def email_login(email)
+    @email = email
+    a = User.find_by(email: @email, role_id: Role.find_by_name("bfast").id)
+    if a
+      return [true, a.as_json(only: [:email, :name])] 
+    else
+      return [false, "Impossible trouver le compte associé à l'adresse email #{@email}, merci de modifier. \n\nSouhaitez-vous creer un compte avec l'adresse email #{@email}?"]
+    end
+  end
+
+  # login with phone
+  def phone_login(phone)
+    @phone = phone
+    a = User.find_by(phone: @phone, role_id: Role.find_by_name("bfast").id)
+    if a
+      return [true, a.as_json(only: [:email, :name])] 
+    else
+      return [false, "Impossible trouver le compte associé au numéro de téléphone #{@phone}, merci de modifier. \n\nSouhaitez-vous creer un compte avec le numéro #{@phone}?"]
+    end
   end
 
   def check_paiement

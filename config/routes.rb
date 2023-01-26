@@ -17,9 +17,30 @@ Rails.application.routes.draw do
       # la mise en test et en developpement
       scope :sandbox do 
         get 'destination', to: 'main#ville_dest'
+        post "geolocation", to: "main#geolocation"
+
+        scope :auth do 
+          post "login", to: "main#login"
+        end
 
         scope :webhooks do 
           get 'webhook', to: "main#webhook"
+        end
+
+        scope :travels do 
+          post "travel_entreprise", to: "main#travel_entreprise"
+          post "travel_agences", to: "main#travel_agences"
+        end
+
+        # scope market
+        scope :market do 
+          post "entreprises", to: "main#entreprises"
+          post "search_entreprise", to: "main#search_entreprise"
+          post "supermarches", to: "main#supermarches"
+          post "products", to: "main#products"
+          post "categories", to: "main#product_categories"
+          post "rayons_products", to: "main#rayons_products"
+          post "makeMarketPayment", to: "main#makeMarketPayment"
         end
 
         #scope travel
