@@ -32,7 +32,7 @@ class TravelAgenceResource < Avo::BaseResource
       results = Geocoder.search([model.latitude, model.longitude])
       results.first.address  
     rescue => exception
-      "Impossible de geolocaliser"
+      "Impossible de geolocaliser : #{exception}"
     end
   end
   # add fields here

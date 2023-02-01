@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_01_26_083817) do
+ActiveRecord::Schema[7.0].define(version: 2023_01_29_003548) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -108,6 +108,47 @@ ActiveRecord::Schema[7.0].define(version: 2023_01_26_083817) do
   create_table "foods", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name"
     t.string "amount"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "gaz_bottles", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.string "modele"
+    t.bigint "gaz_fournisseur_id"
+    t.bigint "gaz_manufacturer_id"
+    t.string "amount"
+    t.text "token"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["gaz_fournisseur_id"], name: "index_gaz_bottles_on_gaz_fournisseur_id"
+    t.index ["gaz_manufacturer_id"], name: "index_gaz_bottles_on_gaz_manufacturer_id"
+  end
+
+  create_table "gaz_bottles_fournisseurs", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "gaz_fournisseur_id", null: false
+    t.bigint "gaz_bottle_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["gaz_bottle_id"], name: "index_gaz_bottles_fournisseurs_on_gaz_bottle_id"
+    t.index ["gaz_fournisseur_id"], name: "index_gaz_bottles_fournisseurs_on_gaz_fournisseur_id"
+  end
+
+  create_table "gaz_fournisseurs", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.string "email"
+    t.string "phone"
+    t.bigint "ville_id"
+    t.float "latitude"
+    t.float "longitude"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ville_id"], name: "index_gaz_fournisseurs_on_ville_id"
+  end
+
+  create_table "gaz_manufacturers", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.string "link"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -232,6 +273,11 @@ ActiveRecord::Schema[7.0].define(version: 2023_01_26_083817) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "buses", "villes"
   add_foreign_key "distributions", "entreprises"
+  add_foreign_key "gaz_bottles", "gaz_fournisseurs"
+  add_foreign_key "gaz_bottles", "gaz_manufacturers"
+  add_foreign_key "gaz_bottles_fournisseurs", "gaz_bottles"
+  add_foreign_key "gaz_bottles_fournisseurs", "gaz_fournisseurs"
+  add_foreign_key "gaz_fournisseurs", "villes"
   add_foreign_key "products", "categories"
   add_foreign_key "products", "distributions"
   add_foreign_key "reservations", "customers"

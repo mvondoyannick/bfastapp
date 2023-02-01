@@ -18,5 +18,6 @@ class TravelEntrepriseResource < Avo::BaseResource
   field :phone, as: :text
   field :email, as: :text
   field :token, as: :text, readonly: true
+  field :travel_agences, as: :has_many
   # add fields here
 end

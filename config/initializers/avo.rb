@@ -112,6 +112,11 @@ Avo.configure do |config|
     
     # gaz et produits petroliers
     section "Gaz & petrol", icon: "fire", collapsable: true, collapsed: true do
+      group "Fournisseurs" do 
+        resource :gaz_fournisseur, label: "Vendeurs, commerçant"
+        resource :gaz_manufacturer, label: "Fabriquants Gaz"
+        resource :gaz_bottles, label: "Bouteilles de gaz"
+      end
     end
 
     # points relais

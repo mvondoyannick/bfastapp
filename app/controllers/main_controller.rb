@@ -1,4 +1,5 @@
 class MainController < ApiController
+  #before_action :geolocalize, only: [:list_fournisseurs_gaz_bottle]
 
   # geolocation
   def geolocation
@@ -124,6 +125,95 @@ class MainController < ApiController
   # ======== END MARKET
 
   # ======== TRAVEL BFAST
+  # hour and minutes
+  def hours_and_minutes
+    if params[:day_selected].present?
+      x = 0
+      container = []
+      @day_selected = params[:day_selected]
+
+      # extract hour from @day_selected
+      @hour_extracted = @day_selected.to_datetime.strftime("%H").to_i
+      puts "Heure sent by client : #{@hour_extracted} | from class : #{@hour_extracted.to_i.class}"
+
+      # check if this date is between beginning today and end today
+      if @day_selected.between?(Date.today.beginning_of_day, Date.today.end_of_day)
+
+        while x < 10
+          a = Time.now + x.hours
+
+          if @hour_extracted.to_i > a.strftime("%H").to_i
+            # nothing to do
+          else
+            container << {hour: a.strftime("%H"), minute: a.strftime("%M")}
+            puts "first while : #{container}"
+          end
+          x = x + 1
+        end
+
+      else
+
+        while x < 10
+          a = DateTime.new(2023,1,31,04,30) + x.hours
+          container << {hour: a.strftime("%H"), minute: a.strftime("%M")}
+          puts "last while : #{container}"
+          x = x + 1
+        end
+
+      end
+
+      # return some informations
+      render json: container, status: :ok
+    else
+      render json: {
+        message: "Une erreur est survenue"
+      }, status: :unauthorized
+    end
+
+  end
+
+  # day and month
+  def days_and_month
+    element = [
+      {
+        day: DateTime.now.strftime("%d"),
+        name: DateTime.now.strftime("%A"),
+        month: DateTime.now.strftime("%b"),
+        slug: DateTime.now
+      },
+      {
+        day: DateTime.now.days_since(1).strftime("%d"),
+        name: DateTime.now.days_since(1).strftime("%A"),
+        month: DateTime.now.days_since(1).strftime("%b"),
+        slug: DateTime.now.days_since(1)
+      },
+      {
+        day: DateTime.now.days_since(2).strftime("%d"),
+        name: DateTime.now.days_since(2).strftime("%A"),
+        month: DateTime.now.days_since(2).strftime("%b"),
+        slug: DateTime.now.days_since(2)
+      },
+      {
+        day: DateTime.now.days_since(3).strftime("%d"),
+        name: DateTime.now.days_since(3).strftime("%A"),
+        month: DateTime.now.days_since(3).strftime("%b"),
+        slug: DateTime.now.days_since(3)
+      },
+      {
+        day: DateTime.now.days_since(4).strftime("%d"),
+        name: DateTime.now.days_since(4).strftime("%A"),
+        month: DateTime.now.days_since(4).strftime("%b"),
+        slug: DateTime.now.days_since(4)
+      },
+      {
+        day: DateTime.now.days_since(5).strftime("%d"),
+        name: DateTime.now.days_since(5).strftime("%A"),
+        month: DateTime.now.days_since(5).strftime("%b"),
+        slug: DateTime.now.days_since(5)
+      }
+    ]
+    render json: element, status: :ok
+  end
   # show all travel entreprises
   def travel_entreprise 
     @entreprises = TravelEntreprise.all 
@@ -143,20 +233,123 @@ class MainController < ApiController
 
   # show travel_agences from selected entreprise
   def travel_agences
-    if params[:travel_entreprise_id].present? && params[:latitude].present? && params[:longitude].present?
+    if params[:latitude].present? && params[:longitude].present? && params[:travel_entreprise_id].present?
       @agences = TravelAgence.where(travel_entreprise_id: params[:travel_entreprise_id])
       render json: {
         data: @agences.near([params[:latitude], params[:longitude]], 50).map do |agence|
           {
             name: agence.name.upcase,
+            id: agence.id,
             image: "#{request.base_url}#{Rails.application.routes.url_helpers.rails_blob_path(agence.image, only_path: true)}",
             distant: agence.distance_to([params[:latitude], params[:longitude]]).round(2),
+            longitude: agence.longitude,
+            latitude: agence.latitude
+          }
+        end
+      }, status: :ok
+      elsif params[:travel_entreprise_id].present?
+      @agences = TravelAgence.where(travel_entreprise_id: params[:travel_entreprise_id])
+      @ip = request.remote_ip
+      results = Geocoder.search(@ip)
+      @coordinates = results.first.coordinates
+      render json: {
+        data: @agences.near(@coordinates).map do |agence|
+          {
+            name: agence.name.upcase,
+            id: agence.id,
+            image: "#{request.base_url}#{Rails.application.routes.url_helpers.rails_blob_path(agence.image, only_path: true)}",
+            distant: "Unknow", #agence.distance_to([params[:latitude], params[:longitude]]).round(2),
+            longitude: agence.longitude,
+            latitude: agence.latitude
           }
         end
       }, status: :ok
     else
       render json: {
         message: "Impossible de comprendre votre demande, informations manquantes"
+      }, status: :unauthorized
+    end
+  end
+
+
+  #==== GAZ SERVICES
+  def list_gazs
+    @gazs = GazBottle.all 
+    render json: {
+      data: @gazs.map do |gaz|
+        {
+          id: gaz.id,
+          name: gaz.name,
+          modele: "#{gaz.modele} Kg",
+          amount: gaz.amount,
+          image: "#{request.base_url}#{Rails.application.routes.url_helpers.rails_blob_path(gaz.image, only_path: true)}"
+        }
+      end
+    }, status: :ok
+  end
+
+  # liste gaz fournisseurs sur la base d'une bouteille demandée
+  # par le client
+  def list_fournisseurs_gaz_bottle
+    if params[:latitude].present? && params[:longitude].present? && params[:gaz_bottle_id].present?
+      @bottle_id = params[:gaz_bottle_id]
+      @fournisseurs = GazBottle.find(params[:gaz_bottle_id]).gaz_fournisseurs
+      if @fournisseurs
+        render json: {
+          data: @fournisseurs.near([params[:latitude], params[:longitude]], 5).map do |fournisseur|
+            {
+              name: fournisseur.name,
+              bottle: {
+                name: GazBottle.find(params[:gaz_bottle_id]).name,
+                id: GazBottle.find(params[:gaz_bottle_id]).id,
+                amount: GazBottle.find(params[:gaz_bottle_id]).amount,
+                modele: GazBottle.find(params[:gaz_bottle_id]).modele,
+                token: GazBottle.find(params[:gaz_bottle_id]).token,
+                image: "#{request.base_url}#{Rails.application.routes.url_helpers.rails_blob_path(GazBottle.find(params[:gaz_bottle_id]).image, only_path: true)}"
+              },
+              phone: GazBottle.find(params[:gaz_bottle_id]).phone,
+              ville: GazBottle.find(params[:gaz_bottle_id]).ville.name,
+              distant: fournisseur.distance_to([params[:latitude], params[:longitude]]).round(2),
+            }
+          end
+        }
+      else
+        render json: {
+          message: "Impossible de trouver des livreur de ce modèle de gaz"
+        }, status: :not_found
+      end
+    elsif params[:gaz_bottle_id].present?
+      @bottle_id = params[:gaz_bottle_id]
+      @fournisseurs = GazBottle.find(params[:gaz_bottle_id]).gaz_fournisseurs
+      @ip = Geocoder.search(request.remote_ip)
+      @address = @ip.first.coordinates
+      if @fournisseurs
+        render json: {
+          data: @fournisseurs.near(@address, 500).map do |fournisseur|
+            {
+              name: fournisseur.name,
+              bottle: {
+                name: GazBottle.find(params[:gaz_bottle_id]).name,
+                id: GazBottle.find(params[:gaz_bottle_id]).id,
+                amount: GazBottle.find(params[:gaz_bottle_id]).amount,
+                modele: GazBottle.find(params[:gaz_bottle_id]).modele,
+                token: GazBottle.find(params[:gaz_bottle_id]).token,
+                image: "#{request.base_url}#{Rails.application.routes.url_helpers.rails_blob_path(GazBottle.find(params[:gaz_bottle_id]).image, only_path: true)}"
+              },
+              phone: fournisseur.phone,
+              ville: fournisseur.ville.name,
+              distant: fournisseur.distance_to(@adress).round(2),
+            }
+          end
+        }
+      else
+        render json: {
+          message: "Imposible de trouve ce modele de bouteille à gaz"
+        }, status: :not_found
+      end
+    else
+      render json: {
+        message: "Impossible de trouver certaines informations de base, merci d'activer votre GPS"
       }, status: :unauthorized
     end
   end
@@ -437,11 +630,15 @@ class MainController < ApiController
     if params[:voyage].present? && params[:user].present? && params[:pay].present? && params[:enterprise].present?
 
       @reservation = Reservation.new(
-        horaire_id: Horaire.first.id,
-        bus_id: Bus.first.id,
-        ville_id: Ville.first.id,
-        customer_name: params[:user]["name"].to_s,
-        customer_second_name: params[:user]["second_name"].to_s,
+        customer_name: params[:name] ||= "Unknow",
+        customer_phone: params[:phone] ||= "Not defined",
+        depart: params[:voyage][:depart],
+        arrivee: params[:voyage][:arrivee],
+        date_depart: "#{params[:voyage][:jour_depart]} #{params[:voyage][:mois_depart]} 2023",
+        customer_id: Customer.first.id,
+        heure: "#{params[:voyage][:heure_depart]}:#{params[:voyage][:minute_depart]}",
+        amount: params[:pay][:amount],
+
       )
 
       if @reservation.valid?
@@ -468,8 +665,8 @@ class MainController < ApiController
   # enabled devise deolocation
   def geolocate_this
     # geolocation cordinate
-    lt = 'Littoral'
-    ce = 'Centre'
+    lt = 'Littoral' # Definition de la ville du littoral
+    ce = 'Centre' # Definition de la region du Centre
     puts "Headers informations : #{request.headers['HTTP_LATITUDE']} -- #{request.headers['HTTP_LONGITUDE']}"
     puts Geocoder.search(request.remote_ip).first.address
     if request.headers['HTTP_LATITUDE'].present? && request.headers['HTTP_LONGITUDE'].present? && request.headers['HTTP_LATITUDE'] =! 'undefined' && request.headers['HTTP_LONGITUDE'] =! 'undefined'
@@ -673,5 +870,15 @@ class MainController < ApiController
     end
   end
   # ======================= END ========================
+
+
+  private
+  def geolocalize
+    unless params[:latitude].present? && params[:longitude].present?
+      render json: {
+        message: "Certaines informations de localisation sont indisponibles, merci d'activer votre GPS et de réessayer"
+      }, status: :unauthorized
+    end
+  end
 
 end

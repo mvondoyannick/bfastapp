@@ -32,6 +32,11 @@ Rails.application.routes.draw do
           post "travel_agences", to: "main#travel_agences"
         end
 
+        scope :gazs do 
+          post "list_gazs", to: "main#list_gazs"
+          post "list_fournisseurs_gaz_bottle", to: "main#list_fournisseurs_gaz_bottle"
+        end
+
         # scope market
         scope :market do 
           post "entreprises", to: "main#entreprises"
@@ -45,6 +50,8 @@ Rails.application.routes.draw do
 
         #scope travel
         scope :travel do 
+          post "days_and_month", to: "main#days_and_month"
+          post "hours_and_minutes", to: "main#hours_and_minutes"
           post 'makepayment', to: 'main#makepayment'
           post 'time', to: 'main#give_hours'
           post 'geolocation', to: "main#geolocate_this"
