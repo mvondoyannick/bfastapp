@@ -91,3 +91,9 @@ gem "pundit", "~> 2.2"
 gem "rotp", "~> 6.2"
 
 gem 'phonelib'
+
+# ajout de capistrano
+gem 'capistrano', '~> 3.11'
+gem 'capistrano-rails', '~> 1.4'
+gem 'capistrano-passenger', '~> 0.2.0'
+gem 'capistrano-rbenv', '~> 2.1', '>= 2.1.4'
