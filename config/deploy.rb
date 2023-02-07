@@ -2,7 +2,7 @@
 lock "~> 3.17.1"
 
 set :application, "bfast"
-set :repo_url, "git@example.com:mvondoyannick/bfast.git"
+set :repo_url, "git@github.com:mvondoyannick/bfastapp.git"
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
