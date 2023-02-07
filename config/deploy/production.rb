@@ -11,7 +11,7 @@
 server '116.202.91.85', user: 'essiolus143', roles: %w{app web}
 
 # deploy to db engine
-server "116.202.91.85", user: "debian-sys-maint", roles: %w{db}
+server "116.202.91.85", user: "essiolus143", roles: %w{db}
 
 
 
