@@ -1,11 +1,13 @@
 # config valid for current version and patch releases of Capistrano
 lock "~> 3.17.1"
 
-set :application, "bfast"
+set :application, "bfastapp"
 set :repo_url, "https://github.com/mvondoyannick/bfastapp.git" #"git@github.com:mvondoyannick/bfastapp.git"
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
+
+set :branch, "main"
 
 # Default deploy_to directory is /var/www/my_app_name
 # set :deploy_to, "/var/www/my_app_name"
