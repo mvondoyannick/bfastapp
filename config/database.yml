@@ -54,8 +54,9 @@ production:
   encoding: utf8mb4
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   username: debian-sys-maint
+  password: 7yKWZHhKSlDBWUtD
   host: localhost
   database: bfast_travel_production
   #username: bfast_travel
-  password: <%= ENV["BFAST_TRAVEL_DATABASE_PASSWORD"] %>
+  #password: <%= ENV["BFAST_TRAVEL_DATABASE_PASSWORD"] %>
   #url: <%= ENV["JAWSDB_URL"] %>
