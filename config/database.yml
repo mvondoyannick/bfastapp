@@ -14,12 +14,13 @@ default: &default
   encoding: utf8mb4
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   username: debian-sys-maint
-  password: 7yKWZHhKSlDBWUtD #7rEFxkOSOMdnS6tR
+  password: 7rEFxkOSOMdnS6tR
   host: localhost
+  #socket: /var/run/mysqld/mysqld.sock
 
 development:
   <<: *default
-  database: bfast_travel_production
+  database: bfast_travel_development
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -49,14 +50,7 @@ test:
 # for a full overview on how database connection configuration can be specified.
 #
 production:
-  #<<: *default
-  adapter: mysql2
-  encoding: utf8mb4
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: debian-sys-maint
-  password: 7yKWZHhKSlDBWUtD
-  host: localhost
-  database: bfast_travel_production
-  #username: bfast_travel
-  #password: <%= ENV["BFAST_TRAVEL_DATABASE_PASSWORD"] %>
-  #url: <%= ENV["JAWSDB_URL"] %>
+  <<: *default
+  username: bfast_travel
+  password: <%= ENV["BFAST_TRAVEL_DATABASE_PASSWORD"] %>
+  url: <%= ENV["JAWSDB_URL"] %>
