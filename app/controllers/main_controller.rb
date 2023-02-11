@@ -33,6 +33,7 @@ class MainController < ApiController
         {
           name: entreprise.name.upcase,
           id: entreprise.id,
+          has_agence: entreprise.as_agence,
           image: "#{request.base_url}#{Rails.application.routes.url_helpers.rails_blob_path(entreprise.logo, only_path: true)}"
         }
       end
@@ -214,6 +215,7 @@ class MainController < ApiController
     ]
     render json: element, status: :ok
   end
+
   # show all travel entreprises
   def travel_entreprise 
     @entreprises = TravelEntreprise.all 
@@ -846,6 +848,20 @@ class MainController < ApiController
   def new_account_app 
   end
 
+  # ALL ABOUT USER ACCOUNT
+  # ============== BEGIN ===========
+  # create new account from user
+  def signup 
+    if params_signup.present?
+    else
+      render json: {
+        message: "Lorem error"
+      }, status: :unauthorized
+    end
+  end
+  # ============== END =============
+  # END
+
   # START TRAVEL INFORMATIONS
   # ====================== BEGIN =======================
   # automatiquement identifier la ville de destination
@@ -879,6 +895,11 @@ class MainController < ApiController
         message: "Certaines informations de localisation sont indisponibles, merci d'activer votre GPS et de réessayer"
       }, status: :unauthorized
     end
+  end
+
+  # white params signup
+  def signup_params
+    params.permit(:name, :sexe, :password, :phone)
   end
 
 end

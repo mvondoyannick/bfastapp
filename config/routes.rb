@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  devise_for :cusomers
   devise_for :customers
   get 'main/index'
   get 'home/index'
@@ -21,6 +22,7 @@ Rails.application.routes.draw do
 
         scope :auth do 
           post "login", to: "main#login"
+          post "signup", to: "main#signup"
         end
 
         scope :webhooks do 

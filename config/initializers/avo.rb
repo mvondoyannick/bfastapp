@@ -153,6 +153,7 @@ Avo.configure do |config|
     section "Tools", icon: "tools", collapsable: true, collapsed: true do
       all_tools
       resource :user, label: "Utilisateur & compte"
+      resource :customer, label: "Comptes BFAST"
     end
   }
   config.profile_menu = -> {

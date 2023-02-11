@@ -14,6 +14,8 @@ class CustomerResource < Avo::BaseResource
   field :sexe, as: :text
   field :token, as: :text, hide_on: [:index]
   field :otp, as: :text
+  field :active, as: :boolean 
+  field :verified, as: :boolean
   field :password, as: :password, required: true
   # add fields here
 end
