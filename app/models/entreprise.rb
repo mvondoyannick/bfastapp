@@ -1,4 +1,4 @@
 class Entreprise < ApplicationRecord
-  validates :name, presence: true
+  validates :name, :as_agence, presence: true
   has_one_attached :logo
 end
