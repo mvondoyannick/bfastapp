@@ -11,6 +11,6 @@ class EntrepriseResource < Avo::BaseResource
   field :name, as: :text, link_to_resource: true
   field :email, as: :text
   field :phone, as: :text
-  field :as_agence, as: :boolean, name: "Dispose d'agence", required: true
+  field :as_agence, as: :select, name: "Dispose d'agence", options: { 'OUI': true, 'NON': false }, display_with_value: true , required: true
   # add fields here
 end

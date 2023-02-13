@@ -22,7 +22,9 @@ Rails.application.routes.draw do
 
         scope :auth do 
           post "login", to: "main#login"
+          post "login_me", to: "main#login_me"
           post "signup", to: "main#signup"
+          post "check_otp", to: "main#check_otp"
         end
 
         scope :webhooks do 

@@ -853,10 +853,95 @@ class MainController < ApiController
   # create new account from user
   def signup 
     if params_signup.present?
+      puts params.as_json
     else
       render json: {
         message: "Lorem error"
       }, status: :unauthorized
+    end
+  end
+
+  # login customer account from APP
+  def login_me
+    if params[:phone_me].present? && params[:password_me].present?
+
+      if Phonelib.valid? params[:phone_me]
+        if Customer.exists?(phone: params[:phone_me])
+          @customer = Customer.find_by(phone: params[:phone_me])
+          if @customer&.valid_password? params[:password_me]
+            # generate and register OTP password before send
+            # generate OTP
+            totp = ROTP::TOTP.new("base32secret3232", issuer: "BFAST")
+            @otp = totp.now
+
+            # begin to update customer
+            @customer.otp = @otp
+            if @customer.save
+              # send via SMS
+              # @sms = Sms::Sms.new(phone: params[:phone_me], message: "Votre code OTP BFAST de connexion est #{@otp}.\nGardez-le precieusement car il n'est utilisable qu'une seul fois.")
+              # @sms.generate_token
+              # @sms.send
+
+              #respond with #200 status
+              render json: {
+                token: @customer.token,
+                email: @customer.email
+              }, status: :ok
+            else
+              render json: {
+                message: "Erreur survenue : #{@customer.errors.details}"
+              }, status: :unauthorized
+            end
+
+
+          else
+            render json: {
+              message: "Utilisateur ou mot de passe invalide"
+            }, status: :unauthorized
+          end
+        else
+          render json: {
+            message: "Utilisateur ou compte introuvble"
+          }, status: :not_found
+        end
+      else
+        render json: {
+          message: "Numéro de téléphone invalide ou mal formé. Merci de modifier et de réessayer"
+        }, status: :unauthorized
+      end
+    else
+      render json: {
+        message: "Impossible de vous identifier, informations manquantes"
+      }, status: :unauthorized
+    end
+  end
+
+  # validate OTP incomming
+  def check_otp
+    if params[:token_me].present? && params[:otp_me].present?
+      if Customer.exists?(otp: params[:otp_me], token: params[:token_me])
+        @customer = Customer.find_by(otp: params[:otp_me], token: params[:token_me])
+        @customer.otp = nil
+        if @customer.save
+          render json: {
+            name: @customer.name,
+            phone: @customer.phone,
+            token: @customer.token
+          }, status: :ok
+        else
+          render json: {
+            message: "Erreur survenue : #{@customer.errors.details}"
+          }, status: :unauthorized
+        end
+      else
+        render json: {
+          message: "Impossible de trouver ce code d'identification OTP"
+        }, status: :not_found
+      end
+    else
+      render json: {
+        message: "Informations de vérifications manquantes"
+      }, status: :not_found
     end
   end
   # ============== END =============
