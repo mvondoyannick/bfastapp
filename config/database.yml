@@ -52,8 +52,8 @@ test:
 production:
   adapter: mysql2
   encoding: utf8mb4
-  # <<: *default
-  # username: bfast_travel
-  # password: <%= ENV["BFAST_TRAVEL_DATABASE_PASSWORD"] %>
-  # url: <%= ENV["JAWSDB_URL"] %>
-  url: "mysql2://qo4xqict66u3pifj:vegir9a2zdf82g7i@pfw0ltdr46khxib3.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/asqjj0jlhc0y8jfa"
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  username: debian-sys-maint
+  password: 7yKWZHhKSlDBWUtD
+  host: localhost
+  database: bfast_travel_production

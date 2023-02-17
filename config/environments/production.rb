@@ -5,9 +5,9 @@ Rails.application.configure do
 
   # personal informations
   # @author mvondoyannick
-  # config.require_master_key = false
-  # config.read_encrypted_secrets = false
-  # config.secret_key_base = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+  config.require_master_key = false
+  config.read_encrypted_secrets = false
+  config.secret_key_base = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
 
   # Code is not reloaded between requests.
   config.cache_classes = true
