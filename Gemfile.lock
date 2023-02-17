@@ -88,7 +88,7 @@ GEM
       view_component
       zeitwerk (>= 2.6.2)
     aws-eventstream (1.2.0)
-    aws-partitions (1.710.0)
+    aws-partitions (1.711.0)
     aws-sdk-core (3.170.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.651.0)
@@ -97,7 +97,7 @@ GEM
     aws-sdk-kms (1.62.0)
       aws-sdk-core (~> 3, >= 3.165.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.119.0)
+    aws-sdk-s3 (1.119.1)
       aws-sdk-core (~> 3, >= 3.165.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.4)
@@ -147,6 +147,8 @@ GEM
       responders
       warden (~> 1.2.3)
     docile (1.4.0)
+    dockerfile-rails (1.0.14)
+      rails
     dry-initializer (3.1.1)
     erubi (1.12.0)
     ffi (1.15.5)
@@ -183,7 +185,7 @@ GEM
       net-imap
       net-pop
       net-smtp
-    mapkick-rb (0.1.2)
+    mapkick-rb (0.1.3)
     marcel (1.0.2)
     matrix (0.4.2)
     meta-tags (2.18.0)
@@ -208,7 +210,7 @@ GEM
       net-protocol
     net-ssh (7.0.1)
     nio4r (2.5.8)
-    nokogiri (1.14.1-x86_64-linux)
+    nokogiri (1.14.2-x86_64-linux)
       racc (~> 1.4)
     orm_adapter (0.5.0)
     pagy (6.0.1)
@@ -330,6 +332,7 @@ DEPENDENCIES
   chartkick
   debug
   devise (~> 4.8)
+  dockerfile-rails (>= 1.0.0)
   geocoder (~> 1.8)
   honeybadger (~> 5.0)
   httparty

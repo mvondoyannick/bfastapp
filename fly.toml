@@ -1,17 +1,19 @@
-# fly.toml file generated for btravel on 2022-12-17T18:14:37+01:00
+# fly.toml file generated for bfast on 2023-02-14T09:06:18+01:00
 
-app = "btravel"
+app = "bfast"
 kill_signal = "SIGINT"
 kill_timeout = 5
 processes = []
 
-[build]
-  [build.args]
-    BUILD_COMMAND = "bin/rails fly:build"
-    SERVER_COMMAND = "bin/rails fly:server"
-
 [deploy]
   release_command = "bin/rails fly:release"
+  DATABASE_URL = "mysql2://qo4xqict66u3pifj:vegir9a2zdf82g7i@pfw0ltdr46khxib3.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/asqjj0jlhc0y8jfa"
+  JAWSDB_URL = "mysql2://qo4xqict66u3pifj:vegir9a2zdf82g7i@pfw0ltdr46khxib3.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/asqjj0jlhc0y8jfa"
+  AWS_ACCESS_KEY_ID = "AKIAXARMCDIQIIHLX7PI"
+  AWS_BUCKET = "mypaymequick"
+  AWS_SECRET_ACCESS_KEY = "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"
+  SECRET_KEY_BASE = "2837d8c74d1422cfa16df4b49aa405168e8419d6d625071d0b50e6cce537eb90"
+
 
 [env]
   PORT = "8080"
