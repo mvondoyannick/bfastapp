@@ -463,7 +463,7 @@ class MainController < ApiController
   def email_login(email)
     @email = email
     if @email.match? Devise.email_regexp
-      a = Customer.find_by(email: @email, role_id: Role.find_by_name("bfast").id)
+      a = Customer.find_by(email: @email)
       if a
         return [true, a.as_json(only: [:email, :name, :token])] 
       else
@@ -479,7 +479,7 @@ class MainController < ApiController
   def phone_login(phone)
     @phone = phone
     if Phonelib.valid_for_country? @phone, 'CM'
-      a = Customer.find_by(phone: @phone, role_id: Role.find_by_name("bfast").id)
+      a = Customer.find_by(phone: @phone)
       if a
         return [true, a.as_json(only: [:email, :name, :token])] 
       else
