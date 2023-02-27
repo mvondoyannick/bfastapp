@@ -41,7 +41,7 @@ Avo.configure do |config|
   config.locale = :fr
 
   ## == Resource options ==
-  config.resource_controls_placement = :left
+  # config.resource_controls_placement = :left
   # config.model_resource_mapping = {}
   # config.default_view_type = :table
   # config.per_page = 24

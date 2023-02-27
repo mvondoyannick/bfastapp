@@ -357,14 +357,16 @@ class MainController < ApiController
   end
 
   # @name create user account
+  # signup account
   def create 
-    if params[:phone].present? && params[:name].present? && prams[:password].present? && params[:confirm_password].present?
-      # validate the phone
-      if Phonelib.valid_for_country? params[:phone], 'CM'
+    if params[:credential].present? && params[:name].present? && prams[:password].present? && params[:confirm_password].present?
+      # validate the phone or the email adress
+      if params[:credential].match? Devise.email_regexp
+      elsif Phonelib.valid_for_country? params[:credential], 'CM'
         # check password
         if params[:password] == params[:confirm_password]
           # we can create
-          @query = User.new(
+          @query = Customer.new(
             phone: params[:phone],
             password: params[:password],
             name: params[:name],
@@ -405,7 +407,11 @@ class MainController < ApiController
   # generate magic OTP
   def generate_otp(phone, user_id)
     @phone = phone 
-    @user = User.find(user_id)
+    @user = Customer.find(user_id)
+    if @user
+      # generate otp, save and send SMS notification
+    else
+    end
   end
 
   # check verification login
@@ -413,8 +419,8 @@ class MainController < ApiController
     if params[:credential].present?
       @credential = params[:credential]
       # check if it's a password
-      if "@".in? @credential
-        # ok, this is an email
+      if @credential.match? Devise.email_regexp
+        # this an email
         @query = email_login(@credential)
         if @query[0] == false
           render json: {
@@ -423,30 +429,28 @@ class MainController < ApiController
           }, status: :not_found
         else
           render json: {
-            data: @query[1],
-            element: {
-              token: SecureRandom.uuid, #store this on user profil
-              data: @credential
-            }
+            message: @query[1],
+            type: :email
           }, status: :ok
         end
-      else
-        # ok, this is a phone,so we have to verify it
+      elsif Phonelib.valid? @credential
+        # this is a phone
         @query = phone_login(@credential)
-        if @query[0] == false
+        if @query[0] == false 
           render json: {
             message: @query[1],
-            type: :phone
+            type: :email
           }, status: :not_found
         else
           render json: {
-            data: @query[1],
-            element: {
-              token: SecureRandom.uuid,
-              data: @credential
-            }
+            message: @query[1],
+            type: :email
           }, status: :ok
         end
+      else
+        render json: {
+          message: "Impossible de trouver le compte associé à #{@credential}"
+        }, status: :not_found
       end
     else
       render json: {
@@ -458,22 +462,31 @@ class MainController < ApiController
   # login with email
   def email_login(email)
     @email = email
-    a = User.find_by(email: @email, role_id: Role.find_by_name("bfast").id)
-    if a
-      return [true, a.as_json(only: [:email, :name])] 
+    if @email.match? Devise.email_regexp
+      a = Customer.find_by(email: @email, role_id: Role.find_by_name("bfast").id)
+      if a
+        return [true, a.as_json(only: [:email, :name, :token])] 
+      else
+        return [false, "Impossible trouver le compte associé à l'adresse email #{@email}, merci de modifier. \n\nSouhaitez-vous creer un compte avec l'adresse email #{@email}?"]
+      end
     else
-      return [false, "Impossible trouver le compte associé à l'adresse email #{@email}, merci de modifier. \n\nSouhaitez-vous creer un compte avec l'adresse email #{@email}?"]
+      return [false, "L'email founis n'est pas correcte, merci de la modifier et de réessayer"]
     end
+    
   end
 
   # login with phone
   def phone_login(phone)
     @phone = phone
-    a = User.find_by(phone: @phone, role_id: Role.find_by_name("bfast").id)
-    if a
-      return [true, a.as_json(only: [:email, :name])] 
+    if Phonelib.valid_for_country? @phone, 'CM'
+      a = Customer.find_by(phone: @phone, role_id: Role.find_by_name("bfast").id)
+      if a
+        return [true, a.as_json(only: [:email, :name, :token])] 
+      else
+        return [false, "Impossible trouver le compte associé au numéro de téléphone #{@phone}, merci de modifier. \n\nSouhaitez-vous creer un compte avec le numéro #{@phone}?"]
+      end
     else
-      return [false, "Impossible trouver le compte associé au numéro de téléphone #{@phone}, merci de modifier. \n\nSouhaitez-vous creer un compte avec le numéro #{@phone}?"]
+      return [false, "Le numéro de téléphone fournis est invalide, merci de réessayer de nouveau"]
     end
   end
 
