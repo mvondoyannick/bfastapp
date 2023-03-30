@@ -7,7 +7,7 @@ class FocevController < ApiController
   end
     
   def index
-    if (params['data']['body'].present? && params['data']['pushname'].present? )
+    if (params['data'].present? )
 
       @instance = 'none'
       puts params
