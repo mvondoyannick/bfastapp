@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   get 'home/index'
   devise_for :users
   root :to => redirect('/avo')
-  post 'whatsappbot', to: 'focev#entry'
+  post 'whatsappbot', to: 'focev#index'
 
   authenticate :user do
     mount Avo::Engine, at: Avo.configuration.root_path
