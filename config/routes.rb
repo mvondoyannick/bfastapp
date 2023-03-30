@@ -18,7 +18,7 @@ Rails.application.routes.draw do
     scope :v1 do 
       # specialement pour la fondation coeur et vie
       scope :focev do 
-        post 'whatsappbot', to: 'focev#entry'
+        post 'whatsappbot', to: 'focev#index'
       end
       # la mise en test et en developpement
       scope :sandbox do 
