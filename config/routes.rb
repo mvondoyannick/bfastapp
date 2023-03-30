@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   get 'home/index'
   devise_for :users
   root :to => redirect('/avo')
-  post 'whatsappbot', to: 'main#index'
+  post 'whatsappbot', to: 'focev#index'
 
   authenticate :user do
     mount Avo::Engine, at: Avo.configuration.root_path
@@ -18,7 +18,7 @@ Rails.application.routes.draw do
     scope :v1 do 
       # specialement pour la fondation coeur et vie
       scope :focev do 
-        post 'whatsappbot', to: 'main#index'
+        post 'whatsappbot', to: 'focev#index'
       end
       # la mise en test et en developpement
       scope :sandbox do 

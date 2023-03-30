@@ -1,4 +1,4 @@
-class MainController < ApiController
+class FocevController < ApiController
 
     def index
     @instance = 'none'
