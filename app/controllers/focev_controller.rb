@@ -1,6 +1,12 @@
 class FocevController < ApiController
 
-    def index
+  def entry 
+    render json: {
+      'message': 'hello'
+    }
+  end
+    
+  def index
     @instance = 'none'
     puts params
     @body = params['data']['body']
