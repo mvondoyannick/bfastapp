@@ -155,7 +155,6 @@ GEM
     geocoder (1.8.1)
     globalid (1.1.0)
       activesupport (>= 5.0)
-    honeybadger (5.2.1)
     httparty (0.21.0)
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
@@ -334,7 +333,6 @@ DEPENDENCIES
   devise (~> 4.8)
   dockerfile-rails (>= 1.0.0)
   geocoder (~> 1.8)
-  honeybadger (~> 5.0)
   httparty
   image_processing (~> 1.2)
   importmap-rails
