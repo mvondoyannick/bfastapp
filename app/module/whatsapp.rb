@@ -17,7 +17,7 @@ module Whatsapp
 
       begin
 
-        url = URI("https://api.ultramsg.com/instance40780/messages/chat")
+        url = URI("https://api.ultramsg.com/instance41644/messages/chat")
 
         http = Net::HTTP.new(url.host, url.port)
         http.use_ssl = true 
@@ -25,7 +25,7 @@ module Whatsapp
         request = Net::HTTP::Post.new(url)
         request["content-type"] = 'application/x-www-form-urlencoded'
         form_data = URI.encode_www_form( {
-          :token => 'mscf2mi80jlbrdvz',
+          :token => 'fvwztfmejjh7yr7d',
           :to => "+#{ApplicationHelper.update_phone_number(@phone)}",
           :body => @message
         })
@@ -57,7 +57,7 @@ module Whatsapp
       require 'uri'
       require 'net/http' 
 
-      url = URI("https://api.ultramsg.com/instance40780/messages/image")
+      url = URI("https://api.ultramsg.com/instance41644/messages/image")
 
       http = Net::HTTP.new(url.host, url.port)
       http.use_ssl = true 
@@ -65,7 +65,7 @@ module Whatsapp
       request = Net::HTTP::Post.new(url)
       request["content-type"] = 'application/x-www-form-urlencoded'
       form_data = URI.encode_www_form( {
-        :token => 'mscf2mi80jlbrdvz',
+        :token => 'fvwztfmejjh7yr7d',
         :to => "+#{ApplicationHelper.update_phone_number(@phone)}",
         :image => @file,
         :caption => @caption
@@ -82,7 +82,7 @@ module Whatsapp
 
   class WhatsappLocalization 
     def initialize(argv)
-      @token = 'mscf2mi80jlbrdvz'
+      @token = 'fvwztfmejjh7yr7d'
       @phone = argv[:phone]
     end
 
@@ -92,7 +92,7 @@ module Whatsapp
       require 'uri'
       require 'net/http' 
 
-      url = URI("https://api.ultramsg.com/instance40780/messages/location")
+      url = URI("https://api.ultramsg.com/instance41644/messages/location")
 
       http = Net::HTTP.new(url.host, url.port)
       http.use_ssl = true 
