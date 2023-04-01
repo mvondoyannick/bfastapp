@@ -104,7 +104,7 @@ class FocevController < ApiController
 
             sleep 1
             # send next message
-            query = Whatsapp::WhatsappMessages.new(@phone, "Maintenant nous allons passer aux informations *médicales*, à savoir prendre votre tension arterielle #{@customer.appelation}. Mais avant nous souahaitons nous rassurer d'une chose")
+            query = Whatsapp::WhatsappMessages.new(@phone, "Maintenant nous allons passer aux informations *médicales*, à savoir prendre votre tension arterielle #{@customer.appelation}. Mais avant nous souhaiterions nous rassurer d'une chose")
             query.send_message
 
             # ====== other
