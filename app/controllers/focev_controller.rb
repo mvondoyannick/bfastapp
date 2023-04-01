@@ -137,7 +137,7 @@ class FocevController < ApiController
               @customer.update(steps: 4)
 
               # tout va bien
-              get = Whatsapp::WhatsappMessages.new(@phone, "OK #{@customer.appelation} de nous fournir la tension (diastole) de votre bras droit")
+              get = Whatsapp::WhatsappMessages.new(@phone, "OK #{@customer.appelation} Merci de nous fournir la tension (diastole) de votre bras droit")
               get.send_message
 
             when 'b'
