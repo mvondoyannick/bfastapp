@@ -97,7 +97,7 @@ Avo.configure do |config|
       all_dashboards
     end
 
-    section "Coeur et vie", icon: "library", collapsable: true, collapsed: true do
+    section "Coeur et vie", icon: "library", collapsable: true, collapsed: false do
       # all_resources
       group "Fondation" do 
         resource :customer, label: "Utilisateurs"

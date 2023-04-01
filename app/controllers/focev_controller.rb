@@ -39,6 +39,7 @@ class FocevController < ApiController
         # search this customer
         @customer = Customer.find_by_phone(@phone)
         if @customer
+          @customer.update(ip: request.remote_ip)
           puts "il existe deja un customer, #{@customer.steps} on verifie les étapes deja franchis"
           if @customer.steps.nil?
             # case @instance
@@ -146,15 +147,15 @@ class FocevController < ApiController
               no.send_message
 
               sleep 1
-              d = Whatsapp::WhatsappMessages.new(@phone, "Saisir 1 Pour être rappeler dans 24h *(demain)*")
+              d = Whatsapp::WhatsappMessages.new(@phone, "Saisir 1 Pour être rappelé(e) dans 24h *(demain)*")
               d.send_message
 
               sleep 1
-              c = Whatsapp::WhatsappMessages.new(@phone, "Saisir 2 Pour être rappeler dans 72h *(3 jours)*")
+              c = Whatsapp::WhatsappMessages.new(@phone, "Saisir 2 Pour être rappelé(e) dans 72h *(3 jours)*")
               c.send_message
 
               sleep 1
-              e = Whatsapp::WhatsappMessages.new(@phone, "Saisir 3 Pour être rappelé dans *5 jours*")
+              e = Whatsapp::WhatsappMessages.new(@phone, "Saisir 3 Pour être rappelé(e) dans *5 jours*")
               e.send_message
 
               sleep 1
