@@ -1,15 +1,15 @@
 Rails.application.routes.draw do
-  devise_for :cusomers
-  devise_for :customers
+  # devise_for :cusomers
+  # devise_for :customers
   get 'main/index'
   get 'home/index'
-  devise_for :users
+  #devise_for :users
   root :to => redirect('/avo')
   post 'whatsappbot', to: 'focev#index'
 
-  authenticate :user do
+  #authenticate :user do
     mount Avo::Engine, at: Avo.configuration.root_path
-  end
+  #end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")

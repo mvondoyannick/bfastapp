@@ -25,7 +25,7 @@ module Whatsapp
         request = Net::HTTP::Post.new(url)
         request["content-type"] = 'application/x-www-form-urlencoded'
         form_data = URI.encode_www_form( {
-          :token => 'fvwztfmejjh7yr7d',
+          :token => 'warning41644159',
           :to => "+#{ApplicationHelper.update_phone_number(@phone)}",
           :body => @message
         })
@@ -65,7 +65,7 @@ module Whatsapp
       request = Net::HTTP::Post.new(url)
       request["content-type"] = 'application/x-www-form-urlencoded'
       form_data = URI.encode_www_form( {
-        :token => 'fvwztfmejjh7yr7d',
+        :token => 'warning41644159',
         :to => "+#{ApplicationHelper.update_phone_number(@phone)}",
         :image => @file,
         :caption => @caption
@@ -82,7 +82,7 @@ module Whatsapp
 
   class WhatsappLocalization 
     def initialize(argv)
-      @token = 'fvwztfmejjh7yr7d'
+      @token = 'warning41644159'
       @phone = argv[:phone]
     end
 

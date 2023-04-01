@@ -13,7 +13,7 @@ Avo.configure do |config|
   ## == Set the context ==
   config.set_context do
     {
-      user: current_user,
+      # user: current_user,
       params: request.params,
       headers: request.headers
     }
@@ -21,7 +21,7 @@ Avo.configure do |config|
   end
 
   ## == Authentication ==
-  config.current_user_method = :current_user
+  # config.current_user_method = :current_user
   # config.authenticate_with = {}
 
   ## == Authorization ==
@@ -55,7 +55,7 @@ Avo.configure do |config|
   # config.cache_resource_filters = ->(current_user:, resource:) { current_user.cache_resource_filters?}
 
   ## == Customization ==
-  config.app_name = 'BFAST - DASHBOARD'
+  config.app_name = 'FOCEV - DASHBOARD'
   # config.timezone = 'UTC'
   # config.currency = 'USD'
   # config.hide_layout_when_printing = false
@@ -97,64 +97,64 @@ Avo.configure do |config|
       all_dashboards
     end
 
-    section "Markets", icon: "library", collapsable: true, collapsed: true do
+    section "Coeur et vie", icon: "library", collapsable: true, collapsed: true do
       # all_resources
-      group "Entreprises" do 
-        resource :entreprise, label: "Entreprises"
-        resource :distribution, label: "Supermarchés"
-        resource :category, label: "Categorie produits"
+      group "Fondation" do 
+        resource :customer, label: "Utilisateurs"
+        # resource :distribution, label: "Supermarchés"
+        # resource :category, label: "Categorie produits"
       end
 
-      group "activités" do 
-        resource :product, label: "Produits"
-      end
+      # group "activités" do 
+      #   resource :product, label: "Produits"
+      # end
     end
     
     # gaz et produits petroliers
-    section "Gaz & petrol", icon: "fire", collapsable: true, collapsed: true do
-      group "Fournisseurs" do 
-        resource :gaz_fournisseur, label: "Vendeurs, commerçant"
-        resource :gaz_manufacturer, label: "Fabriquants Gaz"
-        resource :gaz_bottles, label: "Bouteilles de gaz"
-      end
-    end
+    # section "Gaz & petrol", icon: "fire", collapsable: true, collapsed: true do
+    #   group "Fournisseurs" do 
+    #     resource :gaz_fournisseur, label: "Vendeurs, commerçant"
+    #     resource :gaz_manufacturer, label: "Fabriquants Gaz"
+    #     resource :gaz_bottles, label: "Bouteilles de gaz"
+    #   end
+    # end
 
     # points relais
-    section "Points relais", icon: "map", collapsable: true, collapsed: true do 
-    end
+    #section "Points relais", icon: "map", collapsable: true, collapsed: true do 
+    # end
 
     # taxi via drive
-    section "Taxi and drive", icon: "key", collapsable: true, collapsed: true do 
-    end
+    #section "Taxi and drive", icon: "key", collapsable: true, collapsed: true do 
+    # end
 
 
-    section "Travel", icon: "location-marker", collapsable: true, collapsed: true do
-      # all_resources
-      group "Entreprises" do 
-        resource :travel_entreprise, label: "Entreprises"
-        resource :travel_agence, label: "Agences"
-      end
+    # section "Travel", icon: "location-marker", collapsable: true, collapsed: true do
+    #   # all_resources
+    #   group "Entreprises" do 
+    #     resource :travel_entreprise, label: "Entreprises"
+    #     resource :travel_agence, label: "Agences"
+    #   end
 
-      group "activités" do 
-        resource :reservation, label: "Reservation"
-        resource :ville, label: "Ville"
-        resource :bus, label: "Mes Bus"
-        resource :horaire, label: "Mes horaires"
-        resource :customer, label: "Passagers"
-        resource :travel_transaction, label: "Transactions Travel"
-      end
-    end
+    #   group "activités" do 
+    #     resource :reservation, label: "Reservation"
+    #     resource :ville, label: "Ville"
+    #     resource :bus, label: "Mes Bus"
+    #     resource :horaire, label: "Mes horaires"
+    #     resource :customer, label: "Passagers"
+    #     resource :travel_transaction, label: "Transactions Travel"
+    #   end
+    # end
 
-    section "Foods & drinks", icon: "tools", collapsable: true, collapsed: true do
-      resource :food, label: "Nourritures"
-      resource :drink, label: "Boissons"
-    end
+    # section "Foods & drinks", icon: "tools", collapsable: true, collapsed: true do
+    #   resource :food, label: "Nourritures"
+    #   resource :drink, label: "Boissons"
+    # end
 
-    section "Tools", icon: "tools", collapsable: true, collapsed: true do
-      all_tools
-      resource :user, label: "Utilisateur & compte"
-      resource :customer, label: "Comptes BFAST"
-    end
+    # section "Tools", icon: "tools", collapsable: true, collapsed: true do
+    #   all_tools
+    #   resource :user, label: "Utilisateur & compte"
+    #   resource :customer, label: "Comptes BFAST"
+    # end
   }
   config.profile_menu = -> {
     link "Profile", path: "/avo/profile", icon: "user-circle"

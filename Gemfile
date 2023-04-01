@@ -101,3 +101,4 @@ gem "aws-sdk-s3", "~> 1.119"
 gem "mapkick-rb"
 
 gem "dockerfile-rails", ">= 1.0.0", :group => :development
+
