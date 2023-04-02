@@ -1,6 +1,7 @@
 class Customer < ApplicationRecord
 
   has_one_attached :qr_code
+  has_rich_text :body
   after_create :generate_qr
   after_create :generate_link
   def self.ransackable_attributes(auth_object = nil)

@@ -209,21 +209,34 @@ class FocevController < ApiController
               c = Whatsapp::WhatsappMessages.new(@phone, "Saisir *C* pour savoir ce que c'est un *tensiomètre*") #https://fr.wikipedia.org/wiki/Tensiomètre #https://fr.wikihow.com/lire-sa-tension-artérielle-avec-un-tensiomètre
               c.send_message
 
-
             end
           
           elsif @customer.steps == 'no_tension'
+            
             @customer.update(rappel: @body)
             @customer.update(steps: 'need_rappel')
+
+            # make date calculation
+            # the next 24 hours
+            @customer.date_rappel = DateTime.now + @customer.rappel.to_i.day
+
             @customer.update(rappel_day: @body)
 
             sleep 1
-            text = Whatsapp::WhatsappMessages.new(@phone, "Merci, nous allons vous revenir dans #{@customer.rappel} jour(s). Passez une bonne semaine. \n\nPensez à visiter le site de la Fondation Coeur et Vie à l'adresse www.coeuretvie.org")
+            if Date.today.monday?
+              message = "Passez un bon debut de semaine"
+            elsif Date.today.friday?
+              message = "Passez un bon debut de weekend"
+            else
+              message = "Passez une bonne semaine"
+            end
+
+            text = Whatsapp::WhatsappMessages.new(@phone, "Merci, nous allons vous revenir dans un delais de #{@customer.rappel} jour(s). #{message}. \n\nPensez à visiter le site de la Fondation Coeur et Vie à l'adresse www.coeuretvie.org")
             text.send_message
 
           elsif @customer.steps == 'need_rappel'
 
-            text = Whatsapp::WhatsappMessages.new(@phone, "Hello #{@customer.real_name}, notre rappel à lieu dans #{@customer.rappel} jour(s), nous vous relancerons dans ces delais. Si par contre vous disposez deja vos parametres de tension, merci de saisir *continuer*.")
+            text = Whatsapp::WhatsappMessages.new(@phone, "Hello #{@customer.real_name}, notre rappel à lieu dans *#{@customer.rappel}* jour(s), nous vous relancerons dans ces delais. Si par contre vous disposez deja vos parametres de tension, merci de saisir *continuer*.")
             text.send_message
 
           elsif @customer.steps == '4'
@@ -231,29 +244,8 @@ class FocevController < ApiController
             @customer.update(tension_droit: @body)
             @customer.update(steps: 5)
 
-            # case @customer.tension_droit.to_i
-            # when 90..140
-            #   # on passe a t'etape 5
-            #   @customer.update(steps: 5)
-
-            #   # tout va bien
-            #   query = Whatsapp::WhatsappMessages.new(@phone, "Merci #{@customer.appelation}, vous le faite comme un pro, maintenant nous aurons besoin de la deuxième valeur en dessous de le première, elle est légèrement plus petite?")
-            #   query.send_message
-            # when 40..90
-            #   @customer.update(steps: 5)
-            #   # il ya un probleme, merci de fournir le bras gauche  
-            #   query = Whatsapp::WhatsappMessages.new(@phone, "Nous avons besoin de prendre pour confirmation la tension artérielle de votre bras gauche #{@customer.appelation}.")
-            #   query.send_message
-            # when 140..250
-            #   # c'est grave, consulter à l'immédiat
-            #   @customer.update(steps: 5)
-
             query = Whatsapp::WhatsappMessages.new(@phone, "Merci, nous avons enregistré cette valeur comme votre systole, maintenant merci de nous fournir votre diastole du même bras #{@customer.appelation}.")
             query.send_message
-          
-            # else
-              
-            # end
 
           elsif @customer.steps == '51'
             # read diastole droit
