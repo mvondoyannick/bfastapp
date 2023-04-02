@@ -1,5 +1,5 @@
 class CustomerResource < Avo::BaseResource
-  self.title = :id
+  self.title = :real_name
   self.includes = []
   self.search_query = -> do
     scope.ransack(id_eq: params[:q], pushname_cont: params[:q], real_name_cont: params[:q], m: "or").result(distinct: false)
@@ -20,7 +20,7 @@ class CustomerResource < Avo::BaseResource
   field :poul_droit, as: :text, hide_on: [:index]
   heading "Parametres bras gauche"
   field :tension_gauche, as: :text, hide_on: [:index]
-  field :diastole_gauche, as: :text
+  field :diastole_gauche, as: :text, hide_on: [:index]
   field :poul_gauche, as: :text, hide_on: [:index]
   field :quartier, as: :text
   heading "Etape de progression"
@@ -34,7 +34,8 @@ class CustomerResource < Avo::BaseResource
   field :date_rappel, as: :text, hide_on: [:index]
   heading "Information interne supplementaires"
   field :body, as: :trix
-  field :qr_code, as: :file, is_image: true
+  field :qr_code, as: :file, is_image: true, hide_on: [:index]
+  field :photo, as: :text, hide_on: [:index]
 
   # add fields here
 end
