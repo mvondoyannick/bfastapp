@@ -236,7 +236,7 @@ class FocevController < ApiController
 
           elsif @customer.steps == 'need_rappel'
 
-            text = Whatsapp::WhatsappMessages.new(@phone, "Hello #{@customer.real_name}, notre rappel à lieu dans *#{@customer.rappel}* jour(s), nous vous relancerons dans ces delais. Si par contre vous disposez deja vos parametres de tension, merci de saisir *continuer*.")
+            text = Whatsapp::WhatsappMessages.new(@phone, "Hello #{@customer.real_name}, notre rappel à lieu le *#{@customer.date_rappel}* jour(s), nous vous relancerons dans ces delais. Si par contre vous disposez deja vos parametres de tension, merci de saisir *continuer*.")
             text.send_message
 
           elsif @customer.steps == '4'
