@@ -63,14 +63,25 @@ class FocevController < ApiController
 
           elsif @customer.steps == '2'
             # on enregistre le sexe
-            if @body == '1'
-              @customer.update(sexe: 'masculin')
+
+            if %w(1 2).include? @body.to_i
+
+              @customer.update(sexe: @body)
               @customer.update(steps: 3)
-            elsif @body == '2'
-              @customer.update(sexe: 'feminin')
-              @customer.update(steps: 3)
+
+              if @body == '1'
+                @customer.update(sexe: 'masculin')
+              else @body == '2'
+                @customer.update(sexe: 'feminin')
+              end
+
+              # next question
+              age = Whatsapp::WhatsappMessages.new(@phone, "Merci #{@customer.appelation}. Serait'il possible de connaitre votre âge?")
+              age.send_message
+
             else
-              # invalide sexe
+
+              # invalide sexe, try again
               query = Whatsapp::WhatsappMessages.new(@phone, "Merci de selectionner un sexe valide #{@customer.appelation}. Quel est votre sexe?")
               query.send_message
               
@@ -81,13 +92,8 @@ class FocevController < ApiController
               sleep 1
               feminin = Whatsapp::WhatsappMessages.new(@phone, "Saisir 2 pour Féminin 🙋🏽‍♀ ")
               feminin.send_message
-            end
-            
 
-            sleep 1
-            # send next message
-            query = Whatsapp::WhatsappMessages.new(@phone, "Merci #{@customer.appelation}. Serait'il possible de connaitre votre âge?")
-            query.send_message
+            end
         
           elsif @customer.steps == '3'
             @customer.update(age: @body)
@@ -115,9 +121,6 @@ class FocevController < ApiController
             sleep 1
             c = Whatsapp::WhatsappMessages.new(@phone, "Saisir *C* pour savoir ce que c'est un *tensiomètre*") #https://fr.wikipedia.org/wiki/Tensiomètre #https://fr.wikihow.com/lire-sa-tension-artérielle-avec-un-tensiomètre
             c.send_message
-
-              # query2 = Whatsapp::WhatsappMessages.new(@phone, "Merci de me fournir la premiere valeur afficher par votre tensiometre, celle du dessus #{@customer.appelation}.")
-              # query2.send_message
           
           elsif @customer.steps == 'QT'
             @customer.update(question_tension: @body.downcase)
@@ -291,7 +294,7 @@ class FocevController < ApiController
               @customer.update(steps: '5G')
 
               sleep 1
-              query = Whatsapp::WhatsappMessages.new(@phone, "Nous avons ... pour confirmation de la tension de votre bras gauche également. Merci de nous fournir la systole du bras gauche #{@customer.appelation}?")
+              query = Whatsapp::WhatsappMessages.new(@phone, "Pour des raisons purement médicales, nous avons besoin en plus de la tension de votre bras gauche. Merci de nous fournir la systole du bras gauche #{@customer.appelation}.")
               query.send_message
 
             when 60..90
