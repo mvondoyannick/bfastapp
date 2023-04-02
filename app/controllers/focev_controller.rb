@@ -261,29 +261,9 @@ class FocevController < ApiController
             @customer.update(diastole_droit: @body)
             @customer.update(steps: '5D') # pour etape 5 bras droit
 
-            # case @customer.tension_gauche.to_i
-            # when 0..60
-            #   # on passe a t'etape 5
-            #   @customer.update(steps: 6)
-
-            #   # prochaine question, le quartier
-            #   sleep 1
-            #   query = Whatsapp::WhatsappMessages.new(@phone, "super, nous sommes presqu'a la fin. C'est possible que je puisse savoir dans quel quatier est ce que vous résidez #{@customer.appelation}?")
-            #   query.send_message
-
-            # when 60..90
-            #   @customer.update(steps: 6)
-            #   # il ya un probleme, merci de fournir le bras gauche  
-            #   sleep 1
-            #   query = Whatsapp::WhatsappMessages.new(@phone, "super, nous sommes presqu'a la fin. C'est possible que je puisse savoir dans quel quatier est ce que vous résidez #{@customer.appelation}")
-            #   query.send_message
-            # when 90..300
-            #   # c'est grave, consulter à l'immédiat
-            #   @customer.update(steps: 6)
-            #   sleep 1
-            #   query = Whatsapp::WhatsappMessages.new(@phone, "super, nous sommes presqu'a la fin. C'est possible que je puisse savoir dans quel quatier est ce que vous résidez #{@customer.appelation}?")
-            #   query.send_message
-            # end
+            sleep 1
+            pulse = Whatsapp::WhatsappMessages.new(@phone, "super, je pense qu'a ce stade il ne reste qu'un seul parametre, le poul. Merci de donner la valeur du poul de votre tensiometre #{@customer.appelation}.")
+            pulse.send_message
 
           elsif @customer.steps == '5D'
             @customer.updaye(poul_droit: @body)
