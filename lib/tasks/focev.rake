@@ -30,7 +30,7 @@ task :update_feed => :environment do
   puts "done."
 end
 
-decs "photos collage"
+desc "photos collage"
 task :manage_photo => :environment do
   puts "generating collage..."
 end
