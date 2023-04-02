@@ -209,31 +209,33 @@ class FocevController < ApiController
             text.send_message
 
           elsif @customer.steps == '4'
+            # lecture systole
             @customer.update(tension_droit: @body)
+            @customer.update(steps: 5)
 
-            case @customer.tension_droit.to_i
-            when 90..140
-              # on passe a t'etape 5
-              @customer.update(steps: 5)
+            # case @customer.tension_droit.to_i
+            # when 90..140
+            #   # on passe a t'etape 5
+            #   @customer.update(steps: 5)
 
-              # tout va bien
-              query = Whatsapp::WhatsappMessages.new(@phone, "Merci #{@customer.appelation}, vous le faite comme un pro, maintenant nous aurons besoin de la deuxième valeur en dessous de le première, elle est légèrement plus petite?")
-              query.send_message
-            when 40..90
-              @customer.update(steps: 5)
-              # il ya un probleme, merci de fournir le bras gauche  
-              query = Whatsapp::WhatsappMessages.new(@phone, "Hum, pour confirmation...merci de nous fournir la tension artérielle de votre bras gauche #{@customer.appelation}.")
-              query.send_message
-            when 140..250
-              # c'est grave, consulter à l'immédiat
-              @customer.update(steps: 5)
+            #   # tout va bien
+            #   query = Whatsapp::WhatsappMessages.new(@phone, "Merci #{@customer.appelation}, vous le faite comme un pro, maintenant nous aurons besoin de la deuxième valeur en dessous de le première, elle est légèrement plus petite?")
+            #   query.send_message
+            # when 40..90
+            #   @customer.update(steps: 5)
+            #   # il ya un probleme, merci de fournir le bras gauche  
+            #   query = Whatsapp::WhatsappMessages.new(@phone, "Nous avons besoin de prendre pour confirmation la tension artérielle de votre bras gauche #{@customer.appelation}.")
+            #   query.send_message
+            # when 140..250
+            #   # c'est grave, consulter à l'immédiat
+            #   @customer.update(steps: 5)
 
-              query = Whatsapp::WhatsappMessages.new(@phone, "Hum, pour confirmation...merci de nous fournir la tension artérielle de votre bras gauche #{@customer.appelation}.")
-              query.send_message
+            query = Whatsapp::WhatsappMessages.new(@phone, "Merci, nous avons enregistré cette valeur comme votre systole, maintenant merci de nous fournir votre diastole du même bras #{@customer.appelation}.")
+            query.send_message
           
-            else
+            # else
               
-            end
+            # end
 
           elsif @customer.steps == '51'
             # read diastole droit
@@ -255,16 +257,46 @@ class FocevController < ApiController
             query.send_message
 
           elsif @customer.steps == '5'
-            @customer.update(tension_gauche: @body)
+            # lecture de pool gauche
+            @customer.update(diastole_droit: @body)
+            @customer.update(steps: '5D') # pour etape 5 bras droit
 
-            case @customer.tension_gauche.to_i
-            when 0..60
-              # on passe a t'etape 5
-              @customer.update(steps: 6)
+            # case @customer.tension_gauche.to_i
+            # when 0..60
+            #   # on passe a t'etape 5
+            #   @customer.update(steps: 6)
 
-              # prochaine question, le quartier
+            #   # prochaine question, le quartier
+            #   sleep 1
+            #   query = Whatsapp::WhatsappMessages.new(@phone, "super, nous sommes presqu'a la fin. C'est possible que je puisse savoir dans quel quatier est ce que vous résidez #{@customer.appelation}?")
+            #   query.send_message
+
+            # when 60..90
+            #   @customer.update(steps: 6)
+            #   # il ya un probleme, merci de fournir le bras gauche  
+            #   sleep 1
+            #   query = Whatsapp::WhatsappMessages.new(@phone, "super, nous sommes presqu'a la fin. C'est possible que je puisse savoir dans quel quatier est ce que vous résidez #{@customer.appelation}")
+            #   query.send_message
+            # when 90..300
+            #   # c'est grave, consulter à l'immédiat
+            #   @customer.update(steps: 6)
+            #   sleep 1
+            #   query = Whatsapp::WhatsappMessages.new(@phone, "super, nous sommes presqu'a la fin. C'est possible que je puisse savoir dans quel quatier est ce que vous résidez #{@customer.appelation}?")
+            #   query.send_message
+            # end
+
+          elsif @customer.steps == '5D'
+            @customer.updaye(poul_droit: @body)
+
+            # condition
+            case @customer.tension_droit.to_i
+            when 0..90
+
+              # de toute façon il doit refaire
+              @customer.update(steps: '5G')
+
               sleep 1
-              query = Whatsapp::WhatsappMessages.new(@phone, "super, nous sommes presqu'a la fin. C'est possible que je puisse savoir dans quel quatier est ce que vous résidez #{@customer.appelation}?")
+              query = Whatsapp::WhatsappMessages.new(@phone, "Nous avons ... pour confirmation de la tension de votre bras gauche également. Merci de nous fournir la systole du bras gauche #{@customer.appelation}?")
               query.send_message
 
             when 60..90
@@ -280,6 +312,29 @@ class FocevController < ApiController
               query = Whatsapp::WhatsappMessages.new(@phone, "super, nous sommes presqu'a la fin. C'est possible que je puisse savoir dans quel quatier est ce que vous résidez #{@customer.appelation}?")
               query.send_message
             end
+
+          elsif @customer.steps == '5G'
+            # mesure des valeurs du bras gauche
+            @customer.updaye(tension_gauche: @body)
+            @customer.update(steps: '5DG') # systole gauche
+
+            query = Whatsapp::WhatsappMessages.new(@phone, "super, maintenant donnez nous egalement la diastole de votre bras gauche #{@customer.appelation}")
+            query.send_message
+
+          elsif @customer.steps == '5DG'
+            # mesure des valeurs diastole du bras gauche
+            @customer.updaye(tension_gauche: @body)
+            @customer.update(steps: '5PG') # poule gauche
+
+            query = Whatsapp::WhatsappMessages.new(@phone, "super, maintenant il ne nous reste que le poul, et puis on aura terminé #{@customer.appelation}, nous sommes preque à la fin")
+            query.send_message
+
+          elsif @customer.steps == '5PG'
+            @customer.updaye(poul_gauche: @body)
+            @customer.update(steps: 8) # poule gauche
+
+            query = Whatsapp::WhatsappMessages.new(@phone, "super! Nous y sommes, j'aimerais juste savoir dans quel quartier vous habitez? #{@customer.appelation}")
+            query.send_message
 
           elsif @customer.steps == '511'
             @customer.updaye(diastole_gauche: @body)
