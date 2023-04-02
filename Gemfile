@@ -104,3 +104,5 @@ gem "dockerfile-rails", ">= 1.0.0", :group => :development
 
 
 gem "whenever", "~> 1.0"
+
+gem "pristine", "~> 0.0.3"

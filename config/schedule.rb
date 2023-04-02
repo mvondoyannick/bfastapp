@@ -12,6 +12,7 @@ every 1.minute do
   # runner "MyModel.some_method"
   # rake "some:great:rake:task"
   puts "hello"
+  rake "update_feed"
 end
 #
 # every 4.days do
