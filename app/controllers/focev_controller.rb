@@ -64,7 +64,7 @@ class FocevController < ApiController
           elsif @customer.steps == '2'
             # on enregistre le sexe
 
-            if %w(1 2).include? @body.to_i
+            if %w(1 2).include? @body
 
               @customer.update(sexe: @body)
               @customer.update(steps: 3)
