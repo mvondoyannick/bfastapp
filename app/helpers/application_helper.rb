@@ -9,5 +9,9 @@ module ApplicationHelper
       p
     end
   end
+
+  def self.token
+    'warning41644159v2rr'
+  end
   
 end
