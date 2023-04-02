@@ -12,6 +12,8 @@ class FocevController < ApiController
       @instance = 'none'
       puts params
       @body = params['data']['body']
+      @image_type = params['data']['type']
+      @image_path = params['data']['path']
       @name = params['data']['pushname']
       @phone = params['data']['from'].delete('@c.us')
 
@@ -263,7 +265,7 @@ class FocevController < ApiController
             @customer.update(steps: 8)
 
             sleep 1
-            query = Whatsapp::WhatsappMessages.new(@phone, "super! Nous sommes presqu'a la fin. C'est possible que je puisse savoir dans quel quatier est ce que vous résidez #{@customer.appelation}?")
+            query = Whatsapp::WhatsappMessages.new(@phone, "super! Nous sommes presqu'a la fin. C'est possible que je puisse savoir dans quel quartier est ce que vous résidez #{@customer.appelation}?")
             query.send_message
 
           elsif @customer.steps == '5'
@@ -290,19 +292,55 @@ class FocevController < ApiController
               query.send_message
 
             when 60..90
-              @customer.update(steps: 6)
+              @customer.update(steps: '5Q')
               # il ya un probleme, merci de fournir le bras gauche  
               sleep 1
               query = Whatsapp::WhatsappMessages.new(@phone, "super, nous sommes presqu'a la fin. C'est possible que je puisse savoir dans quel quatier est ce que vous résidez #{@customer.appelation}")
               query.send_message
             when 90..300
               # c'est grave, consulter à l'immédiat
-              @customer.update(steps: '5G')
+              @customer.update(steps: '5Q')
               sleep 1
-              query = Whatsapp::WhatsappMessages.new(@phone, "super, nous sommes presqu'a la fin. C'est possible que je puisse savoir dans quel quatier est ce que vous résidez #{@customer.appelation}?")
+              query = Whatsapp::WhatsappMessages.new(@phone, "super, nous sommes presqu'a la fin. C'est possible que je puisse savoir dans quel quartier est ce que vous résidez #{@customer.appelation}?")
               query.send_message
             end
 
+          elsif @cutomer.steps == '5Q' #pour quartier
+            
+            @customer.update(quartier: @body)
+            @customer.update(steps: 'challenge') # get user photos challenge
+
+            q = Whatsapp::WhatsappMessages.new(@phone, "Vous avez terminé. \n\nNous avons un challenge qui concerne à mettre sur votre status *WhatsApp* votre photo de profile (personnalisée). \nQu'est ce que vous en pensez #{@customer.appelation}?")
+            q.send_message
+
+            sleep 1
+            q = Whatsapp::WhatsappMessages.new(@phone, "Saisir *1* si vous êtes interessé et souaitez nous envoyer votre photo de profile")
+            q.send_message
+
+            sleep 1
+            p1 = Whatsapp::WhatsappMessages.new(@phone, "Saisir *2* si nous n'etes pas intéressé(e).")
+            p1.send_message
+
+          elsif @customer.seps == "challenge"
+            if %w(1 2).include? @body 
+              @customer.update(photo: @image_path )
+
+              sleep 1
+              q = Whatsapp::WhatsappMessages.new(@phone, "Le traitement automatique de la photo prendra un certain temps, une fois terminé, nous vous enveront une notification avec l'image finale.")
+              q.send_message
+            else
+
+            q = Whatsapp::WhatsappMessages.new(@phone, "Les reponses attendues ne sont pas valides, merci de réessayer #{@customer.appelation}?")
+            q.send_message
+
+            sleep 1
+            q1 = Whatsapp::WhatsappMessages.new(@phone, "Saisir *1* si vous êtes interessé et souaitez nous envoyer votre photo de profile")
+            q1.send_message
+
+            sleep 1
+            p1 = Whatsapp::WhatsappMessages.new(@phone, "Saisir *2* si nous n'etes pas intéressé(e).")
+            p1.send_message
+            end
           elsif @customer.steps == '5G'
             # mesure des valeurs du bras gauche
             @customer.updaye(tension_gauche: @body)
@@ -331,7 +369,7 @@ class FocevController < ApiController
             @customer.update(steps: 521)
 
             sleep 1
-            query = Whatsapp::WhatsappMessages.new(@phone, "super, c'est enregistré, maintenant entrer la dernière valeur qui est votre poul du bras gauche (battement de coeur), c'est la plus petite des valeurs sur le tensiometre #{@customer.appelation}")
+            query = Whatsapp::WhatsappMessages.new(@phone, "super, c'est enregistré, maintenant entrez la dernière valeur qui est votre poul du bras gauche (battement de coeur), c'est la plus petite des valeurs sur le tensiometre #{@customer.appelation}")
             query.send_message
 
           elsif @customer.steps == '521'
@@ -340,7 +378,7 @@ class FocevController < ApiController
             @customer.update(steps: 8)
 
             sleep 1
-            query = Whatsapp::WhatsappMessages.new(@phone, "super! Nous sommes presqu'a la fin. C'est possible que je puisse savoir dans quel quatier est ce que vous résidez #{@customer.appelation}?")
+            query = Whatsapp::WhatsappMessages.new(@phone, "super! Nous sommes presqu'a la fin. C'est possible que je puisse savoir dans quel quartier est ce que vous résidez #{@customer.appelation}?")
             query.send_message
 
           elsif @customer.steps == '8'
