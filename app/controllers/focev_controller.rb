@@ -664,7 +664,7 @@ class FocevController < ApiController
             query1 =
               Whatsapp::WhatsappMessages.new(
                 @phone,
-                "Pour confirmer que tu accepte le challenge, comment je vous appelle?"
+                "Pour confirmer que vous acceptez le *challenge*, comment je vous appelle?"
               )
             query1.send_message
           else
