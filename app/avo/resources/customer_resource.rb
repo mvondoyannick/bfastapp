@@ -2,7 +2,12 @@ class CustomerResource < Avo::BaseResource
   self.title = :real_name
   self.includes = []
   self.search_query = -> do
-    scope.ransack(id_eq: params[:q], pushname_cont: params[:q], real_name_cont: params[:q], m: "or").result(distinct: false)
+    scope.ransack(
+      id_eq: params[:q],
+      pushname_cont: params[:q],
+      real_name_cont: params[:q],
+      m: "or"
+    ).result(distinct: false)
   end
 
   field :id, as: :id
@@ -36,6 +41,7 @@ class CustomerResource < Avo::BaseResource
   field :body, as: :trix
   field :qr_code, as: :file, is_image: true, hide_on: [:index]
   field :photo, as: :text, hide_on: [:index]
+  field :photo, as: :external_image, hide_on: [:index]
 
   # add fields here
 end
