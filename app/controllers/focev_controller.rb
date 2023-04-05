@@ -418,12 +418,17 @@ class FocevController < ApiController
             @customer.update(steps: "5D") # pour etape 5 bras droit
 
             sleep 1
-            pulse =
-              Whatsapp::WhatsappMessages.new(
-                @phone,
-                "super, je pense qu'a ce stade il ne reste qu'un seul parametre, le poul. Merci de donner la valeur du poul de votre tensiometre #{@customer.appelation}."
+            img =
+              Whatsapp::WhatsappImages.new(
+                {
+                  phone: @phone,
+                  file:
+                    "https://mppp-goshen.com/wp-content/uploads/2023/04/pulse.png",
+                  caption:
+                    "Merci, cette valeur de *#{@customer.diastole_droit}* a été enregistré. \nMaintenant nous aurons besoin que vous nous fournissiez la dernière valeur située en dernière position de votre tensiometre placé toujours sur votre bras droit *(PULSE)*. \n_Celle encadrée en rouge, mais sur votre tensiomètre_"
+                }
               )
-            pulse.send_message
+            img.send_image
           elsif @customer.steps == "5D"
             @customer.update(poul_droit: @body)
 
@@ -437,9 +442,21 @@ class FocevController < ApiController
               query =
                 Whatsapp::WhatsappMessages.new(
                   @phone,
-                  "Pour des raisons purement médicales, nous avons besoin en plus de la tension de votre bras gauche. Merci de nous fournir la systole du bras gauche #{@customer.appelation}."
+                  "Hummm...Nous avons du mal à analyser vos résultats. Pouvez vous nous fournir (pour confirmation) nous avons besoin de plus d'informations sur la tension de votre bras gauche. \n_Merci de placer le tensiomètre sur votre bras gauche #{@customer.appelation}._"
                 )
               query.send_message
+              sleep 1
+              img =
+                Whatsapp::WhatsappImages.new(
+                  {
+                    phone: @phone,
+                    file:
+                      "https://mppp-goshen.com/wp-content/uploads/2023/04/sys.png",
+                    caption:
+                      "Merci de fournir la valeur situé au plus haut de votre tensiometre placé sur votre bras gauche. *(SYS)*. \n_Celle encadrée en rouge, mais sur votre tensiomètre_"
+                  }
+                )
+              img.send_image
             when 60..90
               @customer.update(steps: "5Q")
               # il ya un probleme, merci de fournir le bras gauche
@@ -447,7 +464,7 @@ class FocevController < ApiController
               query =
                 Whatsapp::WhatsappMessages.new(
                   @phone,
-                  "super, nous sommes presque à la fin. C'est possible que je puisse savoir dans quel quatier est ce que vous résidez #{@customer.appelation}"
+                  "super! nous sommes presque à la fin. \nC'est possible que je puisse savoir dans quel quatier est ce que vous résidez #{@customer.appelation}. \n_Merci de fournir la ville et le quartier comme Maroua, Domayo ou Douala, Ndokoti_"
                 )
               query.send_message
             when 90..300
@@ -457,7 +474,7 @@ class FocevController < ApiController
               query =
                 Whatsapp::WhatsappMessages.new(
                   @phone,
-                  "super, nous sommes presque à la fin. C'est possible que je puisse savoir dans quel quartier est ce que vous résidez #{@customer.appelation}?"
+                  "super! nous sommes presque à la fin. \nC'est possible que je puisse savoir dans quel quatier est ce que vous résidez #{@customer.appelation}. \n_Merci de fournir la ville et le quartier comme Maroua, Domayo ou Douala, Ndokoti_"
                 )
               query.send_message
             end
