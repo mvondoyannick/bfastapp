@@ -190,12 +190,22 @@ class FocevController < ApiController
                 @customer.update(steps: 4)
 
                 # tout va bien
-                get =
-                  Whatsapp::WhatsappMessages.new(
-                    @phone,
-                    "OK #{@customer.appelation} Merci de nous fournir la tension (diastole) de votre bras droit"
+                img =
+                  Whatsapp::WhatsappImages.new(
+                    {
+                      phone: @phone,
+                      file:
+                        "https://mppp-goshen.com/wp-content/uploads/2023/04/sys.png",
+                      caption:
+                        "OK #{@customer.appelation} merci de nous fournir la valeur du haut affichée sur le tensiometre placé sur votre bras droit *(SYS)*. \n_Celle encadrée en rouge, mais sur votre tensiomètre_"
+                    }
                   )
-                get.send_message
+                # get =
+                #   Whatsapp::WhatsappMessages.new(
+                #     @phone,
+                #     "OK #{@customer.appelation} merci de nous fournir la valeur du haut affichée sur le tensiometre placé sur votre bras droit *(SYS)*."
+                #   )
+                img.send_image
               when "b"
                 @customer.update(steps: "no_tension")
                 # il ya un probleme, merci de fournir le bras gauche
