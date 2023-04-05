@@ -376,7 +376,18 @@ class FocevController < ApiController
                 @phone,
                 "Merci, nous avons enregistré cette valeur comme votre systole, maintenant merci de nous fournir votre diastole du même bras #{@customer.appelation}."
               )
-            query.send_message
+
+            img =
+              Whatsapp::WhatsappImages.new(
+                {
+                  phone: @phone,
+                  file:
+                    "https://mppp-goshen.com/wp-content/uploads/2023/04/dia.png",
+                  caption:
+                    "Merci, cette valeur de *#{@customer.tension_droit}* a été enregistré. Maintenant nous aurons besoin que vous nous fournissiez la valeur situé au milieu de votre tensiometre placé toujours sur votre bras droit *(DIA)*. \n_Celle encadrée en rouge, mais sur votre tensiomètre_"
+                }
+              )
+            img.send_image
           elsif @customer.steps == "51"
             # read diastole droit
             @customer.update(diastole_droit: @body)
