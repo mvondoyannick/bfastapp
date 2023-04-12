@@ -48,6 +48,13 @@ class FocevController < ApiController
             "Cette fonctionnalitée de rappel n'est pas encore implemntée, nous avons pris connaissance de votre relance."
           )
         q.send_message
+      elsif "photo".in? @body.downcase
+        q =
+          Whatsapp::WhatsappMessages.new(
+            @phone,
+            "*Hey*, vous souhaitez soumettre votre photo pour participer au challenge *je connais ma tention*."
+          )
+        q.send_message
       else
         # search this customer
         @customer = Customer.find_by_phone(@phone)
@@ -522,7 +529,7 @@ class FocevController < ApiController
                 photo =
                   Whatsapp::WhatsappMessages.new(
                     @phone,
-                    "Merci de votre réponse."
+                    "Merci de votre réponse.\nRetrouvez toutes les informations sur la Fondation Coeur et vie et tout ce qui concerne les maladies du coeur aux adresses\nhttps://coeuretvie.org\nhttps://www.facebook.com/Focev"
                   )
                 photo.send_message
               end
