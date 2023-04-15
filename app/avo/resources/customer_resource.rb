@@ -43,7 +43,11 @@ class CustomerResource < Avo::BaseResource
   field :photo, as: :text, hide_on: [:index]
   field :photo, as: :external_image, hide_on: [:index]
   field "photo cropped", as: :external_image, hide_on: [:index] do |model|
-    ApplicationHelper.cloudinary(model.phone, model.photo)
+    if model.photo.empty? || model.photo.nil?
+      "Aucune image trouvée"
+    else
+      ApplicationHelper.cloudinary(model.phone, model.photo)
+    end
   end
 
   # add fields here
