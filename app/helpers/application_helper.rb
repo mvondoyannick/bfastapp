@@ -18,6 +18,9 @@ module ApplicationHelper
     require "cloudinary/uploader"
     require "cloudinary/utils"
 
+    @phone = phone
+    @img = img
+
     # configuration
     Cloudinary.config do |config|
       config.cloud_name = "diqsvucdn"
@@ -26,10 +29,12 @@ module ApplicationHelper
       config.secure = true
     end
 
-    Cloudinary::Uploader.upload img.delete(" "), public_id: "focev_img"
+    @random_name = SecureRandom.hex(3)
+
+    Cloudinary::Uploader.upload @img.delete(" "), public_id: @random_name
 
     Cloudinary::Utils.cloudinary_url(
-      "focev_img",
+      @random_name,
       gravity: "face",
       width: 200,
       height: 200,
