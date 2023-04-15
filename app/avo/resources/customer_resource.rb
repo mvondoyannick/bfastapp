@@ -42,6 +42,9 @@ class CustomerResource < Avo::BaseResource
   field :qr_code, as: :file, is_image: true, hide_on: [:index]
   field :photo, as: :text, hide_on: [:index]
   field :photo, as: :external_image, hide_on: [:index]
+  field "photo cropped", as: :external_image, hide_on: [:index] do |model|
+    ApplicationHelper.cloudinary(model.phone, model.photo)
+  end
 
   # add fields here
 end
