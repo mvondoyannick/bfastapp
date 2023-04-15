@@ -43,10 +43,19 @@ class CustomerResource < Avo::BaseResource
   field :photo, as: :text, hide_on: [:index]
   field :photo, as: :external_image, hide_on: [:index]
   field "photo cropped", as: :external_image, hide_on: [:index] do |model|
-    if model.photo.empty? || model.photo.nil?
-      "Aucune image trouvée"
+    if model.is_cropped
+      model.cropped
     else
-      ApplicationHelper.cloudinary(model.phone, model.photo)
+      begin
+        ApplicationHelper.cloudinary(model.id, model.phone, model.photo)
+        WhatsApp.WhatsappMessages(
+          model.phone,
+          "Votre challenge image est en cours de montage, merci de patienter"
+        )
+      rescue => exception
+        "Aucune image trouvée"
+        puts "Aucune image trouvée"
+      end
     end
   end
 

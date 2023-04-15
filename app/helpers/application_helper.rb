@@ -13,13 +13,14 @@ module ApplicationHelper
     "warning41644159v2rr"
   end
 
-  def self.cloudinary(phone, img)
+  def self.cloudinary(id, phone, img)
     require "cloudinary"
     require "cloudinary/uploader"
     require "cloudinary/utils"
 
     @phone = phone
     @img = img
+    @id = id
 
     # configuration
     Cloudinary.config do |config|
@@ -33,12 +34,19 @@ module ApplicationHelper
 
     Cloudinary::Uploader.upload @img.delete(" "), public_id: @random_name
 
-    Cloudinary::Utils.cloudinary_url(
-      @random_name,
-      gravity: "face",
-      width: 200,
-      height: 200,
-      crop: "thumb"
-    )
+    @response =
+      Cloudinary::Utils.cloudinary_url(
+        @random_name,
+        gravity: "face",
+        width: 200,
+        height: 200,
+        crop: "thumb"
+      )
+
+    # update user
+
+    @customer = Customer.find(@id)
+    @customer.update(is_cropped: true)
+    @customer.update(cropped: @response)
   end
 end
