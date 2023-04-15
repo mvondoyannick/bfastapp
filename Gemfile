@@ -109,3 +109,5 @@ gem "whenever", "~> 1.0"
 gem "pristine", "~> 0.0.3"
 
 gem "cloudinary", "~> 1.25"
+
+gem "remove_bg", "~> 1.5"

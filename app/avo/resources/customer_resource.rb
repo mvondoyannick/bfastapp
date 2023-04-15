@@ -10,10 +10,39 @@ class CustomerResource < Avo::BaseResource
     ).result(distinct: false)
   end
 
+  grid do
+    cover "photo", as: :external_image, link_to_resource: true do |model|
+      if model.is_cropped
+        model.cropped
+      else
+      end
+    end
+    title :real_name, as: :text, required: true, link_to_resource: true
+    body :excerpt, as: :text do |model|
+      "Challenge accepted\n#{model.phone}" if model.photo.present?
+    end
+  end
+
   field :id, as: :id
+  field "photo cropped", as: :external_image, radius: "25" do |model|
+    if model.is_cropped
+      model.cropped
+    else
+      begin
+        ApplicationHelper.cloudinary(model.id, model.phone, model.photo)
+        WhatsApp.WhatsappMessages(
+          model.phone,
+          "Votre challenge image est en cours de montage, merci de patienter"
+        )
+      rescue => exception
+        "Aucune image trouvée"
+        puts "Aucune image trouvée"
+      end
+    end
+  end
   # Fields generated from the model
   heading "Information d'identication"
-  field :pushname, as: :text
+  field :pushname, as: :text, link_to_resource: true
   field :real_name, as: :text
   field :phone, as: :text
   field :ip, as: :text, hide_on: [:index]
@@ -21,7 +50,7 @@ class CustomerResource < Avo::BaseResource
   field :age, as: :text, hide_on: [:index]
   heading "Parametres bras droit"
   field :tension_droit, as: :text, hide_on: [:index]
-  field :diastole_droit, as: :text
+  field :diastole_droit, as: :text, hide_on: [:index]
   field :poul_droit, as: :text, hide_on: [:index]
   heading "Parametres bras gauche"
   field :tension_gauche, as: :text, hide_on: [:index]
@@ -42,22 +71,6 @@ class CustomerResource < Avo::BaseResource
   field :qr_code, as: :file, is_image: true, hide_on: [:index]
   field :photo, as: :text, hide_on: [:index]
   field :photo, as: :external_image, hide_on: [:index]
-  field "photo cropped", as: :external_image, hide_on: [:index] do |model|
-    if model.is_cropped
-      model.cropped
-    else
-      begin
-        ApplicationHelper.cloudinary(model.id, model.phone, model.photo)
-        WhatsApp.WhatsappMessages(
-          model.phone,
-          "Votre challenge image est en cours de montage, merci de patienter"
-        )
-      rescue => exception
-        "Aucune image trouvée"
-        puts "Aucune image trouvée"
-      end
-    end
-  end
 
   # add fields here
 end
