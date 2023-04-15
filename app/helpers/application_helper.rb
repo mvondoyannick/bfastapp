@@ -48,5 +48,12 @@ module ApplicationHelper
     @customer = Customer.find(@id)
     @customer.update(is_cropped: true)
     @customer.update(cropped: @response)
+
+    # send notification
+    @a =
+      WhatsApp::WhatsappMessages.new(
+        @phone,
+        "Le traitement est terminée et votre image est désormais disponible. Merci de nous faire confiance."
+      )
   end
 end
