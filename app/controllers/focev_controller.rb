@@ -627,7 +627,7 @@ class FocevController < ApiController
               Whatsapp::WhatsappImages.new(
                 {
                   phone: @phone,
-                  file: @customer.challenge.attach,
+                  file: @customer.challenge,
                   caption:
                     "Votre photo challenge est disponible, merci de la partager sur votre photo de profile"
                 }
