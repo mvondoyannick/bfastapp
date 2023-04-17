@@ -88,7 +88,7 @@ GEM
       view_component
       zeitwerk (>= 2.6.2)
     aws-eventstream (1.2.0)
-    aws-partitions (1.745.0)
+    aws-partitions (1.748.0)
     aws-sdk-core (3.171.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.651.0)
@@ -156,6 +156,8 @@ GEM
       rails
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
+    down (5.4.0)
+      addressable (~> 2.8)
     dry-initializer (3.1.1)
     erubi (1.12.0)
     faraday (1.10.3)
@@ -253,6 +255,7 @@ GEM
     orm_adapter (0.5.0)
     pagy (6.0.3)
     phonelib (0.8.1)
+    pkg-config (1.5.1)
     prettier_print (1.2.1)
     pristine (0.0.3)
       rb-inotify (~> 0.9.7)
@@ -314,6 +317,8 @@ GEM
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
     rexml (3.2.5)
+    rmagick (5.2.0)
+      pkg-config (~> 1.4)
     rotp (6.2.2)
     rqrcode (2.1.2)
       chunky_png (~> 1.0)
@@ -331,7 +336,7 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
-    sorbet-runtime (0.5.10767)
+    sorbet-runtime (0.5.10782)
     sprockets (4.2.0)
       concurrent-ruby (~> 1.0)
       rack (>= 2.2.4, < 4)
@@ -399,12 +404,14 @@ DEPENDENCIES
   debug
   devise (~> 4.8)
   dockerfile-rails (>= 1.0.0)
+  down (~> 5.4)
   geocoder (~> 1.8)
   httparty
   image_processing (~> 1.2)
   importmap-rails
   jbuilder
   mapkick-rb
+  mini_magick (~> 4.12)
   mysql2 (~> 0.5)
   phonelib
   pristine (~> 0.0.3)
@@ -413,6 +420,7 @@ DEPENDENCIES
   rails (~> 7.0.4)
   ransack (~> 3.2)
   remove_bg (~> 1.5)
+  rmagick (~> 5.2)
   rotp (~> 6.2)
   rqrcode (~> 2.0)
   ruby-lsp

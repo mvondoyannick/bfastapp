@@ -560,12 +560,79 @@ class FocevController < ApiController
           elsif @customer.steps == "send_photo_ok"
             @customer.update(photo: @image_path)
 
+            @down = Down.download(@image_path)
+            FileUtils.mv(@down.path, "#{@customer.phone}.jpg")
+
             p1 =
               Whatsapp::WhatsappMessages.new(
                 @phone,
                 "Votre image a été enregistrée! Le traitement prendra quelque minutes, mais sous serez notifié dès que le montage sera disponible."
               )
             p1.send_message
+
+            sleep 2
+
+            # configuration
+            Cloudinary.config do |config|
+              config.cloud_name = "diqsvucdn"
+              config.api_key = "127829381549272"
+              config.api_secret = "Bv9KguwYaSSr3BtcNuhCU2YpE84"
+              config.secure = true
+            end
+
+            Cloudinary::Uploader.upload @image_path, public_id: @customer.phone
+
+            @cloudinary_image_url =
+              Cloudinary::Utils.cloudinary_url(
+                @customer.phone,
+                gravity: "face",
+                width: 200,
+                height: 200,
+                crop: "thumb"
+              )
+
+            # attache it to customer
+            @face_init = Down.download(@cloudinary_image_url)
+            FileUtils.mv(@face_init.path, "face_#{@customer.phone}.png")
+            @image_face = File.open("face_#{@customer.phone}.png")
+            @customer.face.attach(
+              io: @image_face,
+              filename: "face_#{@customer.phone}.png",
+              content_type: "image/jpg"
+            )
+
+            first_image =
+              MiniMagick::Image.open(
+                "https://mppp-goshen.com/wp-content/uploads/2023/04/challenge.png"
+              )
+            second_image = MiniMagick::Image.open(@image_face)
+            result =
+              first_image.composite(second_image) do |c|
+                c.compose "Over" # OverCompositeOp
+                c.geometry "+330+240" # copy second_image onto first_image from (20, 20)
+              end
+            @tmp_name = SecureRandom.hex(10)
+            result.write "challenge_#{@customer.phone}.jpg"
+
+            # attache challenge
+            @image_challenge = File.open("challenge_#{@customer.phone}.jpg")
+            @customer.challenge.attach(
+              io: @image_challenge,
+              filename: "challenge_#{@customer.phone}.jpg",
+              content_type: "image/jpg"
+            )
+
+            # send notification
+            image =
+              Whatsapp::WhatsappImages.new(
+                {
+                  phone: @phone,
+                  file: @customer.challenge.attach,
+                  caption:
+                    "Votre photo challenge est disponible, merci de la partager sur votre photo de profile"
+                }
+              )
+            image.send_image
           elsif @customer.steps == "send_photo_ko"
             @customer.update(step: "end")
 

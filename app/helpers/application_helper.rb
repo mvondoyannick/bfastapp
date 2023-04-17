@@ -9,18 +9,23 @@ module ApplicationHelper
     end
   end
 
+  def self.whatsApp
+  end
+  # Qp7kGiHaf2KSuhhEXAz3YMav
+
   def self.token
     "warning41644159v2rr"
   end
 
-  def self.cloudinary(id, phone, img)
+  def self.cloudinary(id, img)
     require "cloudinary"
     require "cloudinary/uploader"
     require "cloudinary/utils"
 
-    @phone = phone
-    @img = img
     @id = id
+    @img = img
+
+    @customer = Customer.find(@id)
 
     # configuration
     Cloudinary.config do |config|
@@ -32,28 +37,72 @@ module ApplicationHelper
 
     @random_name = SecureRandom.hex(3)
 
-    Cloudinary::Uploader.upload @img.delete(" "), public_id: @random_name
+    begin
+      Cloudinary::Uploader.upload @img, public_id: @customer.phone
+      @response =
+        Cloudinary::Utils.cloudinary_url(
+          @customer.phone,
+          gravity: "face",
+          width: 200,
+          height: 200,
+          crop: "thumb"
+        )
 
-    @response =
-      Cloudinary::Utils.cloudinary_url(
-        @random_name,
-        gravity: "face",
-        width: 200,
-        height: 200,
-        crop: "thumb"
+      first_image =
+        MiniMagick::Image.open(
+          "https://mppp-goshen.com/wp-content/uploads/2023/04/challenge.png"
+        )
+      second_image = MiniMagick::Image.open(@response)
+      result =
+        first_image.composite(second_image) do |c|
+          c.compose "Over" # OverCompositeOp
+          c.geometry "+330+240" # copy second_image onto first_image from (20, 20)
+        end
+      @tmp_name = SecureRandom.hex(10)
+      result.write "#{@customer.phone}.png"
+
+      # attach this to user
+      @down = Down.download(@response)
+      FileUtils.mv(@down.path, "#{@customer.phone}.png")
+
+      #upload photo to activeStorage
+      @photo_init = Down.download(Customer.first.photo)
+      @image = File.open("#{@customer.phone}.png")
+      Customer.first.challenge.attach(
+        io: @image,
+        filename: "#{@tmp_name}.png",
+        content_type: "image/png"
       )
 
-    # update user
-
-    @customer = Customer.find(@id)
-    @customer.update(is_cropped: true)
-    @customer.update(cropped: @response)
-
-    # send notification
-    @a =
-      WhatsApp::WhatsappMessages.new(
-        @phone,
-        "Le traitement est terminée et votre image est désormais disponible. Merci de nous faire confiance."
+      # upload to active storage
+      @image = File.open("#{@customer.phone}.png")
+      Customer.first.challenge.attach(
+        io: @image,
+        filename: "#{@tmp_name}.png",
+        content_type: "image/png"
       )
+
+      # update user
+      @customer.update(is_cropped: true)
+      @customer.update(cropped: @response)
+
+      # upload to active storage
+      if @customer.challenge.attached?
+        @image = File.open("#{@customer.phone}.png")
+        Customer.first.challenge.attach(
+          io: @image,
+          filename: "#{@tmp_name}.png",
+          content_type: "image/png"
+        )
+
+        @img
+      else
+        # nothing to do
+      end
+    rescue => exception
+      "Impossible de mettre à jour"
+    end
+
+    # Cloudinary::Uploader.upload @img.delete(" "), public_id: @random_name
   end
 end

@@ -11,11 +11,11 @@ class CustomerResource < Avo::BaseResource
   end
 
   grid do
-    cover "photo", as: :external_image, link_to_resource: true do |model|
-      if model.is_cropped
-        model.cropped
-      else
-      end
+    cover "photo",
+          as: :external_image,
+          radius: 25,
+          link_to_resource: true do |model|
+      model.face.attached? ? model.face : "Aucune image"
     end
     title :real_name, as: :text, required: true, link_to_resource: true
     body :excerpt, as: :text do |model|
@@ -25,20 +25,7 @@ class CustomerResource < Avo::BaseResource
 
   field :id, as: :id
   field "photo cropped", as: :external_image, radius: "25" do |model|
-    if model.is_cropped
-      model.cropped
-    else
-      begin
-        ApplicationHelper.cloudinary(model.id, model.phone, model.photo)
-        WhatsApp.WhatsappMessages(
-          model.phone,
-          "Votre challenge image est en cours de montage, merci de patienter"
-        )
-      rescue => exception
-        "Aucune image trouvée"
-        puts "Aucune image trouvée"
-      end
-    end
+    model.face.attached? ? model.face : "Aucune image"
   end
   # Fields generated from the model
   heading "Information d'identication"
@@ -71,6 +58,9 @@ class CustomerResource < Avo::BaseResource
   field :qr_code, as: :file, is_image: true, hide_on: [:index]
   field :photo, as: :text, hide_on: [:index]
   field :photo, as: :external_image, hide_on: [:index]
+  field "challenge", as: :file, is_image: true, hide_on: [:index] do |model|
+    model.challenge.attached? ? model.challenge : "Aucune image"
+  end
 
   # add fields here
 end

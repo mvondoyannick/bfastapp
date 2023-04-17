@@ -111,3 +111,9 @@ gem "pristine", "~> 0.0.3"
 gem "cloudinary", "~> 1.25"
 
 gem "remove_bg", "~> 1.5"
+
+gem "mini_magick", "~> 4.12"
+
+gem "down", "~> 5.4"
+
+gem "rmagick", "~> 5.2"
