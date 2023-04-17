@@ -754,6 +754,8 @@ class FocevController < ApiController
               Whatsapp::WhatsappImages.new(
                 {
                   phone: @phone,
+                  file:
+                    "https://mppp-goshen.com/wp-content/uploads/2023/03/je_connais_ma_tension.png",
                   caption:
                     "Bienvenue dans le challenge *JE CONNAIS MA TENSION*. Dont le thème est : Se *dépister et faire dépister les autres*"
                 }
