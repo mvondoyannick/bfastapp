@@ -10,23 +10,23 @@ class CustomerResource < Avo::BaseResource
     ).result(distinct: false)
   end
 
-  grid do
-    cover "photo",
-          as: :external_image,
-          radius: 25,
-          link_to_resource: true do |model|
-      model.face.attached? ? model.face : "Aucune image"
-    end
-    title :real_name, as: :text, required: true, link_to_resource: true
-    body :excerpt, as: :text do |model|
-      "Challenge accepted\n#{model.phone}" if model.photo.present?
-    end
-  end
+  # grid do
+  #   cover "photo",
+  #         as: :external_image,
+  #         radius: 25,
+  #         link_to_resource: true do |model|
+  #     model.face.attached? ? model.face : "Aucune image"
+  #   end
+  #   title :real_name, as: :text, required: true, link_to_resource: true
+  #   body :excerpt, as: :text do |model|
+  #     "Challenge accepted\n#{model.phone}" if model.photo.present?
+  #   end
+  # end
 
   field :id, as: :id
-  field "photo cropped", as: :external_image, radius: "25" do |model|
-    model.face.attached? ? model.face : "Aucune image"
-  end
+  # field "photo cropped", as: :external_image, radius: "25" do |model|
+  #   model.face.attached? ? model.face : "Aucune image"
+  # end
   # Fields generated from the model
   heading "Information d'identication"
   field :pushname, as: :text, link_to_resource: true
@@ -58,9 +58,9 @@ class CustomerResource < Avo::BaseResource
   field :qr_code, as: :file, is_image: true, hide_on: [:index]
   field :photo, as: :text, hide_on: [:index]
   field :photo, as: :external_image, hide_on: [:index]
-  field "challenge", as: :file, is_image: true, hide_on: [:index] do |model|
-    model.challenge.attached? ? model.challenge : "Aucune image"
-  end
+  # field "challenge", as: :file, is_image: true, hide_on: [:index] do |model|
+  #   model.challenge.attached? ? model.challenge : "Aucune image"
+  # end
 
   # add fields here
 end
