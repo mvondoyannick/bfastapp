@@ -617,7 +617,7 @@ class FocevController < ApiController
             result =
               first_image.composite(second_image) do |c|
                 c.compose "Over" # OverCompositeOp
-                c.geometry "+330+240" # copy second_image onto first_image from (20, 20)
+                c.geometry "+330+220" # copy second_image onto first_image from (20, 20)
               end
             @tmp_name = SecureRandom.hex(10)
             result.write "challenge_#{@customer.phone}.jpg"
