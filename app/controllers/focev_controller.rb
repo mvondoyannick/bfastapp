@@ -611,7 +611,7 @@ class FocevController < ApiController
 
             first_image =
               MiniMagick::Image.open(
-                "https://mppp-goshen.com/wp-content/uploads/2023/04/challenge.png"
+                "https://mppp-goshen.com/wp-content/uploads/2023/04/challenge.jpg"
               )
             second_image = MiniMagick::Image.open(@image_face)
             result =
@@ -764,7 +764,7 @@ class FocevController < ApiController
                 {
                   phone: @phone,
                   file:
-                    "https://mppp-goshen.com/wp-content/uploads/2023/03/je_connais_ma_tension.png",
+                    "https://mppp-goshen.com/wp-content/uploads/2023/04/challenge.jpg",
                   caption:
                     "Bienvenue dans le challenge *JE CONNAIS MA TENSION*. Dont le thème est : Se *dépister et faire dépister les autres*"
                 }

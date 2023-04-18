@@ -50,7 +50,7 @@ module ApplicationHelper
 
       first_image =
         MiniMagick::Image.open(
-          "https://mppp-goshen.com/wp-content/uploads/2023/04/challenge.png"
+          "https://mppp-goshen.com/wp-content/uploads/2023/04/challenge.jpg"
         )
       second_image = MiniMagick::Image.open(@response)
       result =
