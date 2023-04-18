@@ -11,12 +11,7 @@ class CustomerResource < Avo::BaseResource
   end
 
   grid do
-    cover "photo",
-          as: :external_image,
-          radius: 25,
-          link_to_resource: true do |model|
-      model.face if model.face.attached?
-    end
+    cover :face, as: :file, is_image: true, radius: 25, link_to_resource: true
     title :real_name, as: :text, required: true, link_to_resource: true
     body :excerpt, as: :text do |model|
       "Challenge accepted\n#{model.phone}" if model.photo.present?
@@ -24,9 +19,7 @@ class CustomerResource < Avo::BaseResource
   end
 
   field :id, as: :id
-  field "photo cropped", as: :external_image, radius: "25" do |model|
-    model.face if model.face.attached?
-  end
+  field :face, as: :file, is_image: true, radius: "25"
   # Fields generated from the model
   heading "Information d'identication"
   field :pushname, as: :text, link_to_resource: true
@@ -58,9 +51,11 @@ class CustomerResource < Avo::BaseResource
   field :qr_code, as: :file, is_image: true, hide_on: [:index]
   field :photo, as: :text, hide_on: [:index]
   field :photo, as: :external_image, hide_on: [:index]
-  field "challenge", as: :external_image, hide_on: [:index] do |model|
-    model.challenge if model.challenge.attached?
-  end
+  field :challenge,
+        as: :file,
+        is_image: true,
+        hide_on: [:index],
+        hide_on: [:index]
 
   # add fields here
 end

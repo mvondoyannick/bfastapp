@@ -594,6 +594,14 @@ class FocevController < ApiController
             # attache it to customer
             @face_init = Down.download(@cloudinary_image_url)
             FileUtils.mv(@face_init.path, "face_#{@customer.phone}.png")
+
+            #call remove.bg
+            RemoveBg.configure do |config|
+              config.api_key = "Qp7kGiHaf2KSuhhEXAz3YMav"
+            end
+            removebg = RemoveBg.from_file("face_#{@customer.phone}.png")
+            removebg.save("face_#{@customer.phone}.png", overwrite: true)
+
             @image_face = File.open("face_#{@customer.phone}.png")
             @customer.face.attach(
               io: @image_face,
@@ -623,16 +631,17 @@ class FocevController < ApiController
             )
 
             # send notification
-            image =
+            image_wa =
               Whatsapp::WhatsappImages.new(
                 {
                   phone: @phone,
-                  file: @customer.challenge,
+                  file:
+                    "#{request.base_url}#{Rails.application.routes.url_helpers.rails_blob_path(@customer.challenge, only_path: true)}",
                   caption:
-                    "Votre photo challenge est disponible, merci de la partager sur votre photo de profile"
+                    "Votre photo challenge est disponible #{@customer.appelation}, merci de la partager sur votre photo de profile"
                 }
               )
-            image.send_image
+            image_wa.send_image
           elsif @customer.steps == "send_photo_ko"
             @customer.update(step: "end")
 
