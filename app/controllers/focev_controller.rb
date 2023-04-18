@@ -611,7 +611,7 @@ class FocevController < ApiController
 
             first_image =
               MiniMagick::Image.open(
-                "https://mppp-goshen.com/wp-content/uploads/2023/04/challenge.jpg"
+                "https://mppp-goshen.com/wp-content/uploads/2023/04/challenge-1.jpg"
               )
             second_image = MiniMagick::Image.open(@image_face)
             result =
