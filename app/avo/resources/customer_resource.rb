@@ -28,6 +28,8 @@ class CustomerResource < Avo::BaseResource
   field :ip, as: :text, hide_on: [:index]
   field :sexe, as: :text, hide_on: [:index]
   field :age, as: :text, hide_on: [:index]
+  field :taille, as: :text, hide_on: [:index]
+  field :poids, as: :text, hide_on: [:index]
   heading "Parametres bras droit"
   field :tension_droit, as: :text, hide_on: [:index]
   field :diastole_droit, as: :text, hide_on: [:index]

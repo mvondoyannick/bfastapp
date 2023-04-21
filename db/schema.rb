@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_04_15_093220) do
+ActiveRecord::Schema[7.0].define(version: 2023_04_20_223330) do
   create_table "action_text_rich_texts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.text "body", size: :long
@@ -77,6 +77,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_15_093220) do
     t.string "photo_type"
     t.boolean "is_cropped"
     t.string "cropped"
+    t.string "poids"
+    t.string "taille"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

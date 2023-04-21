@@ -111,17 +111,22 @@ class FocevController < ApiController
               age =
                 Whatsapp::WhatsappMessages.new(
                   @phone,
-                  "Merci #{@customer.appelation}. Serait'il possible de connaitre votre âge?"
+                  "Merci #{@customer.appelation}. Serait'il possible de connaitre votre *âge*?\n_Si vous avez 40 ans, il faudra juste ecrire *40*_"
                 )
               age.send_message
             else
               # invalide sexe, try again
               query =
-                Whatsapp::WhatsappMessages.new(
-                  @phone,
-                  "Merci de selectionner un sexe valide #{@customer.appelation}. Quel est votre sexe?"
+                Whatsapp::WhatsappImages.new(
+                  {
+                    phone: @phone,
+                    file:
+                      "https://mppp-goshen.com/wp-content/uploads/2023/04/cardio-removebg-preview.png",
+                    caption:
+                      "Merci de selectionner un sexe valide #{@customer.appelation}. Quel est votre sexe?."
+                  }
                 )
-              query.send_message
+              query.send_image
 
               sleep 1
               masculin =
@@ -141,52 +146,102 @@ class FocevController < ApiController
 
               feminin.send_message
             end
+
+            # introduction de la taille
+            # introduction du poids
+          elsif @customer.steps == "poids"
+            if (30..250).member?(@body.to_i)
+              # le poids vari entre 30 et 250Kg
+              @customer.update(poids: @body)
+              @customer.update(steps: "taille")
+
+              # next question
+              taille =
+                Whatsapp::WhatsappMessages.new(
+                  @phone,
+                  "Merci #{@customer.appelation}, vous pesez #{@customer.poids}Kg. Serait'il également possible d'avoir votre *taille*? #{@customer.appelation}\n_Si vous avez une taille de 1m59, ecrire juste *159*_"
+                )
+              taille.send_message
+            else
+              query =
+                Whatsapp::WhatsappImages.new(
+                  {
+                    phone: @phone,
+                    file:
+                      "https://mppp-goshen.com/wp-content/uploads/2023/04/cardio-removebg-preview.png",
+                    caption:
+                      "Humm #{@customer.appelation}, certainement mes lunèttes doivent être sale, mais là...je suis incapable de lire votre poids sur la balance, pouvez encore me donner de nouveau votre poids?\n_si vous avec 50Kg merci de saisir juste *50*_"
+                  }
+                )
+              query.send_image
+            end
+          elsif @customer.steps == "taille"
+            if (100..250).member?(@body.to_i)
+              # entre 1m et 2m50 de taille
+              @customer.update(taille: @body)
+              @customer.update(steps: "QT")
+
+              sleep 1
+              # send next message
+              query =
+                Whatsapp::WhatsappMessages.new(
+                  @phone,
+                  "Maintenant nous allons passer aux informations *médicales*, à savoir prendre votre tension arterielle #{@customer.appelation}. Mais avant nous souhaiterions nous rassurer d'une chose"
+                )
+              query.send_message
+
+              # ====== other
+              sleep 1
+              # check if customer have tools
+              query0 =
+                Whatsapp::WhatsappMessages.new(
+                  @phone,
+                  "Avez-vous un *tensiomètre* à votre disposition actuellement #{@customer.appelation}."
+                )
+              query0.send_message
+
+              sleep 1
+              a =
+                Whatsapp::WhatsappMessages.new(
+                  @phone,
+                  "Saisir *A* si vous avez un tensiomètre"
+                )
+              a.send_message
+
+              sleep 1
+              b =
+                Whatsapp::WhatsappMessages.new(
+                  @phone,
+                  "Saisir *B* si vous n'en avez pas sur place/à disposition"
+                )
+              b.send_message
+
+              sleep 1
+              c =
+                Whatsapp::WhatsappMessages.new(
+                  @phone,
+                  "Saisir *C* pour savoir ce que c'est un *tensiomètre*"
+                ) #https://fr.wikipedia.org/wiki/Tensiomètre #https://fr.wikihow.com/lire-sa-tension-artérielle-avec-un-tensiomètre
+              c.send_message
+            else
+              c =
+                Whatsapp::WhatsappMessages.new(
+                  @phone,
+                  "J'ai quelque difficulté à lire votre taille ou alors la valeur saisie n'est pas correcte, pouvez vous la saisr de nouveau s'il vous plait."
+                )
+              c.send_message
+            end
           elsif @customer.steps == "3"
+            # @body.in?.between(18..100)
             @customer.update(age: @body)
-            @customer.update(steps: "QT") # QT = Question Tensiometre
+            @customer.update(steps: "poids")
 
+            # introduction de la taille
             sleep 1
-            # send next message
-            query =
-              Whatsapp::WhatsappMessages.new(
-                @phone,
-                "Maintenant nous allons passer aux informations *médicales*, à savoir prendre votre tension arterielle #{@customer.appelation}. Mais avant nous souhaiterions nous rassurer d'une chose"
-              )
-            query.send_message
-
-            # ====== other
-            sleep 1
-            # check if customer have tools
-            query0 =
-              Whatsapp::WhatsappMessages.new(
-                @phone,
-                "Avez-vous un *tensiomètre* à votre disposition actuellement #{@customer.appelation}."
-              )
-            query0.send_message
-
-            sleep 1
-            a =
-              Whatsapp::WhatsappMessages.new(
-                @phone,
-                "Saisir *A* si vous avez un tensiomètre"
-              )
-            a.send_message
-
-            sleep 1
-            b =
-              Whatsapp::WhatsappMessages.new(
-                @phone,
-                "Saisir *B* si vous n'en avez pas sur place/à disposition"
-              )
-            b.send_message
-
-            sleep 1
-            c =
-              Whatsapp::WhatsappMessages.new(
-                @phone,
-                "Saisir *C* pour savoir ce que c'est un *tensiomètre*"
-              ) #https://fr.wikipedia.org/wiki/Tensiomètre #https://fr.wikihow.com/lire-sa-tension-artérielle-avec-un-tensiomètre
-            c.send_message
+            send_message(
+              @phone,
+              "Vous avez donc #{@customer.age} ans, serait-il egalement possible que je puisse avoir votre *poids* en Kilogramme #{@customer.appelation}\n_Si vous avez un poids de 70Kg vous allez simplement ecrire *70*_"
+            )
           elsif @customer.steps == "QT"
             @customer.update(question_tension: @body.downcase)
 
@@ -207,11 +262,6 @@ class FocevController < ApiController
                         "OK #{@customer.appelation} merci de nous fournir la valeur du haut affichée sur le tensiometre placé sur votre bras droit *(SYS)*. \n_Celle encadrée en rouge, mais sur votre tensiomètre_"
                     }
                   )
-                # get =
-                #   Whatsapp::WhatsappMessages.new(
-                #     @phone,
-                #     "OK #{@customer.appelation} merci de nous fournir la valeur du haut affichée sur le tensiometre placé sur votre bras droit *(SYS)*."
-                #   )
                 img.send_image
               when "b"
                 @customer.update(steps: "no_tension")
@@ -563,12 +613,17 @@ class FocevController < ApiController
             @down = Down.download(@image_path)
             FileUtils.mv(@down.path, "#{@customer.phone}.jpg")
 
-            p1 =
-              Whatsapp::WhatsappMessages.new(
-                @phone,
-                "Votre image a été enregistrée! Le traitement prendra quelque minutes, mais sous serez notifié dès que le montage sera disponible."
+            query =
+              Whatsapp::WhatsappImages.new(
+                {
+                  phone: @phone,
+                  file:
+                    "https://mppp-goshen.com/wp-content/uploads/2023/04/cardio-removebg-preview.png",
+                  caption:
+                    "Votre image a été enregistrée! Le traitement prendra quelque secondes, mais vous serez notifié dès que le montage sera disponible."
+                }
               )
-            p1.send_message
+            query.send_image
 
             sleep 2
 
@@ -617,10 +672,24 @@ class FocevController < ApiController
             result =
               first_image.composite(second_image) do |c|
                 c.compose "Over" # OverCompositeOp
-                c.geometry "+330+220" # copy second_image onto first_image from (20, 20)
+                c.geometry "+340+200" # copy second_image onto first_image from (20, 20)
               end
             @tmp_name = SecureRandom.hex(10)
+
             result.write "challenge_#{@customer.phone}.jpg"
+
+            # reimport this image
+            finale_challenge =
+              MiniMagick::Image.open("challenge_#{@customer.phone}.jpg")
+            finale_challenge.combine_options do |c|
+              c.font "helvetica"
+              c.fill "white"
+              c.pointsize 20
+              c.gravity "center"
+              c.draw "text 150,160 '#{@customer.real_name}'"
+            end
+
+            finale_challenge.write "challenge_#{@customer.phone}.jpg"
 
             # attache challenge
             @image_challenge = File.open("challenge_#{@customer.phone}.jpg")
@@ -773,11 +842,16 @@ class FocevController < ApiController
             # message.send_message
             sleep 1
             query =
-              Whatsapp::WhatsappMessages.new(
-                @phone,
-                "Notre challenge vise à ce que tout le monde autour de nous connaisse sa tension artérielle et ainsi réduire les cas d'AVC. Acceptes tu le challenge? Je suis *CARDIO* et c'est moi qui vais t'accompagner durant cette courte aventure."
+              Whatsapp::WhatsappImages.new(
+                {
+                  phone: @phone,
+                  file:
+                    "https://mppp-goshen.com/wp-content/uploads/2023/04/cardio-removebg-preview.png",
+                  caption:
+                    "Notre challenge vise à ce que tout le monde autour de nous connaisse sa tension artérielle et ainsi réduire les cas d'AVC. Acceptes tu le challenge? \nJe suis le Dr *CARDIO* de la Fondation Coeur et Vie et c'est moi qui vais t'accompagner durant cette courte aventure."
+                }
               )
-            query.send_message
+            query.send_image
 
             customer.update(steps: 1)
 
@@ -884,5 +958,33 @@ class FocevController < ApiController
   # module language
   # adding language analusis capabilities
   def get_lang
+  end
+
+  def send_message(phone, message)
+    @phone = phone
+    @message = message
+    begin
+      url = URI("https://api.ultramsg.com/instance41644/messages/chat")
+
+      http = Net::HTTP.new(url.host, url.port)
+      http.use_ssl = true
+
+      request = Net::HTTP::Post.new(url)
+      request["content-type"] = "application/x-www-form-urlencoded"
+      form_data =
+        URI.encode_www_form(
+          {
+            token: ApplicationHelper.token,
+            to: "+#{ApplicationHelper.update_phone_number(@phone)}",
+            body: @message
+          }
+        )
+      request.body = form_data
+
+      response = http.request(request)
+      puts response.read_body
+    rescue => exception
+      puts "Une erreur est survenue : #{exception}"
+    end
   end
 end

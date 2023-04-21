@@ -46,7 +46,7 @@ module CloudinaryFocev
         result =
           first_image.composite(second_image) do |c|
             c.compose "Over" # OverCompositeOp
-            c.geometry "+330+240" # copy second_image onto first_image from (20, 20)
+            c.geometry "+340+220" # copy second_image onto first_image from (20, 20)
           end
         @tmp_name = SecureRandom.hex(10)
         result.write "app/assets/images/#{@tmp_name}.png"
