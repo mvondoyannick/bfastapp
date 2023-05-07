@@ -413,7 +413,7 @@ class FocevController < ApiController
             text =
               Whatsapp::WhatsappMessages.new(
                 @phone,
-                "Merci, nous allons vous revenir dans un delais de #{@customer.rappel} jour(s). #{message}. \n\nPensez à visiter le site de la Fondation Coeur et Vie à l'adresse www.coeuretvie.org"
+                "Merci, nous allons vous revenir dans un delais de #{@customer.rappel} jour(s). #{message}. \n\nPensez à visiter le site de la *Fondation Coeur et Vie* à l'adresse \nwww.coeur-vie.org"
               )
             text.send_message
           elsif @customer.steps == "need_rappel"
