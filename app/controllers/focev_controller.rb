@@ -121,7 +121,7 @@ class FocevController < ApiController
                   {
                     phone: @phone,
                     file:
-                      "https://mppp-goshen.com/wp-content/uploads/2023/04/cardio-removebg-preview.png",
+                      "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
                     caption:
                       "Merci de selectionner un sexe valide #{@customer.appelation}. Quel est votre sexe?."
                   }
@@ -168,7 +168,7 @@ class FocevController < ApiController
                   {
                     phone: @phone,
                     file:
-                      "https://mppp-goshen.com/wp-content/uploads/2023/04/cardio-removebg-preview.png",
+                      "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
                     caption:
                       "Humm #{@customer.appelation}, certainement mes lunèttes doivent être sale, mais là...je suis incapable de lire votre poids sur la balance, pouvez encore me donner de nouveau votre poids?\n_si vous avec 50Kg merci de saisir juste *50*_"
                   }
@@ -618,7 +618,7 @@ class FocevController < ApiController
                 {
                   phone: @phone,
                   file:
-                    "https://mppp-goshen.com/wp-content/uploads/2023/04/cardio-removebg-preview.png",
+                    "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
                   caption:
                     "Votre image a été enregistrée! Le traitement prendra quelque secondes, mais vous serez notifié dès que le montage sera disponible."
                 }
@@ -846,7 +846,7 @@ class FocevController < ApiController
                 {
                   phone: @phone,
                   file:
-                    "https://mppp-goshen.com/wp-content/uploads/2023/04/cardio-removebg-preview.png",
+                    "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
                   caption:
                     "Notre challenge vise à ce que tout le monde autour de nous connaisse sa tension artérielle et ainsi réduire les cas d'AVC. Acceptes tu le challenge? \nJe suis le Dr *CARDIO* de la Fondation Coeur et Vie et c'est moi qui vais t'accompagner durant cette courte aventure."
                 }
