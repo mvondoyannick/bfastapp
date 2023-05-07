@@ -847,7 +847,7 @@ class FocevController < ApiController
                 {
                   phone: @phone,
                   file:
-                    "https://mppp-goshen.com/wp-content/uploads/2023/04/challenge.jpg",
+                    "https://mppp-goshen.com/wp-content/uploads/2023/05/new_challenge.jpg",
                   caption:
                     "Bienvenue dans le challenge *JE CONNAIS MA TENSION*. Dont le thème est : Se *dépister et faire dépister les autres*"
                 }
