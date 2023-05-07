@@ -277,7 +277,7 @@ class FocevController < ApiController
                 d =
                   Whatsapp::WhatsappMessages.new(
                     @phone,
-                    "Saisir 1 Pour être rappelé(e) dans 24h *(demain)*"
+                    "Saisir 1 Pour être rappelé(e) dans 24h *(demain)*" # get the next day in french
                   )
                 d.send_message
 
@@ -285,7 +285,7 @@ class FocevController < ApiController
                 c =
                   Whatsapp::WhatsappMessages.new(
                     @phone,
-                    "Saisir 2 Pour être rappelé(e) dans 72h *(3 jours)*"
+                    "Saisir 2 Pour être rappelé(e) dans 72h *(3 jours)*" # the new 3 day in frech with some date
                   )
                 c.send_message
 
@@ -293,7 +293,7 @@ class FocevController < ApiController
                 e =
                   Whatsapp::WhatsappMessages.new(
                     @phone,
-                    "Saisir 3 Pour être rappelé(e) dans *5 jours*"
+                    "Saisir 3 Pour être rappelé(e) dans *5 jours*" # the new day appelation in french"
                   )
                 e.send_message
 
@@ -576,10 +576,24 @@ class FocevController < ApiController
               when "2"
                 @customer.update(steps: "send_photo_ko")
 
+                query =
+                  Whatsapp::WhatsappImages.new(
+                    {
+                      phone: @phone,
+                      file:
+                        "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
+                      caption:
+                        "Merci de votre réponse. Retouvez toutes les informations sur votre challence sur le site de la *Fondation Coeur et Vie* à l'adresse \nhttp://coeur-vie.org/my_challenge."
+                    }
+                  )
+                query.send_image
+
+                sleep 2
+
                 photo =
                   Whatsapp::WhatsappMessages.new(
                     @phone,
-                    "Merci de votre réponse.\nRetrouvez toutes les informations sur la Fondation Coeur et vie et tout ce qui concerne les maladies du coeur aux adresses\nhttps://coeuretvie.org\nhttps://www.facebook.com/Focev"
+                    "Ah j'oubliais ... \nBesoin d'informations, de conseils, un problème lié au domaine de la cardiologie? retrouve moi *CARDIO* sur les plateformes suivantes\n*Site web:*\nhttps://coeur-vie.org\n\n*Facebook:*\nhttps://www.facebook.com/Focev"
                   )
                 photo.send_message
               end
