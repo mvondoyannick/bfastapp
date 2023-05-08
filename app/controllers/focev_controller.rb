@@ -975,20 +975,20 @@ class FocevController < ApiController
   end
 
   # add user profession
-  def ask_profession(optional, get_response){
-    #request questions
-    query =
-    Whatsapp::WhatsappMessages.new(
-      @phone,
-      "Serait-il possible de connaitre votre profession #{@customer.appelation}?"
-    )
-  query.send_message
-  }
+  # def ask_profession(optional, get_response){
+  #   #request questions
+  #   query =
+  #   Whatsapp::WhatsappMessages.new(
+  #     @phone,
+  #     "Serait-il possible de connaitre votre profession #{@customer.appelation}?"
+  #   )
+  # query.send_message
+  # }
 
   # read user response
-  def read_user_response(){
-    responser = @body.get_response
-  }
+  # def read_user_response(){
+  #   responser = @body.get_response
+  # }
 
   def send_message(phone, message)
     @phone = phone
