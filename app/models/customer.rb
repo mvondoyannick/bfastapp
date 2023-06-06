@@ -40,17 +40,17 @@ class Customer < ApplicationRecord
     phone = Base64.encode64(self.phone)
     qr_url =
       url_for(
-        protocol: "https",
+        # protocol: "https",
         controller: "main",
         action: "index",
         # id: self.code,
-        host: "coeuretvie.org",
+        host: "coeur-vie.org",
         only_path: false,
-        coev: phone
+        coev: phone,
       )
 
     # add link to record
-    self.linked = qr_url
+    self.linked = "coeur-vie.org/challenge?cid=#{phone}" #qr_url
   end
 
   # correct phone number
@@ -75,7 +75,7 @@ class Customer < ApplicationRecord
         id: self.code,
         host: "superails.com",
         only_path: false,
-        abc: "fcv"
+        abc: "fcv",
       )
 
     # generate QR code
@@ -93,7 +93,7 @@ class Customer < ApplicationRecord
         module_px_size: 6,
         resize_exactly_to: false,
         resize_gte_to: false,
-        size: 256
+        size: 256,
       )
 
     # name the image
@@ -107,7 +107,7 @@ class Customer < ApplicationRecord
       ActiveStorage::Blob.create_and_upload!(
         io: File.open("tmp/storage/#{image_name}.png"),
         filename: image_name,
-        content_type: "png"
+        content_type: "png",
       )
 
     # attach ActiveStorage::Blob to the product

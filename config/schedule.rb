@@ -7,16 +7,15 @@
 #
 # set :output, "/path/to/my/cron_log.log"
 #
-every 1.minute do
+every 3.hours do
   # command "/usr/bin/some_great_command"
   # runner "MyModel.some_method"
   # rake "some:great:rake:task"
-  puts "hello"
-  rake "update_feed"
+  rake 'update_feed'
 end
-#
-# every 4.days do
-#   runner "AnotherModel.prune_old_records"
-# end
+every 4.days do
+  # runner "AnotherModel.prune_old_records"
+  puts '4 days'
+end
 
 # Learn more: http://github.com/javan/whenever

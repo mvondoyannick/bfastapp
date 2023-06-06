@@ -3,27 +3,60 @@ task :update_feed => :environment do
   puts "Updating feed..."
   Customer.all.each do |customer|
     if customer.date_rappel.nil?
-      puts 'not found date rappel'
-    else 
+      puts "Aucun rappel pour #{customer.phone}"
+    else
+      # Si la date est après la date courante (dans le futur), on ne fait rien
       if customer.date_rappel.to_datetime.after?(DateTime.now)
+        puts "Nothing to do, ce rappel est programmé dans le futur"
+      else
         #get cusomer information
         @phone = customer.phone
 
         # get steps
-        @steps = customer.steps 
+        @steps = customer.steps
 
         case @steps
-        when 'need_rappel'
+        when "need_rappel"
           w = Whatsapp::WhatsappMessages.new(@phone, "Hello *#{customer.real_name.upcase}*, comment vous allez? c'est *CADIO*, votre compagnon pour le challenge Je connais ma tension*.")
-          w.send_message  
+          w.send_message
 
           sleep 1
-          text = Whatsapp::WhatsappMessages.new(@phone, "Je reviens vers vous parce que nous avons un rendez-vous aujourd'hui, so vous êtes d'accord, merci de repondre par 'ok'.")
-          text.send_message        
-        end
+          query = Whatsapp::WhatsappImages.new(
+            {
+              phone: @phone,
+              file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
+              caption: "Je reviens vers vous parce que nous avons un rendez-vous aujourd'hui.",
+            }
+          )
+          query.send_image
 
-      else
-        puts 'none'
+          sleep 1
+          query0 = Whatsapp::WhatsappMessages.new(
+            @phone, "Avez-vous un *tensiomètre* à votre disposition actuellement #{@customer.appelation}."
+          )
+          query0.send_message
+
+          sleep 1
+          a = Whatsapp::WhatsappMessages.new(
+            @phone, "Saisir *A* si vous avez un tensiomètre"
+          )
+          a.send_message
+
+          sleep 1
+          b = Whatsapp::WhatsappMessages.new(
+            @phone, "Saisir *B* si vous n'en avez pas sur place/à disposition"
+          )
+          b.send_message
+
+          sleep 1
+          c = Whatsapp::WhatsappMessages.new(
+            @phone, "Saisir *C* pour savoir ce que c'est un *tensiomètre*"
+          )
+          c.send_message
+
+          # nous devons reset les informations de date_rappel à nil
+          customer.update(date_rappel: nil, steps: "QT")
+        end
       end
     end
   end

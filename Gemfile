@@ -63,8 +63,8 @@ group :development do
 
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
-   gem "ruby-lsp", require: false
-   gem "dotenv-rails", "~> 2.8"
+  gem "ruby-lsp", require: false
+  gem "dotenv-rails", "~> 2.8"
 end
 
 group :test do
@@ -91,19 +91,18 @@ gem "pundit", "~> 2.2"
 
 gem "rotp", "~> 6.2"
 
-gem 'phonelib'
+gem "phonelib"
 
 # ajout de capistrano
-gem 'capistrano', '~> 3.11'
-gem 'capistrano-rails', '~> 1.4'
-gem 'capistrano-passenger', '~> 0.2.0'
-gem 'capistrano-rbenv', '~> 2.1', '>= 2.1.4'
+gem "capistrano", "~> 3.11"
+gem "capistrano-rails", "~> 1.4"
+gem "capistrano-passenger", "~> 0.2.0"
+gem "capistrano-rbenv", "~> 2.1", ">= 2.1.4"
 
 gem "aws-sdk-s3", "~> 1.119"
 gem "mapkick-rb"
 
 gem "dockerfile-rails", ">= 1.0.0", :group => :development
-
 
 gem "whenever", "~> 1.0"
 
@@ -118,3 +117,7 @@ gem "mini_magick", "~> 4.12"
 gem "down", "~> 5.4"
 
 gem "rmagick", "~> 5.2"
+
+# gem "rubocop", "~> 1.52"
+
+gem "rufo", "~> 0.16.1"
