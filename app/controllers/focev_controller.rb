@@ -60,13 +60,13 @@ class FocevController < ApiController
 
         sleep 1
         a = Whatsapp::WhatsappMessages.new(
-          @phone, "Saisir *A* si vous avez un tensiomètre"
+          @phone, "Saisir *A* si vous avez pris votre tension artérielle"
         )
         a.send_message
 
         sleep 1
         b = Whatsapp::WhatsappMessages.new(
-          @phone, "Saisir *B* si vous n'en avez pas sur place/à disposition"
+          @phone, "Saisir *B* si vous allez le faire plus tard car ne disposant pas de tensiomètre"
         )
         b.send_message
 
@@ -84,40 +84,47 @@ class FocevController < ApiController
           if @customer.steps.nil?
           elsif @customer.steps == "1"
             # on enregistre le nom
-            @customer.update(real_name: @body)
-            @customer.update(steps: 2)
+            if @body.empty?
+              query = Whatsapp::WhatsappMessages.new(
+                @phone, "Merci de renseigner votre nom, cela permettra de vous identifier durant tout le processus d'echange avec *CARDIO*"
+              )
+              query.send_message
+            else
+              @customer.update(real_name: @body)
+              @customer.update(steps: 2)
 
-            sleep 1
-            # send next message
-            query = Whatsapp::WhatsappMessages.new(
-              @phone, "Merci *#{@customer.real_name.upcase}*, votre nom est original. Quel est votre sexe?"
-            )
-            query.send_message
+              sleep 1
+              # send next message
+              query = Whatsapp::WhatsappMessages.new(
+                @phone, "Merci *#{@customer.real_name.upcase}*, votre nom est original. Quel est votre sexe?"
+              )
+              query.send_message
 
-            sleep 1
-            masculin = Whatsapp::WhatsappMessages.new(
-              @phone, "Saisir 1 pour Masculin 🙋🏽‍♂ "
-            )
+              sleep 1
+              masculin = Whatsapp::WhatsappMessages.new(
+                @phone, "Saisir *M* pour Masculin 🙋🏽‍♂ "
+              )
 
-            masculin.send_message
+              masculin.send_message
 
-            sleep 1
-            feminin = Whatsapp::WhatsappMessages.new(
-              @phone, "Saisir 2 pour Féminin 🙋🏽‍♀ "
-            )
+              sleep 1
+              feminin = Whatsapp::WhatsappMessages.new(
+                @phone, "Saisir *F* pour Féminin 🙋🏽‍♀ "
+              )
 
-            feminin.send_message
+              feminin.send_message
+            end
           elsif @customer.steps == "2"
             # on enregistre le sexe
 
-            if %w[1 2].include? @body
+            if %w[M F m f].include? @body
               @customer.update(sexe: @body)
               @customer.update(steps: 3)
 
-              if @body == "1"
+              if (@body == "M" || @body == "m")
                 @customer.update(sexe: "masculin")
               else
-                @body == "2"
+                @body == "F"
                 @customer.update(sexe: "feminin")
               end
 
@@ -155,14 +162,24 @@ class FocevController < ApiController
             # introduction de la taille
             # introduction du poids
           elsif @customer.steps == "poids"
-            if (30..250).member?(@body.to_i)
+            if (@body.to_i == 0)
               # le poids vari entre 30 et 250Kg
               @customer.update(poids: @body)
               @customer.update(steps: "taille")
 
               # next question
               taille = Whatsapp::WhatsappMessages.new(
-                @phone, "Merci #{@customer.appelation}, vous pesez #{@customer.poids}Kg. Serait'il également possible d'avoir votre *taille*? #{@customer.appelation}\n_Si vous avez une taille de 1m59, ecrire juste *159*_"
+                @phone, "Merci #{@customer.appelation}, Serait'il également possible d'avoir votre *taille*? #{@customer.appelation}\n_Si vous avez une taille de 1m59, ecrire juste *159*_\n\n_Si vous n'avez pas cette information, merci de mettre juste un *0*_"
+              )
+              taille.send_message
+            elsif (30..250).member?(@body.to_i)
+              # le poids vari entre 30 et 250Kg
+              @customer.update(poids: @body)
+              @customer.update(steps: "taille")
+
+              # next question
+              taille = Whatsapp::WhatsappMessages.new(
+                @phone, "Merci #{@customer.appelation}, vous pesez #{@customer.poids}Kg. Serait'il également possible d'avoir votre *taille*? #{@customer.appelation}\n_Si vous avez une taille de 1m59, ecrire juste *159*_\n\n_Si vous n'avez pas cette information, merci de mettre juste un *0*_"
               )
               taille.send_message
             else
@@ -176,7 +193,8 @@ class FocevController < ApiController
               query.send_image
             end
           elsif @customer.steps == "taille"
-            if (100..250).member?(@body.to_i)
+            if (@body.to_i == 0)
+
               # entre 1m et 2m50 de taille
               @customer.update(taille: @body)
               @customer.update(steps: "QT")
@@ -198,13 +216,50 @@ class FocevController < ApiController
 
               sleep 1
               a = Whatsapp::WhatsappMessages.new(
-                @phone, "Saisir *A* si vous avez un tensiomètre"
+                @phone, "Saisir *A* si vous avez pris votre tension artérielle"
               )
               a.send_message
 
               sleep 1
               b = Whatsapp::WhatsappMessages.new(
-                @phone, "Saisir *B* si vous n'en avez pas sur place/à disposition"
+                @phone, "Saisir *B* si vous allez le faire plus tard car ne disposant pas de tensiomètre"
+              )
+              b.send_message
+
+              sleep 1
+              c = Whatsapp::WhatsappMessages.new(
+                @phone, "Saisir *C* pour savoir ce que c'est un *tensiomètre*"
+              ) #https://fr.wikipedia.org/wiki/Tensiomètre #https://fr.wikihow.com/lire-sa-tension-artérielle-avec-un-tensiomètre
+              c.send_message
+            elsif (100..250).member?(@body.to_i)
+              # entre 1m et 2m50 de taille
+              @customer.update(taille: @body)
+              @customer.update(steps: "QT")
+
+              sleep 1
+              # send next message
+              query = Whatsapp::WhatsappMessages.new(
+                @phone, "Maintenant nous allons passer aux informations *médicales*, à savoir prendre votre tension arterielle #{@customer.appelation}. Mais avant nous souhaiterions nous rassurer d'une chose"
+              )
+              query.send_message
+
+              # ====== other
+              sleep 1
+              # check if customer have tools
+              query0 = Whatsapp::WhatsappMessages.new(
+                @phone, "Avez-vous un *tensiomètre* à votre disposition actuellement #{@customer.appelation}."
+              )
+              query0.send_message
+
+              sleep 1
+              a = Whatsapp::WhatsappMessages.new(
+                @phone, "Saisir *A* si vous avez pris votre tension artérielle"
+              )
+              a.send_message
+
+              sleep 1
+              b = Whatsapp::WhatsappMessages.new(
+                @phone, "Saisir *B* si vous allez le faire plus tard car ne disposant pas de tensiomètre"
               )
               b.send_message
 
@@ -227,7 +282,7 @@ class FocevController < ApiController
             # introduction de la taille
             sleep 1
             send_message(
-              @phone, "Vous avez donc #{@customer.age} ans, serait-il egalement possible que je puisse avoir votre *poids* en Kilogramme #{@customer.appelation}\n_Si vous avez un poids de 70Kg vous allez simplement ecrire *70*_"
+              @phone, "Vous avez donc #{@customer.age} ans, serait-il egalement possible que je puisse avoir votre *poids* en Kilogramme #{@customer.appelation}\n_Si vous avez un poids de 70Kg vous allez simplement ecrire *70*_\n\n_Si vous n'avez pas cette information, mettez juste un *0*_"
             )
           elsif @customer.steps == "QT"
             @customer.update(question_tension: @body.downcase)
@@ -308,13 +363,13 @@ class FocevController < ApiController
 
                 sleep 1
                 a1 = Whatsapp::WhatsappMessages.new(
-                  @phone, "Saisir *A* si vous avez un tensiomètre"
+                  @phone, "Saisir *A* si vous avez pris votre tension artérielle"
                 )
                 a1.send_message
 
                 sleep 1
                 b2 = Whatsapp::WhatsappMessages.new(
-                  @phone, "Saisir *B* si vous n'en avez pas sur place/à disposition"
+                  @phone, "Saisir *B* si vous allez le faire plus tard car ne disposant pas de tensiomètre"
                 )
                 b2.send_message
               else
@@ -330,13 +385,13 @@ class FocevController < ApiController
 
               sleep 1
               a = Whatsapp::WhatsappMessages.new(
-                @phone, "Saisir *A* si vous avez un tensiomètre"
+                @phone, "Saisir *A* si vous avez pris votre tension artérielle"
               )
               a.send_message
 
               sleep 1
               b = Whatsapp::WhatsappMessages.new(
-                @phone, "Saisir *B* si vous n'en avez pas sur place/à disposition"
+                @phone, "Saisir *B* si vous allez le faire plus tard car ne disposant pas de tensiomètre"
               )
               b.send_message
 
@@ -480,26 +535,26 @@ class FocevController < ApiController
 
             sleep 1
             q = Whatsapp::WhatsappMessages.new(
-              @phone, "Saisir *1* si vous êtes interessé et souaitez nous envoyer votre photo de profile"
+              @phone, "Saisir *A* si vous êtes interessé et souaitez nous envoyer votre photo de profile"
             )
             q.send_message
 
             sleep 1
             p1 = Whatsapp::WhatsappMessages.new(
-              @phone, "Saisir *2* si nous n'etes pas intéressé(e)."
+              @phone, "Saisir *NON* si nous n'etes pas intéressé(e)."
             )
             p1.send_message
           elsif @customer.steps == "challenge"
-            if %w[1 2].include? @body
+            if %w[A a B b NON non Non].include? @body.downcase
               case @body
-              when "1"
+              when "A"
                 @customer.update(steps: "send_photo_ok")
 
                 photo = Whatsapp::WhatsappMessages.new(
                   @phone, "Merci de nous fournir une photo de votre visage.\n\n*NB:* _Toutes photos autre que celle de votre visage sera rejetée._"
                 )
                 photo.send_message
-              when "2"
+              when "NON"
                 @customer.update(steps: "send_photo_ko")
 
                 query = Whatsapp::WhatsappImages.new(
@@ -514,25 +569,25 @@ class FocevController < ApiController
                 sleep 2
 
                 photo = Whatsapp::WhatsappMessages.new(
-                  @phone, "Ah j'oubliais ... \nTu peux partager ton lien et inviter egalement d'autres personne à participer au challenge ...devient un ambassadeur en partageant ton lien et fais toi l'ambassadeur des *ambassadeurs* ton lien à partager est\n*#{@customer.linked}"
+                  @phone, "Ah j'oubliais ... \nTu peux partager ton lien et inviter egalement d'autres personnes à participer au challenge ...devient un ambassadeur en partageant ton lien et fais toi l'ambassadeur des *ambassadeurs* ton lien à partager est\n*#{@customer.linked}"
                 )
                 photo.send_message
               end
             else
               q = Whatsapp::WhatsappMessages.new(
-                @phone, "Les reponses attendues ne sont pas valides, merci de réessayer #{@customer.appelation}?"
+                @phone, "Les reponses attendues ne sont pas valides, merci de réessayer #{@customer.appelation}"
               )
               q.send_message
 
               sleep 1
               q1 = Whatsapp::WhatsappMessages.new(
-                @phone, "Saisir *1* si vous êtes interessé et souaitez nous envoyer votre photo de profile"
+                @phone, "Saisir *A* si vous êtes interessé et souaitez nous envoyer votre photo de profile"
               )
               q1.send_message
 
               sleep 1
               p1 = Whatsapp::WhatsappMessages.new(
-                @phone, "Saisir *2* si nous n'etes pas intéressé(e)."
+                @phone, "Saisir *NON* si nous n'etes pas intéressé(e)."
               )
               p1.send_message
             end
@@ -590,7 +645,7 @@ class FocevController < ApiController
             )
 
             first_image = MiniMagick::Image.open(
-              "https://mppp-goshen.com/wp-content/uploads/2023/04/challenge-1.jpg"
+              "http://coeur-vie.org/wp-content/uploads/2023/06/challenge-1_new.jpg"
             )
             second_image = MiniMagick::Image.open(@image_face)
             result = first_image.composite(second_image) do |c|
@@ -626,10 +681,17 @@ class FocevController < ApiController
               {
                 phone: @phone,
                 file: "#{request.base_url}#{Rails.application.routes.url_helpers.rails_blob_path(@customer.challenge, only_path: true)}",
-                caption: "Votre photo challenge est disponible #{@customer.appelation}, merci de la partager sur votre photo de profile",
+                caption: "Votre photo challenge est disponible #{@customer.appelation}, merci de la partager sur votre photo de profile. \nSaviez-vous que vous pouvez également partager ce lien et sauver des vies autour de vous? Juste en partageant votre lien d'ambassadeur \n\n #{@customer.linked}",
               }
             )
             image_wa.send_image
+
+            sleep 1
+            linked = Whatsapp::WhatsappMessages.new(
+              @phone,
+              "#{@customer.appelation}, nous pensons que votre engagement cache un désire plus grand...celui d'etre *embassadeur* du programme. Votre lien de partage *ambassadeur* est le suivant \n\n#{@customer.linked} \nPartagez le autour de toi, dans ta famille, sur les réseaux sociaux, parmis tes collègues...sauvez des vies."
+            )
+            linked.send_message
           elsif @customer.steps == "send_photo_ko"
             @customer.update(step: "end")
 
@@ -709,13 +771,13 @@ class FocevController < ApiController
               {
                 phone: @phone,
                 file: "https://mppp-goshen.com/wp-content/uploads/2023/03/qrcode2.png",
-                caption: "C'est terminé, vous vous êtes deja fait dépisté. Mais si vous souhaitez depister quelqu'un d'autre, saisir *autre* ou partager ce lien.\n shorturl.at/uCSW9",
+                caption: "C'est terminé, vous vous êtes deja fait dépisté. Mais si vous souhaitez depister quelqu'un d'autre, saisir *autre* ou partager ce lien.\n #{@customer.linked}",
               }
             )
             image.send_image
             sleep 2
             query = Whatsapp::WhatsappMessages.new(
-              @phone, "Votre lien de partage est le suivant shorturl.at/uCSW9, partagez-le afin de sauver des vies autour de vous.\n #{@customer.linked}"
+              @phone, "Votre lien de partage est le suivant #{@customer.linked}, partagez-le afin de sauver des vies autour de vous.\n #{@customer.linked}"
             )
             query.send_message
           end
@@ -732,7 +794,7 @@ class FocevController < ApiController
             image = Whatsapp::WhatsappImages.new(
               {
                 phone: @phone,
-                file: "https://mppp-goshen.com/wp-content/uploads/2023/05/new_challenge.jpg",
+                file: "http://coeur-vie.org/wp-content/uploads/2023/06/WhatsApp-Image-2023-06-06-a-11.40.55.jpg",
                 caption: "Bienvenue dans le challenge *JE CONNAIS MA TENSION*. Dont le thème est : Se *dépister et faire dépister les autres*",
               }
             )

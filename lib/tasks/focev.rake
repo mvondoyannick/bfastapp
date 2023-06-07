@@ -38,13 +38,13 @@ task :update_feed => :environment do
 
           sleep 1
           a = Whatsapp::WhatsappMessages.new(
-            @phone, "Saisir *A* si vous avez un tensiomètre"
+            @phone, "Saisir *A* si vous avez pris votre tension artérielle"
           )
           a.send_message
 
           sleep 1
           b = Whatsapp::WhatsappMessages.new(
-            @phone, "Saisir *B* si vous n'en avez pas sur place/à disposition"
+            @phone, "Saisir *B* si vous allez le faire plus tard car ne disposant pas de tensiomètre"
           )
           b.send_message
 

@@ -6,7 +6,7 @@ class CustomerResource < Avo::BaseResource
       id_eq: params[:q],
       pushname_cont: params[:q],
       real_name_cont: params[:q],
-      m: "or"
+      m: "or",
     ).result(distinct: false)
   end
 
@@ -19,11 +19,12 @@ class CustomerResource < Avo::BaseResource
   end
 
   field :id, as: :id
+  field :created_at, as: :date_time
   field :face, as: :file, is_image: true, radius: "25"
   # Fields generated from the model
   heading "Information d'identication"
   field :pushname, as: :text, link_to_resource: true
-  field :real_name, as: :text
+  field :real_name, as: :text, link_to_resource: true
   field :phone, as: :text
   field :ip, as: :text, hide_on: [:index]
   field :sexe, as: :text, hide_on: [:index]
@@ -38,7 +39,7 @@ class CustomerResource < Avo::BaseResource
   field :tension_gauche, as: :text, hide_on: [:index]
   field :diastole_gauche, as: :text, hide_on: [:index]
   field :poul_gauche, as: :text, hide_on: [:index]
-  field :quartier, as: :text
+  field :quartier, as: :text, hide_on: [:index]
   heading "Etape de progression"
   field :steps, as: :text, hide_on: [:index]
   field :link, as: :text, hide_on: [:index]
