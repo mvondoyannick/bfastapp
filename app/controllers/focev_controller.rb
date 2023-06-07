@@ -146,14 +146,14 @@ class FocevController < ApiController
 
               sleep 1
               masculin = Whatsapp::WhatsappMessages.new(
-                @phone, "Saisir 1 pour Masculin 🙋🏽‍♂ "
+                @phone, "Saisir *M* pour Masculin 🙋🏽‍♂ "
               )
 
               masculin.send_message
 
               sleep 1
               feminin = Whatsapp::WhatsappMessages.new(
-                @phone, "Saisir 2 pour Féminin 🙋🏽‍♀ "
+                @phone, "Saisir *F* pour Féminin 🙋🏽‍♀ "
               )
 
               feminin.send_message
