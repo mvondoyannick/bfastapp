@@ -561,7 +561,7 @@ class FocevController < ApiController
                   {
                     phone: @phone,
                     file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
-                    caption: "Merci de votre réponse. Retouvez toutes les informations sur le challenge  *Je connais ma tension* sur les réseau à l'adresse \nhttps://www.facebook.com/profile.php?id=100090307216315.",
+                    caption: "Merci de votre réponse. Retouvez toutes les informations sur le challenge  *Je connais ma tension* sur les réseaux à l'adresse \nhttps://www.facebook.com/profile.php?id=100090307216315.",
                   }
                 )
                 query.send_image
