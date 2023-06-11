@@ -121,3 +121,5 @@ gem "rmagick", "~> 5.2"
 # gem "rubocop", "~> 1.52"
 
 gem "rufo", "~> 0.16.1"
+
+gem "rufus-scheduler", "~> 3.9"

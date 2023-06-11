@@ -7,15 +7,25 @@
 #
 # set :output, "/path/to/my/cron_log.log"
 #
-every 3.hours do
-  # command "/usr/bin/some_great_command"
-  # runner "MyModel.some_method"
-  # rake "some:great:rake:task"
-  rake 'update_feed'
+# every 10.seconds do
+#   # command "/usr/bin/some_great_command"
+#   # runner "MyModel.some_method"
+#   # rake "some:great:rake:task"
+#   # rake 'update_feed'
+#   File.open("out.txt", "w") do |f|
+#     f.write("lorem")
+#   end
+# end
+every :hour, roles: [:app] do
+  rake "me:manage_photo"
 end
-every 4.days do
-  # runner "AnotherModel.prune_old_records"
-  puts '4 days'
+
+every :hour, roles: [:app] do
+  rake "me:update_feed"
+end
+
+every :day, at: "8:30 am", roles: [:app] do
+  rake "me:say_good_morning"
 end
 
 # Learn more: http://github.com/javan/whenever
