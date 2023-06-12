@@ -84,13 +84,20 @@ namespace :me do
   task :manage_photo => :environment do
     puts "generating collage..."
     puts "done !"
-    query = Whatsapp::WhatsappImages.new(
-      {
-        phone: 237691451189,
-        file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
-        caption: "Bonjour FRANCK, comment vous allez ce matin?\n\n_Pas besoin de répondre, juste pour vous dire de passer une bonne journée et de prendre soin de votre *coeur*_",
-      }
-    )
-    query.send_image
+    Customer.all.each do |customer|
+      query = Whatsapp::WhatsappImages.new(
+        {
+          phone: customer.phone,
+          file: "http://coeur-vie.org/wp-content/uploads/2023/06/tabac.png",
+          caption: "Bonjour, c'est le Dr *CARDIO* de la *Fondation Coeur et Vie*, \nj'aimerais partager une actualité avec toi ce matin. \n\n http://coeur-vie.org/2023/06/12/les-effets-de-la-cigarette-sur-le-coeur-sont-pires-que-ce-que-lon-pensait/, \n\n_#{customer.appelation} partage à quelqu'unu pour sauver des vies_",
+        }
+      )
+      query.send_image
+    end
+
+    # b = Whatsapp::WhatsappMessages.new(
+    #   237691451189, "Bonjour, j'aimerais partager une information avec vous ce matin. \n\n http://coeur-vie.org/2023/06/12/les-effets-de-la-cigarette-sur-le-coeur-sont-pires-que-ce-que-lon-pensait/, \n\n_Partage à quelqu'unu pour sauver des vies_"
+    # )
+    # b.send_message
   end
 end
