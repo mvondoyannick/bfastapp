@@ -14,7 +14,7 @@ class Customer < ApplicationRecord
       ip
       link
       phone
-      puhsname
+      pushname
       quartier
       sexe
       tension_droit
@@ -28,11 +28,11 @@ class Customer < ApplicationRecord
     if self.real_name.nil?
       case self.sexe
       when "feminin"
-        "Mme/Mlle *#{self.puhsname.upcase}*"
+        "Mme/Mlle *#{self.pushname.upcase}*"
       when "masculin"
-        "Mr *#{self.puhsname.upcase}*"
+        "Mr *#{self.pushname.upcase}*"
       else
-        "*#{self.puhsname.upcase}*"
+        "*#{self.pushname.upcase}*"
       end
     else
       case self.sexe
