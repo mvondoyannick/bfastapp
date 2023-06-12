@@ -25,13 +25,24 @@ class Customer < ApplicationRecord
 
   # customer appelation with sexe
   def appelation
-    case self.sexe
-    when "feminin"
-      "Mme/Mlle *#{self.real_name.upcase}*"
-    when "masculin"
-      "Mr *#{self.real_name.upcase}*"
+    if self.real_name.nil?
+      case self.sexe
+      when "feminin"
+        "Mme/Mlle *#{self.puhsname.upcase}*"
+      when "masculin"
+        "Mr *#{self.puhsname.upcase}*"
+      else
+        "*#{self.puhsname.upcase}*"
+      end
     else
-      "*#{self.real_name.upcase}*"
+      case self.sexe
+      when "feminin"
+        "Mme/Mlle *#{self.real_name.upcase}*"
+      when "masculin"
+        "Mr *#{self.real_name.upcase}*"
+      else
+        "*#{self.real_name.upcase}*"
+      end
     end
   end
 
