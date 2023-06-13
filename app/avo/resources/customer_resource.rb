@@ -55,6 +55,12 @@ class CustomerResource < Avo::BaseResource
   field :photo, as: :text, hide_on: [:index]
   field :photo, as: :external_image, hide_on: [:index]
   field :challenge, as: :file, is_image: true, hide_on: [:index]
+  field :settings, as: :has_many, name: "Paremetres patients"
 
   # add fields here
+  filter SexeFilter
+
+  # actions
+  action SendMessage
+  action ExportCsv
 end

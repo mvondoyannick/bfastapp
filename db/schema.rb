@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_04_20_223330) do
+ActiveRecord::Schema[7.0].define(version: 2023_06_13_122857) do
   create_table "action_text_rich_texts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.text "body", size: :long
@@ -79,8 +79,64 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_20_223330) do
     t.string "cropped"
     t.string "poids"
     t.string "taille"
+    t.string "lang"
+  end
+
+  create_table "parametres", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "tension_droite"
+    t.string "tension_gauche"
+    t.string "quartier"
+    t.string "steps"
+    t.string "code"
+    t.string "diastole_droit"
+    t.string "diastole_gauche"
+    t.string "poul_droit"
+    t.string "poul_gauche"
+    t.string "linked"
+    t.string "question_tension"
+    t.string "rappel"
+    t.string "rappel_day"
+    t.string "date_rappel"
+    t.string "photo"
+    t.string "photo_type"
+    t.boolean "is_cropped"
+    t.string "cropped"
+    t.string "poids"
+    t.string "taille"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "settings", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "tension_droite"
+    t.string "tension_gauche"
+    t.string "quartier"
+    t.string "steps"
+    t.string "code"
+    t.string "diastole_droit"
+    t.string "diastole_gauche"
+    t.string "poul_droit"
+    t.string "poul_gauche"
+    t.string "linked"
+    t.string "question_tension"
+    t.string "rappel"
+    t.string "rappel_day"
+    t.string "date_rappel"
+    t.string "photo"
+    t.string "photo_type"
+    t.boolean "is_cropped"
+    t.string "cropped"
+    t.string "poids"
+    t.string "taille"
+    t.bigint "customer_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "name"
+    t.string "lang"
+    t.index ["customer_id"], name: "index_settings_on_customer_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "settings", "customers"
 end

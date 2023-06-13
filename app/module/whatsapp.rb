@@ -3,13 +3,11 @@ module Whatsapp
   class WhatsappMessages
     def initialize(phone, message)
       @phone =
-        (
-          if phone.to_s.length < 12
-            ApplicationHelper.update_phone_number(phone)
-          else
-            phone
-          end
-        )
+        (if phone.to_s.length < 12
+          ApplicationHelper.update_phone_number(phone)
+        else
+          phone
+        end)
       @message = message
     end
 
@@ -22,7 +20,8 @@ module Whatsapp
       require "net/http"
 
       begin
-        url = URI("https://api.ultramsg.com/instance41644/messages/chat")
+        # url = URI("https://api.ultramsg.com/instance41644/messages/chat")
+        url = URI("https://api.ultramsg.com/instance34007/messages/chat")
 
         http = Net::HTTP.new(url.host, url.port)
         http.use_ssl = true
@@ -34,7 +33,7 @@ module Whatsapp
             {
               token: ApplicationHelper.token,
               to: "+#{ApplicationHelper.update_phone_number(@phone)}",
-              body: @message
+              body: @message,
             }
           )
         request.body = form_data
@@ -51,13 +50,11 @@ module Whatsapp
     def initialize(argv)
       @phone = argv[:phone]
       @file =
-        (
-          if argv[:file].present?
-            argv[:file]
-          else
-            "https://mppp-goshen.com/wp-content/uploads/2023/03/je_connais_ma_tension.png"
-          end
-        )
+        (if argv[:file].present?
+          argv[:file]
+        else
+          "https://mppp-goshen.com/wp-content/uploads/2023/03/je_connais_ma_tension.png"
+        end)
       @caption = argv[:caption]
     end
 
@@ -65,7 +62,8 @@ module Whatsapp
       require "uri"
       require "net/http"
 
-      url = URI("https://api.ultramsg.com/instance41644/messages/image")
+      #url = URI("https://api.ultramsg.com/instance41644/messages/image")
+      url = URI("https://api.ultramsg.com/instance34007/messages/image")
 
       http = Net::HTTP.new(url.host, url.port)
       http.use_ssl = true
@@ -78,7 +76,7 @@ module Whatsapp
             token: ApplicationHelper.token,
             to: "+#{ApplicationHelper.update_phone_number(@phone)}",
             image: @file,
-            caption: @caption
+            caption: @caption,
           }
         )
       request.body = form_data
@@ -98,7 +96,8 @@ module Whatsapp
       require "uri"
       require "net/http"
 
-      url = URI("https://api.ultramsg.com/instance41644/messages/location")
+      # url = URI("https://api.ultramsg.com/instance41644/messages/location")
+      url = URI("https://api.ultramsg.com/instance34007/messages/location")
 
       http = Net::HTTP.new(url.host, url.port)
       http.use_ssl = true
@@ -112,7 +111,7 @@ module Whatsapp
             to: "+#{ApplicationHelper.update_phone_number(@phone)}",
             address: "Clinique coeur et vie, Ndogbong, Douala",
             lat: "4.0552045",
-            lng: "9.74696"
+            lng: "9.74696",
           }
         )
       request.body = form_data

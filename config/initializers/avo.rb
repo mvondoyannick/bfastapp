@@ -1,21 +1,21 @@
 # For more information regarding these settings check out our docs https://docs.avohq.io
 Avo.configure do |config|
   ## == Routing ==
-  config.root_path = '/avo'
+  config.root_path = "/avo"
 
   # Where should the user be redirected when visting the `/avo` url
   # config.home_path = nil
 
   ## == Licensing ==
-  config.license = 'pro' # change this to 'pro' when you add the license key
-  config.license_key = "2a20ae96-5bb9-470c-a72f-a61c1d3ab405" #"add29394-baf1-4c95-9453-15981cefd362"
+  config.license = "pro" # change this to 'pro' when you add the license key
+  config.license_key = "d502a7d3-b359-48ba-bc7f-1a80a0555a09" #"add29394-baf1-4c95-9453-15981cefd362"
 
   ## == Set the context ==
   config.set_context do
     {
       # user: current_user,
       params: request.params,
-      headers: request.headers
+      headers: request.headers,
     }
     # Return a context object that gets evaluated in Avo::ApplicationController
   end
@@ -55,7 +55,7 @@ Avo.configure do |config|
   # config.cache_resource_filters = ->(current_user:, resource:) { current_user.cache_resource_filters?}
 
   ## == Customization ==
-  config.app_name = 'FOCEV - DASHBOARD'
+  config.app_name = "FOCEV - DASHBOARD"
   # config.timezone = 'UTC'
   # config.currency = 'USD'
   # config.hide_layout_when_printing = false
@@ -74,21 +74,21 @@ Avo.configure do |config|
   config.branding = {
     colors: {
       background: "248 246 242",
-      100 => "#fae8ff",
-      400 => "#e879f9",
-      500 => "#c026d3",
-      600 => "#86198f",
+      100 => "#fecaca",
+      400 => "#ef4444",
+      500 => "#dc2626",
+      600 => "#b91c1c",
     },
     chart_colors: ["#0B8AE2", "#34C683", "#2AB1EE", "#34C6A8"],
-    # logo: "/avo-assets/logo.png",
-    # logomark: "/avo-assets/logomark.png"
-    # placeholder: "/avo-assets/placeholder.svg"
+  # logo: "/avo-assets/logo.png",
+  # logomark: "/avo-assets/logomark.png"
+  # placeholder: "/avo-assets/placeholder.svg"
   }
 
   ## == Breadcrumbs ==
   config.display_breadcrumbs = true
   config.set_initial_breadcrumbs do
-    add_breadcrumb "Home", '/avo'
+    add_breadcrumb "Home", "/avo"
   end
 
   ## == Menus ==
@@ -99,20 +99,21 @@ Avo.configure do |config|
 
     section "Coeur et vie", icon: "library", collapsable: true, collapsed: false do
       # all_resources
-      group "Fondation" do 
+      group "Fondation" do
         resource :customer, label: "Utilisateurs"
+        resource :settings, label: "Parametres"
         # resource :distribution, label: "Supermarchés"
         # resource :category, label: "Categorie produits"
       end
 
-      # group "activités" do 
+      # group "activités" do
       #   resource :product, label: "Produits"
       # end
     end
-    
+
     # gaz et produits petroliers
     # section "Gaz & petrol", icon: "fire", collapsable: true, collapsed: true do
-    #   group "Fournisseurs" do 
+    #   group "Fournisseurs" do
     #     resource :gaz_fournisseur, label: "Vendeurs, commerçant"
     #     resource :gaz_manufacturer, label: "Fabriquants Gaz"
     #     resource :gaz_bottles, label: "Bouteilles de gaz"
@@ -120,22 +121,21 @@ Avo.configure do |config|
     # end
 
     # points relais
-    #section "Points relais", icon: "map", collapsable: true, collapsed: true do 
+    #section "Points relais", icon: "map", collapsable: true, collapsed: true do
     # end
 
     # taxi via drive
-    #section "Taxi and drive", icon: "key", collapsable: true, collapsed: true do 
+    #section "Taxi and drive", icon: "key", collapsable: true, collapsed: true do
     # end
-
 
     # section "Travel", icon: "location-marker", collapsable: true, collapsed: true do
     #   # all_resources
-    #   group "Entreprises" do 
+    #   group "Entreprises" do
     #     resource :travel_entreprise, label: "Entreprises"
     #     resource :travel_agence, label: "Agences"
     #   end
 
-    #   group "activités" do 
+    #   group "activités" do
     #     resource :reservation, label: "Reservation"
     #     resource :ville, label: "Ville"
     #     resource :bus, label: "Mes Bus"

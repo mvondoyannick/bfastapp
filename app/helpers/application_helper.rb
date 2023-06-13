@@ -14,7 +14,7 @@ module ApplicationHelper
   # Qp7kGiHaf2KSuhhEXAz3YMav
 
   def self.token
-    "warning41644159v2rr"
+    "5v5at5lta1ploldb" #warning41644159v2rr"
   end
 
   def self.cloudinary(id, img)
@@ -45,7 +45,7 @@ module ApplicationHelper
           gravity: "face",
           width: 200,
           height: 200,
-          crop: "thumb"
+          crop: "thumb",
         )
 
       first_image =
@@ -71,7 +71,7 @@ module ApplicationHelper
       Customer.first.challenge.attach(
         io: @image,
         filename: "#{@tmp_name}.png",
-        content_type: "image/png"
+        content_type: "image/png",
       )
 
       # upload to active storage
@@ -79,7 +79,7 @@ module ApplicationHelper
       Customer.first.challenge.attach(
         io: @image,
         filename: "#{@tmp_name}.png",
-        content_type: "image/png"
+        content_type: "image/png",
       )
 
       # update user
@@ -92,7 +92,7 @@ module ApplicationHelper
         Customer.first.challenge.attach(
           io: @image,
           filename: "#{@tmp_name}.png",
-          content_type: "image/png"
+          content_type: "image/png",
         )
 
         @img

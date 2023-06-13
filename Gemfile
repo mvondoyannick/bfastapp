@@ -57,6 +57,7 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
+  gem "rails-erd"
 
   # Add speed badges [https://github.com/MiniProfiler/rack-mini-profiler]
   # gem "rack-mini-profiler"
@@ -84,8 +85,6 @@ gem "geocoder", "~> 1.8"
 gem "rqrcode", "~> 2.0"
 
 gem "httparty"
-
-gem "chartkick"
 
 gem "pundit", "~> 2.2"
 
@@ -123,3 +122,7 @@ gem "rmagick", "~> 5.2"
 gem "rufo", "~> 0.16.1"
 
 gem "rufus-scheduler", "~> 3.9"
+
+gem "ruby-graphviz"
+
+gem "chartkick"
