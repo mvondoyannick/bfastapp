@@ -63,4 +63,12 @@ class CustomerResource < Avo::BaseResource
   # actions
   action SendMessage
   action ExportCsv
+
+  field :excerpt, as: :text, as_description: true do |model|
+    ActionView::Base.full_sanitizer.sanitize(model.phone).truncate 130
+  rescue
+    ""
+  end
+
+  field :face, as: :file, is_image: true, as_avatar: :rounded
 end

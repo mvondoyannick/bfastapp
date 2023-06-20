@@ -14,7 +14,7 @@ module ApplicationHelper
   # Qp7kGiHaf2KSuhhEXAz3YMav
 
   def self.token
-    "5v5at5lta1ploldb" #warning41644159v2rr"
+    "warning41644159v2rr"
   end
 
   def self.cloudinary(id, img)

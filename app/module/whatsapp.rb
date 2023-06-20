@@ -12,16 +12,13 @@ module Whatsapp
     end
 
     def send_message
-      puts ApplicationHelper.update_phone_number(@phone)
-
       puts "send message to #{@phone}"
 
       require "uri"
       require "net/http"
 
       begin
-        # url = URI("https://api.ultramsg.com/instance41644/messages/chat")
-        url = URI("https://api.ultramsg.com/instance34007/messages/chat")
+        url = URI("https://api.ultramsg.com/instance41644/messages/chat")
 
         http = Net::HTTP.new(url.host, url.port)
         http.use_ssl = true
@@ -63,7 +60,6 @@ module Whatsapp
       require "net/http"
 
       #url = URI("https://api.ultramsg.com/instance41644/messages/image")
-      url = URI("https://api.ultramsg.com/instance34007/messages/image")
 
       http = Net::HTTP.new(url.host, url.port)
       http.use_ssl = true
@@ -96,8 +92,7 @@ module Whatsapp
       require "uri"
       require "net/http"
 
-      # url = URI("https://api.ultramsg.com/instance41644/messages/location")
-      url = URI("https://api.ultramsg.com/instance34007/messages/location")
+      url = URI("https://api.ultramsg.com/instance41644/messages/location")
 
       http = Net::HTTP.new(url.host, url.port)
       http.use_ssl = true

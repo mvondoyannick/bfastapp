@@ -882,7 +882,7 @@ class FocevController < ApiController
 
               sleep 1
               a = Whatsapp::WhatsappMessages.new(
-                @phone, "Saisir *A* pour continuer et finaliser notre dernier entreprise"
+                @phone, "Saisir *A* pour continuer et finaliser notre derniere discussion"
               )
               a.send_message
 
@@ -898,11 +898,6 @@ class FocevController < ApiController
               )
               c.send_message
             end
-            sleep 1
-            c = Whatsapp::WhatsappMessages.new(
-              @phone, ""
-            )
-            c.send_message
           elsif @customer.settings.last.steps == "select_language"
             if %w[A B].include? @body
               @customer.update(lang: @body)
@@ -1001,7 +996,7 @@ class FocevController < ApiController
           )
           b.send_message
 
-          @customer.settings.last.update(steps: "select_language")
+          @customer.update(steps: "select_language")
         end
 
         # create new entry and get settings ID
