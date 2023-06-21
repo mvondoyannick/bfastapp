@@ -102,8 +102,7 @@ Avo.configure do |config|
       group "Fondation" do
         resource :customer, label: "Utilisateurs"
         resource :settings, label: "Parametres"
-        # resource :distribution, label: "Supermarchés"
-        # resource :category, label: "Categorie produits"
+        resource :erreurs, label: "Logs - Erreurs"
       end
 
       # group "activités" do

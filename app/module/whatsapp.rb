@@ -38,7 +38,18 @@ module Whatsapp
         response = http.request(request)
         puts response.read_body
       rescue => exception
-        puts "Une erreur est survenue : #{exception}"
+        # create a new error table record
+        @phone = "+#{ApplicationHelper.update_phone_number(@phone)}"
+        @customer = Customer.find_by_phone(@phone)
+        if @customer
+          @erreur = Erreur.new(
+            description: "#{exception}",
+            customer_id: @customer.id,
+          )
+          @erreur.save
+        else
+          puts "Utilisateur ou compte inconnu"
+        end
       end
     end
   end
@@ -59,7 +70,7 @@ module Whatsapp
       require "uri"
       require "net/http"
 
-      #url = URI("https://api.ultramsg.com/instance41644/messages/image")
+      url = URI("https://api.ultramsg.com/instance41644/messages/image")
 
       http = Net::HTTP.new(url.host, url.port)
       http.use_ssl = true
@@ -77,8 +88,23 @@ module Whatsapp
         )
       request.body = form_data
 
-      response = http.request(request)
-      puts response.read_body
+      begin
+        response = http.request(request)
+        puts response.read_body
+      rescue => exception
+
+        # create a new error table record
+        @phone = "+#{ApplicationHelper.update_phone_number(@phone)}"
+        @customer = Customer.find_by_phone(@phone)
+        if @customer
+          @erreur = Erreur.new(
+            description: "#{exception}",
+          )
+          @erreur.save
+        else
+          puts "Utilisateur ou compte inconnu"
+        end
+      end
     end
   end
 

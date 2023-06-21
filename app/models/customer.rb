@@ -7,6 +7,7 @@ class Customer < ApplicationRecord
   after_create :generate_qr
   after_create :generate_link
   has_many :settings
+  has_many :erreurs
   def self.ransackable_attributes(auth_object = nil)
     %w[
       age
@@ -29,18 +30,38 @@ class Customer < ApplicationRecord
     if self.real_name.nil?
       case self.sexe
       when "feminin"
-        "Mme/Mlle *#{self.pushname.upcase}*"
+        case self.lang
+        when "fr"
+          "Mme/Mlle *#{self.pushname.upcase}*"
+        when "en"
+          "Mrs *#{self.pushname.upcase}*"
+        end
       when "masculin"
-        "Mr *#{self.pushname.upcase}*"
+        case self.lang
+        when "fr"
+          "Mr *#{self.pushname.upcase}*"
+        when "en"
+          "Mr. *#{self.pushname.upcase}*"
+        end
       else
         "*#{self.pushname.upcase}*"
       end
     else
       case self.sexe
       when "feminin"
-        "Mme/Mlle *#{self.real_name.upcase}*"
+        case self.lang
+        when "fr"
+          "Mme/Mlle *#{self.real_name.upcase}*"
+        when "en"
+          "Mrs *#{self.real_name.upcase}*"
+        end
       when "masculin"
-        "Mr *#{self.real_name.upcase}*"
+        case self.lang
+        when "fr"
+          "Mr *#{self.real_name.upcase}*"
+        when "en"
+          "Mr. *#{self.real_name.upcase}*"
+        end
       else
         "*#{self.real_name.upcase}*"
       end
@@ -105,7 +126,7 @@ class Customer < ApplicationRecord
         module_px_size: 6,
         resize_exactly_to: false,
         resize_gte_to: false,
-        size: 256,
+        size: 128,
       )
 
     # name the image

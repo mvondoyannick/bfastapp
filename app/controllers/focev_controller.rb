@@ -1,4 +1,6 @@
 class FocevController < ApiController
+  # before_action :check_language
+
   def entry
     render json: { message: "hello" }
   end
@@ -569,7 +571,7 @@ class FocevController < ApiController
                 sleep 2
 
                 photo = Whatsapp::WhatsappMessages.new(
-                  @phone, "Ah j'oubliais ... \nTu peux partager ton lien et inviter egalement d'autres personnes à participer au challenge ...devient un ambassadeur en partageant ton lien et fais toi l'ambassadeur des *ambassadeurs* ton lien à partager est\n*#{@customer.linked}"
+                  @phone, "Ah j'oubliais ... \nTu peux partager ton lien et inviter egalement d'autres personnes à participer au challenge ...devient un ambassadeur en partageant ton lien et fais toi l'ambassadeur des *ambassadeurs* ton lien \n\nLe tien est #{@customer.linked}"
                 )
                 photo.send_message
               end
@@ -754,13 +756,13 @@ class FocevController < ApiController
             # prochaine question, le quartier
             sleep 1
             query = Whatsapp::WhatsappMessages.new(
-              @phone, "Voila, je vous remerci *#{@customer.appelation}*, nous avons terminé."
+              @phone, "Voila, je vous remerci #{@customer.appelation}, nous avons terminé."
             )
             query.send_message
 
             sleep 2
             query1 = Whatsapp::WhatsappMessages.new(
-              @phone, "J'oubliais, le challenge continue *#{@customer.appelation}*, essaye de dépister d'autres personnes autour de toi, même dans ta *famille, collègues, ami(e)s, reunions* et  découvre quelque chose d'extraordinaire."
+              @phone, "J'oubliais, le challenge continue #{@customer.appelation}, essaye de dépister d'autres personnes autour de toi, même dans ta *famille, collègues, ami(e)s, reunions* et  découvre quelque chose d'extraordinaire."
             )
             query1.send_message
           else
@@ -816,7 +818,7 @@ class FocevController < ApiController
 
             # on pose la prochaine question sur le nom et le prénom
             query1 = Whatsapp::WhatsappMessages.new(
-              @phone, "Pour confirmer que vous acceptez le *challenge*, comment je vous appelle?"
+              @phone, "Pour confirmer que vous acceptez le *challenge*, comment je vous appelle?\n\n_En acceptant le challenge *Je Connais ma Tension* vous acceptez les regles de confidentialités disponibles sur notre site web http://coeur-vie.org/privacy_"
             )
             query1.send_message
           else
@@ -845,154 +847,876 @@ class FocevController < ApiController
 
       @customer = Customer.find_by_phone(@phone)
       if @customer
-        if !@customer.settings.empty?
-          if @customer.settings.last.steps == "request_question"
-            query = Whatsapp::WhatsappMessages.new(
-              @phone, "Notre dernière discussion ne semble pas avoir été terminé #{@customer.appelation}. Je vous propose ceci"
-            )
-            query.send_message
+        puts "customer found as #{@customer.pushname}"
 
-            sleep 1
+        if @customer.steps == "select_language"
+          puts "#{@customer.pushname} has to define language"
+          if %w[A B].include? @body
+            case @body
+            when "A" #francais
+              @customer.update(lang: "fr")
+            when "B" #Anglais
+              @customer.update(lang: "en")
+            else
+              puts "Impossible de continuer"
+            end
+
+            # next question with lang as condition
+            case @customer.lang
+            when "fr"
+              welcome_fr
+
+              # get name
+              @customer.update(steps: "request_name")
+            when "en"
+              welcome_en
+
+              # get name
+              @customer.update(steps: "request_name")
+            else
+              # selectionner de nouveau la langue
+
+              request_language
+
+              @customer.update(steps: "select_language")
+            end
+          else
             a = Whatsapp::WhatsappMessages.new(
-              @phone, "Saisir *A* pour continuer et finaliser notre dernier entreprise"
+              @phone, "Les valeurs choisies ne sont pas correctes, merci de modifier et de réessayer"
             )
             a.send_message
 
+            sleep 2
+            query = Whatsapp::WhatsappImages.new(
+              {
+                phone: @phone,
+                file: "http://coeur-vie.org/wp-content/uploads/2023/06/translate.png",
+                caption: "*Bonjour!* Veillez selectionner votre langue de conversation\n\n_*Hello!* Please select your conversation language_",
+              }
+            )
+            query.send_image
+
             sleep 1
+
+            a = Whatsapp::WhatsappMessages.new(
+              @phone, "Saisir *A* pour le 🇫🇷 FRANCAIS \n====\n_Type *A* for 🇫🇷 FRENCH_"
+            )
+            a.send_message
+
             b = Whatsapp::WhatsappMessages.new(
-              @phone, "Saisir *B* pour commencer un noueau challenge \n\n_Pour vous ou pour un(e) ami(e), un proche une tierce personne_"
+              @phone, "Saisir *B* pour 🇬🇧 l'ANGLAIS \n====\n_Type *B* for 🇬🇧 ENGLISH_"
             )
             b.send_message
 
-            sleep 1
-            c = Whatsapp::WhatsappMessages.new(
-              @phone, "Saisir *C* pour que je vous rappelle en quoi consiste le programme je connais ma tension"
-            )
-            c.send_message
+            @customer.update(steps: "select_language")
+          end
+        elsif @customer.steps == "request_name"
+          if @body.index(/[^[:alnum:]]/).nil?
+            # save this information
+            @customer.update(real_name: @body)
 
-            # update some informations
-            @customer.settings.last.update(steps: "answer_question")
-          elsif @customer.settings.last.steps == "answer_question"
-            if %w[A B C].include? @body
-            else
-              query = Whatsapp::WhatsappMessages.new(
-                @phone, "Je n'ai pas bien saisie votre choix!\nNotre dernière discussion ne semble pas avoir été terminé #{@customer.appelation}. Je vous propose ceci"
-              )
-              query.send_message
-
-              sleep 1
-              a = Whatsapp::WhatsappMessages.new(
-                @phone, "Saisir *A* pour continuer et finaliser notre derniere discussion"
-              )
-              a.send_message
-
-              sleep 1
-              b = Whatsapp::WhatsappMessages.new(
-                @phone, "Saisir *B* pour commencer un noueau challenge \n\n_Pour vous ou pour un(e) ami(e), un proche une tierce personne_"
-              )
-              b.send_message
-
-              sleep 1
-              c = Whatsapp::WhatsappMessages.new(
-                @phone, "Saisir *C* pour que je vous rappelle en quoi consiste le programme je connais ma tension"
-              )
-              c.send_message
+            case @customer.lang
+            when "fr"
+              request_sexe_fr
+            when "en"
+              request_sexe_en
             end
-          elsif @customer.settings.last.steps == "select_language"
-            if %w[A B].include? @body
-              @customer.update(lang: @body)
-              @setting = @customer.settings.new.save
 
-              # next question
-              case @customer.lang
-              when "A" #francais
-                image = Whatsapp::WhatsappImages.new(
+            @customer.update(steps: "request_sexe")
+          else
+            a = Whatsapp::WhatsappMessages.new(
+              @phone, "Le nom que vous avez fourni n'est pas valide, merci de saisir un nom valide"
+            )
+            a.send_message
+            @customer.update(steps: "request_name")
+          end
+        elsif @customer.steps == "request_sexe"
+          if %w[A B].include? @body
+            case @body
+            when "A"
+              @customer.update(sexe: "masculin")
+            when "B"
+              @customer.update(sexe: "feminin")
+            end
+
+            # next question about age
+            case @customer.lang
+            when "fr"
+              age = Whatsapp::WhatsappMessages.new(
+                @phone, "Merci #{@customer.appelation}. Serait'il possible de connaitre votre *âge*?\n_Si vous avez 40 ans, il faudra juste ecrire *40*_"
+              )
+              age.send_message
+            when "en"
+              age = Whatsapp::WhatsappMessages.new(
+                @phone, "Thanks #{@customer.appelation}. Would it be possible to know your *age*?\n_If you are 40, just write *40*_"
+              )
+              age.send_message
+            end
+            @customer.update(steps: "request_age")
+          else
+            case @customer.lang
+            when "fr"
+            when "en"
+            end
+          end
+        elsif @customer.steps == "request_age"
+          @customer.update(age: @body)
+          case @customer.lang
+          when "fr"
+            age = Whatsapp::WhatsappMessages.new(
+              @phone, "Vous avez donc *#{@customer.age}* ans #{@customer.appelation}, dans la même lancée, serait-il également possible que je puisse avoir votre poids en Kilogramme?\n\n_Si vous avez un poinds de 70Kg vous allez simplement ecrire *70*. Si vous n'avez pas cette information, saisir *0* (zero)_"
+            )
+            age.send_message
+          when "en"
+            age = Whatsapp::WhatsappMessages.new(
+              @phone, "So you have *#{@customer.age}* years #{@customer.appelation}, in the same vein, would it also be possible for me to have your weight in Kilograms?\n\n_If you have a weight of 70Kg you will simply write *70*. If you do not have this information, enter *0* (zero)_"
+            )
+            age.send_message
+          end
+          @customer.update(steps: "request_poids")
+        elsif @customer.steps == "request_poids"
+          @customer.update(poids: @body)
+          case @customer.lang
+          when "fr"
+            taille = Whatsapp::WhatsappMessages.new(
+              @phone, "Merci #{@customer.appelation}, Serait'il également possible d'avoir votre *taille*? #{@customer.appelation}\n_Si vous avez une taille de 1m59, ecrire juste *159*_\n\n_Si vous n'avez pas cette information, merci de mettre juste un *0*_"
+            )
+            taille.send_message
+          when "en"
+            taille = Whatsapp::WhatsappMessages.new(
+              @phone, "Thanks #{@customer.appelation}, Would it also be possible to have your *size*? #{@customer.appelation}\n_If you are 1m59 tall, just write *159*_\n\n_If you don't have this information, please just put a *0*_"
+            )
+            taille.send_message
+          end
+          @customer.update(steps: "request_taille")
+        elsif @customer.steps == "request_taille"
+          @customer.update(taille: @body)
+          case @customer.lang
+          when "fr"
+            request_tensiometre_fr
+          when "en"
+            request_tensiometre_en
+          end
+          @customer.update(steps: "request_tension")
+        elsif @customer.steps == "request_tension"
+          if %w[A B C].include? @body
+            case @customer.lang
+            when "fr"
+              case @body
+              when "A"
+                # j'ai un tensiometre
+                img = Whatsapp::WhatsappImages.new(
                   {
                     phone: @phone,
-                    file: "http://coeur-vie.org/wp-content/uploads/2023/06/WhatsApp-Image-2023-06-06-a-11.40.55.jpg",
-                    caption: "Bienvenue dans le challenge *JE CONNAIS MA TENSION*. Dont le thème est : Se *dépister et faire dépister les autres*",
+                    file: "https://mppp-goshen.com/wp-content/uploads/2023/04/sys.png",
+                    caption: "OK #{@customer.appelation} merci de nous fournir la valeur du haut affichée sur le tensiometre placé sur votre bras droit *(SYS)*. \n_Celle encadrée en rouge, mais sur votre tensiomètre_",
                   }
                 )
-                image.send_image
+                img.send_image
+
+                # read systole
+                @customer.update(steps: "read_systole")
+              when "B"
+                no = Whatsapp::WhatsappMessages.new(
+                  @phone, "Vous ne semblez pas avoir de tensiomètre à portée de main. Pourrions-nous revenir vers vous selon les options proposées ? #{@customer.appelation}?"
+                )
+                no.send_message
 
                 sleep 1
-                query = Whatsapp::WhatsappImages.new(
-                  {
-                    phone: @phone,
-                    file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
-                    caption: "Notre challenge vise à ce que tout le monde autour de nous connaisse sa tension artérielle et ainsi réduire les cas d'AVC. Acceptes tu le challenge? \nJe suis le Dr *CARDIO* de la Fondation Coeur et Vie et c'est moi qui vais t'accompagner durant cette courte aventure.",
-                  }
+                d = Whatsapp::WhatsappMessages.new(
+                  @phone, "Entrez 1 Pour être rappelé dans 24h *(demain)*" # get the next day in french
                 )
-                query.send_image
-
-                sleep 2
-                query1 = Whatsapp::WhatsappMessages.new(
-                  @phone, "Pour confirmer que vous acceptez le *challenge*, comment je vous appelle?"
-                )
-                query1.send_message
-
-                # create and request personals informations
-                @customer.update(steps: "request_name")
-              when "B" #Anglais
-                image = Whatsapp::WhatsappImages.new(
-                  {
-                    phone: @phone,
-                    file: "http://coeur-vie.org/wp-content/uploads/2023/06/WhatsApp-Image-2023-06-06-a-11.40.55.jpg",
-                    caption: "Welcome to the *I KNOW MY TENSION* challenge. The theme of the challenge is: *Screen yourself and have others screened*.",
-                  }
-                )
-                image.send_image
+                d.send_message
 
                 sleep 1
-                query = Whatsapp::WhatsappImages.new(
-                  {
-                    phone: @phone,
-                    file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
-                    caption: "Notre challenge vise à ce que tout le monde autour de nous connaisse sa tension artérielle et ainsi réduire les cas d'AVC. Acceptes tu le challenge? \nJe suis le Dr *CARDIO* de la Fondation Coeur et Vie et c'est moi qui vais t'accompagner durant cette courte aventure.",
-                  }
+                c = Whatsapp::WhatsappMessages.new(
+                  @phone, "Entrez 2 Pour être rappelé sous 72h *(3 jours)*" # the new 3 day in frech with some date
                 )
-                query.send_image
+                c.send_message
 
-                sleep 2
-                query1 = Whatsapp::WhatsappMessages.new(
-                  @phone, "To confirm that you accept the *challenge*, what do I call you?"
+                sleep 1
+                e = Whatsapp::WhatsappMessages.new(
+                  @phone, "Entrez 3 Pour être rappelé dans *5 jours*" # the new day appelation in french"
                 )
-                query1.send_message
+                e.send_message
 
-                # request personal informations
-                @customer.update(steps: "request_name")
+                sleep 1
+                f = Whatsapp::WhatsappMessages.new(
+                  @phone, "Entrez 4 pour me donner un peu de temps, je vous recontacterai."
+                )
+                f.send_message
+              when "C"
+                query =
+                  Whatsapp::WhatsappMessages.new(
+                    @phone, "Vous souhaitez en savoir plus sur le tensiomètre, nous avons deux articles pour vous #{@customer.appelation}."
+                  )
+                query.send_message
+
+                sleep 1
+                wiki = Whatsapp::WhatsappMessages.new(
+                  @phone, "*Wikipedia* nous présente le tensiomètre \n\nhttps://fr.wikipedia.org/wiki/Tensiomètre"
+                )
+                wiki.send_message
+
+                sleep 1
+                pedia = Whatsapp::WhatsappMessages.new(
+                  @phone, "*WikiHow* pour apprendre à lire un tensiomètre \n\nhttps://fr.wikihow.com/lire-sa-tension-artérielle-avec-un-tensiomètre"
+                )
+                pedia.send_message
               end
-            else
-              query = Whatsapp::WhatsappMessages.new(
-                @phone, "The aim of our challenge is to get everyone around us to know their blood pressure and thus reduce the number of strokes. Do you accept the challenge? \nI'm Dr *CARDIO* from the Heart and Life Foundation and I'll be accompanying you on this short adventure."
-              )
-              query.send_message
+            when "en"
+              case @body
+              when "A"
+                img = Whatsapp::WhatsappImages.new(
+                  {
+                    phone: @phone,
+                    file: "https://mppp-goshen.com/wp-content/uploads/2023/04/sys.png",
+                    caption: "OK #{@customer.appelation} please provide us with the top value displayed on the blood pressure monitor placed on your right arm *(SYS)*. \n_The one framed in red, but on your blood pressure monitor_",
+                  }
+                )
+                img.send_image
+                @customer.update(steps: "read_systole")
+              when "B"
+                no = Whatsapp::WhatsappMessages.new(
+                  @phone, "Um, you don't seem to have a blood pressure monitor handy. Could we get back to you according to the options offered? #{@customer.appelation}?"
+                )
+                no.send_message
 
-              a = Whatsapp::WhatsappMessages.new(
-                @phone, "Saisir *A* pour le FRANCAIS \n\n_Type *A* for FRENCH_"
-              )
-              a.send_message
+                sleep 1
+                d = Whatsapp::WhatsappMessages.new(
+                  @phone, "Enter 1 To be called back in 24 hours *(tomorrow)*" # get the next day in french
+                )
+                d.send_message
 
-              b = Whatsapp::WhatsappMessages.new(
-                @phone, "Saisir *B* pour l'ANGLAIS \n\n_Type *B* for ENGLISH_"
-              )
-              b.send_message
+                sleep 1
+                c = Whatsapp::WhatsappMessages.new(
+                  @phone, "Enter 2 To be called back within 72 hours *(3 days)*" # the new 3 day in frech with some date
+                )
+                c.send_message
+
+                sleep 1
+                e = Whatsapp::WhatsappMessages.new(
+                  @phone, "Enter 3 To be called back in *5 days*" # the new day appelation in french"
+                )
+                e.send_message
+
+                sleep 1
+                f = Whatsapp::WhatsappMessages.new(
+                  @phone, "Enter 4 to give me some time, I'll get back to you."
+                )
+                f.send_message
+              when "C"
+                query =
+                  Whatsapp::WhatsappMessages.new(
+                    @phone, "You want to learn more about the blood pressure monitor, we have two articles for you #{@customer.appelation}."
+                  )
+                query.send_message
+
+                sleep 1
+                wiki = Whatsapp::WhatsappMessages.new(
+                  @phone, "*Wikipedia* introduces us to the blood pressure monitor \n\nhttps://en.wikipedia.org/wiki/Sphygmomanometer"
+                )
+                wiki.send_message
+
+                sleep 1
+                pedia = Whatsapp::WhatsappMessages.new(
+                  @phone, "*WikiHow* to learn how to read a blood pressure monitor \n\nhttps://fr.wikihow.com/lire-sa-tension-artérielle-avec-un-tensiomètre"
+                )
+                pedia.send_message
+              else
+              end
             end
           else
+            case @customer.lang
+            when "fr"
+              request_tensiometre_fr
+            when "en"
+              request_tensiometre_en
+            end
+            @customer.update(steps: "request_tension")
           end
-        else
-          query = Whatsapp::WhatsappMessages.new(
-            @phone, "Bonjour! vous souhaitez passer le challenge *je connais ma tension* en quelle langue?\n\nHi! what language would you like to take the *I know my blood pressure* challenge in?"
+        elsif @customer.steps == "read_systole"
+          @settings = @customer.settings.new(
+            tension_droite: @body,
           )
-          query.send_message
+          if @settings.save
+            case @customer.lang
+            when "fr"
+              img = Whatsapp::WhatsappImages.new(
+                {
+                  phone: @phone,
+                  file: "https://mppp-goshen.com/wp-content/uploads/2023/04/dia.png",
+                  caption: "Merci, cette valeur de *#{@customer.settings.last.tension_droite}* a été enregistré. Maintenant nous aurons besoin que vous nous fournissiez la valeur situé au milieu de votre tensiometre placé toujours sur votre bras droit *(DIA)*. \n_Celle encadrée en rouge, mais sur votre tensiomètre_",
+                }
+              )
+              img.send_image
+              @customer.update(steps: "read_diastole")
+            when "en"
+              img = Whatsapp::WhatsappImages.new(
+                {
+                  phone: @phone,
+                  file: "https://mppp-goshen.com/wp-content/uploads/2023/04/dia.png",
+                  caption: "Thank you, this value of *#{@customer.settings.last.tension_droite}* has been registered. Now we will need you to provide us with the value located in the middle of your blood pressure monitor placed always on your right arm *(DIA)*. \n_The one framed in red, but on your blood pressure monitor_",
+                }
+              )
+              img.send_image
+              @customer.update(steps: "read_diastole")
+            end
+          else
+            # creation of error logs
+            @erreur = Erreur.new(
+              description: @settings.errors.message,
+              customer_id: @customer.id,
+            )
+            @erreur.save
+          end
+        elsif @customer.steps == "read_diastole"
+          @settings = @customer.settings.last.update(
+            diastole_droit: @body,
+          )
+          if @settings
+            case @customer.lang
+            when "fr"
+              img = Whatsapp::WhatsappImages.new(
+                {
+                  phone: @phone,
+                  file: "https://mppp-goshen.com/wp-content/uploads/2023/04/pulse.png",
+                  caption: "Merci, cette valeur de *#{@customer.settings.last.diastole_droit}* a été enregistré. \nMaintenant nous aurons besoin que vous nous fournissiez la dernière valeur située en dernière position de votre tensiometre placé toujours sur votre bras droit *(PULSE)*. \n_Celle encadrée en rouge, mais sur votre tensiomètre_",
+                }
+              )
+              img.send_image
+              @customer.update(steps: "read_poul")
+            when "en"
+              img =
+                Whatsapp::WhatsappImages.new(
+                  {
+                    phone: @phone,
+                    file: "https://mppp-goshen.com/wp-content/uploads/2023/04/pulse.png",
+                    caption: "Thank you, this value of *#{@customer.settings.last.diastole_droit}* has been registered. \nNow we will need you to provide us with the last value located in the last position of your blood pressure monitor still placed on your right arm *(PULSE)*. \n_The one framed in red, but on your blood pressure monitor_",
+                  }
+                )
+              img.send_image
+              @customer.update(steps: "read_poul")
+            end
+          else
+            # creation of error logs
+            @erreur = Erreur.new(
+              description: @settings.errors.message,
+              customer_id: @customer.id,
+            )
+            @erreur.save
+          end
+        elsif @customer.steps == "read_poul"
+          @settings = @customer.settings.last.update(
+            poul_droit: @body,
+          )
+
+          case @customer.lang
+          when "fr"
+            img = Whatsapp::WhatsappImages.new(
+              {
+                phone: @phone,
+                file: "http://coeur-vie.org/wp-content/uploads/2023/06/Screenshot-2023-06-21-at-11-28-39-Free-Vector-City-road-turn-empty-street-with-transport-highway-1.png",
+                caption: "On a les informations médicales, mais j'aimerais savoir #{@customer.appelation}, dans quelle *ville/Quartier* est ce que tu vies? \n\n_Si tu habites à Douala, makepe, ecris juste *Douala, Makepe*_",
+              }
+            )
+            img.send_image
+            @customer.update(steps: "read_quartier")
+          when "en"
+            img = Whatsapp::WhatsappImages.new(
+              {
+                phone: @phone,
+                file: "http://coeur-vie.org/wp-content/uploads/2023/06/Screenshot-2023-06-21-at-11-28-39-Free-Vector-City-road-turn-empty-street-with-transport-highway-1.png",
+                caption: "We have at this time \n\n✅ Personnal informations\n✅medical informations\n\nNow I would like to know #{@customer.appelation}, What *city/district* do you live in? \n\n_If you live in Douala, makepe, just write *Douala, Makepe*_",
+              }
+            )
+            img.send_image
+            @customer.update(steps: "read_quartier")
+          end
+        elsif @customer.steps == "read_quartier"
+          @settings = @customer.settings.last.update(
+            quartier: @body,
+          )
+          case @customer.lang
+          when "fr"
+            q = Whatsapp::WhatsappMessages.new(
+              @phone, "Vous avez terminé. \n\nNous avons un challenge qui concerne à mettre sur votre status *WhatsApp* votre photo de profile (personnalisée). \nQu'est ce que vous en pensez #{@customer.appelation}?"
+            )
+            q.send_message
+
+            sleep 1
+            q = Whatsapp::WhatsappMessages.new(
+              @phone, "Saisir *A* si vous êtes interessé et souaitez nous envoyer votre photo de profile"
+            )
+            q.send_message
+
+            sleep 1
+            p1 = Whatsapp::WhatsappMessages.new(
+              @phone, "Saisir *NON* si nous n'etes pas intéressé(e)."
+            )
+            p1.send_message
+            @customer.update(steps: "read_challenge")
+          when "en"
+            q = Whatsapp::WhatsappMessages.new(
+              @phone, "You have finished. \n\we have a challenge to put your (personalized) profile picture on your *WhatsApp* status. \nWhat do you think #{@customer.appelation}?"
+            )
+            q.send_message
+
+            sleep 1
+            q = Whatsapp::WhatsappMessages.new(
+              @phone, "Enter *A* if you are interested and want to send us your profile picture."
+            )
+            q.send_message
+
+            sleep 1
+            p1 = Whatsapp::WhatsappMessages.new(
+              @phone, "Enter *NO* if we are not interested."
+            )
+            p1.send_message
+            @customer.update(steps: "read_challenge")
+          end
+        elsif @customer.steps == "read_challenge"
+          if %w[A NON NO].include? @body
+            case @body
+            when "A"
+              case @customer.lang
+              when "fr"
+                photo = Whatsapp::WhatsappMessages.new(
+                  @phone, "Merci de nous fournir une photo de votre visage.\n\n*NB:* _Toutes photos autre que celle de votre visage sera rejetée._"
+                )
+                photo.send_message
+                @customer.update(steps: "request_photo")
+              when "en"
+                photo = Whatsapp::WhatsappMessages.new(
+                  @phone, "Please provide us with a photo of your face.\n\n*NB:* _All photos other than your face will be rejected._"
+                )
+                photo.send_message
+                @customer.update(steps: "request_photo")
+              end
+            when "NON"
+              case @customer.lang
+              when "fr"
+                query = Whatsapp::WhatsappImages.new(
+                  {
+                    phone: @phone,
+                    file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
+                    caption: "Merci de votre réponse. Retouvez toutes les informations sur le challenge  *Je connais ma tension* sur les réseaux à l'adresse \nhttps://www.facebook.com/profile.php?id=100090307216315.\n\n_Besoin de relancer un nouveau *challenge*? Saisie juste *nouveau*_",
+                  }
+                )
+                query.send_image
+
+                sleep 2
+
+                photo = Whatsapp::WhatsappMessages.new(
+                  @phone, "Ah j'oubliais ... \nTu peux partager ton lien et inviter egalement d'autres personnes à participer au challenge ...devient un ambassadeur en partageant ton lien et fais toi l'ambassadeur des *ambassadeurs*. Ton lien est le suivant\n\n#{@customer.linked}"
+                )
+                photo.send_message
+              when "en"
+                query = Whatsapp::WhatsappImages.new(
+                  {
+                    phone: @phone,
+                    file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
+                    caption: "Thank you for your reply. Find all the information on the challenge *I know my tension* on the networks at the address \nhttps://www.facebook.com/profile.php?id=100090307216315.\n\nNeed to start a new *challenge*? Enter just *new*_",
+                  }
+                )
+                query.send_image
+
+                sleep 2
+
+                photo = Whatsapp::WhatsappMessages.new(
+                  @phone, "Oh I forgot... \nYou can share your link and also invite other people to participate in the challenge ... become an ambassador by sharing your link and make yourself the ambassador of the *ambassadors* your link to share is\n*#{@customer.linked}"
+                )
+                photo.send_message
+              end
+            when "NO"
+              case @customer.lang
+              when "fr"
+                query = Whatsapp::WhatsappImages.new(
+                  {
+                    phone: @phone,
+                    file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
+                    caption: "Merci de votre réponse. Retouvez toutes les informations sur le challenge  *Je connais ma tension* sur les réseaux à l'adresse \nhttps://www.facebook.com/profile.php?id=100090307216315.",
+                  }
+                )
+                query.send_image
+
+                sleep 2
+
+                photo = Whatsapp::WhatsappMessages.new(
+                  @phone, "Ah j'oubliais ... \nTu peux partager ton lien et inviter egalement d'autres personnes à participer au challenge ...devient un ambassadeur en partageant ton lien et fais toi l'ambassadeur des *ambassadeurs*. Ton lien est le suivant\n\n#{@customer.linked}"
+                )
+                photo.send_message
+              when "en"
+                query = Whatsapp::WhatsappImages.new(
+                  {
+                    phone: @phone,
+                    file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
+                    caption: "Thank you for your reply. Find all the information on the challenge *I know my tension* on the networks at the address \nhttps://www.facebook.com/profile.php?id=100090307216315.",
+                  }
+                )
+                query.send_image
+
+                sleep 2
+
+                photo = Whatsapp::WhatsappMessages.new(
+                  @phone, "Oh I forgot... \nYou can share your link and also invite other people to participate in the challenge ... become an ambassador by sharing your link and make yourself the ambassador of the *ambassadors* your link to share is\n*#{@customer.linked}"
+                )
+                photo.send_message
+              end
+            end
+          else
+            case @customer.lang
+            when "fr"
+              q = Whatsapp::WhatsappMessages.new(
+                @phone, "Je ne parvient pas à correctement saisir votre réponse, je vais reprendre!\n\nNous avons un challenge qui concerne à mettre sur votre status *WhatsApp* votre photo de profile (personnalisée). \nQu'est ce que vous en pensez #{@customer.appelation}?"
+              )
+              q.send_message
+
+              sleep 1
+              q = Whatsapp::WhatsappMessages.new(
+                @phone, "Saisir *A* si vous êtes interessé et souaitez nous envoyer votre photo de profile"
+              )
+              q.send_message
+
+              sleep 1
+              p1 = Whatsapp::WhatsappMessages.new(
+                @phone, "Saisir *NON* si nous n'etes pas intéressé(e)."
+              )
+              p1.send_message
+              @customer.update(steps: "read_challenge")
+            when "en"
+              q = Whatsapp::WhatsappMessages.new(
+                @phone, "I can't understand your answer correctly, I'll try again!\n\nWe have a challenge to put your (personalized) profile picture on your *WhatsApp* status. \nWhat do you think #{@customer.appelation}?"
+              )
+              q.send_message
+
+              sleep 1
+              q = Whatsapp::WhatsappMessages.new(
+                @phone, "Enter *A* if you are interested and want to send us your profile picture."
+              )
+              q.send_message
+
+              sleep 1
+              p1 = Whatsapp::WhatsappMessages.new(
+                @phone, "Enter *NO* if we are not interested."
+              )
+              p1.send_message
+              @customer.update(steps: "read_challenge")
+            end
+          end
+        elsif @customer.steps == "request_photo"
+          case @customer.lang
+          when "fr"
+            @down = Down.download(@image_path)
+            FileUtils.mv(@down.path, "#{@customer.phone}.jpg")
+
+            query = Whatsapp::WhatsappImages.new(
+              {
+                phone: @phone,
+                file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
+                caption: "Votre image a été enregistrée! Le traitement prendra quelque secondes, mais vous serez notifié dès que le montage sera disponible.",
+              }
+            )
+            query.send_image
+
+            sleep 2
+
+            # configuration
+            Cloudinary.config do |config|
+              config.cloud_name = "diqsvucdn"
+              config.api_key = "127829381549272"
+              config.api_secret = "Bv9KguwYaSSr3BtcNuhCU2YpE84"
+              config.secure = true
+            end
+
+            Cloudinary::Uploader.upload @image_path, public_id: @customer.phone
+
+            @cloudinary_image_url = Cloudinary::Utils.cloudinary_url(
+              @customer.phone,
+              gravity: "face",
+              width: 200,
+              height: 200,
+              crop: "thumb",
+            )
+
+            # attache it to customer
+            @face_init = Down.download(@cloudinary_image_url)
+            FileUtils.mv(@face_init.path, "face_#{@customer.phone}.png")
+
+            #call remove.bg
+            RemoveBg.configure do |config|
+              config.api_key = "Qp7kGiHaf2KSuhhEXAz3YMav"
+            end
+            removebg = RemoveBg.from_file("face_#{@customer.phone}.png")
+            removebg.save("face_#{@customer.phone}.png", overwrite: true)
+
+            @image_face = File.open("face_#{@customer.phone}.png")
+            @customer.face.attach(
+              io: @image_face,
+              filename: "face_#{@customer.phone}.png",
+              content_type: "image/jpg",
+            )
+
+            first_image = MiniMagick::Image.open(
+              "http://coeur-vie.org/wp-content/uploads/2023/06/challenge-1_new.jpg"
+            )
+            second_image = MiniMagick::Image.open(@image_face)
+            result = first_image.composite(second_image) do |c|
+              c.compose "Over" # OverCompositeOp
+              c.geometry "+340+200" # copy second_image onto first_image from (20, 20)
+            end
+            @tmp_name = SecureRandom.hex(10)
+
+            result.write "challenge_#{@customer.phone}.jpg"
+
+            # reimport this image
+            finale_challenge = MiniMagick::Image.open("challenge_#{@customer.phone}.jpg")
+            finale_challenge.combine_options do |c|
+              c.font "helvetica"
+              c.fill "white"
+              c.pointsize 20
+              c.gravity "center"
+              c.draw "text 150,160 '#{@customer.real_name}'"
+            end
+
+            finale_challenge.write "challenge_#{@customer.phone}.jpg"
+
+            # attache challenge
+            @image_challenge = File.open("challenge_#{@customer.phone}.jpg")
+            @customer.challenge.attach(
+              io: @image_challenge,
+              filename: "challenge_#{@customer.phone}.jpg",
+              content_type: "image/jpg",
+            )
+
+            # send notification
+            image_wa = Whatsapp::WhatsappImages.new(
+              {
+                phone: @phone,
+                file: "#{request.base_url}#{Rails.application.routes.url_helpers.rails_blob_path(@customer.challenge, only_path: true)}",
+                caption: "Votre photo challenge est disponible #{@customer.appelation}, merci de la partager sur votre photo de profile. \nSaviez-vous que vous pouvez également partager ce lien et sauver des vies autour de vous? Juste en partageant votre lien d'ambassadeur \n\n #{@customer.linked}",
+              }
+            )
+            image_wa.send_image
+
+            sleep 1
+            linked = Whatsapp::WhatsappMessages.new(
+              @phone,
+              "#{@customer.appelation}, nous pensons que votre engagement cache un désire plus grand...celui d'etre *embassadeur* du programme. Votre lien de partage *ambassadeur* est le suivant \n\n#{@customer.linked} \nPartagez le autour de toi, dans ta famille, sur les réseaux sociaux, parmis tes collègues...sauvez des vies."
+            )
+            linked.send_message
+          when "en"
+            @down = Down.download(@image_path)
+            FileUtils.mv(@down.path, "#{@customer.phone}.jpg")
+
+            query = Whatsapp::WhatsappImages.new(
+              {
+                phone: @phone,
+                file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
+                caption: "Your image has been saved! Processing will take a few seconds, but you will be notified as soon as the mount is available.",
+              }
+            )
+            query.send_image
+
+            sleep 2
+
+            # configuration
+            Cloudinary.config do |config|
+              config.cloud_name = "diqsvucdn"
+              config.api_key = "127829381549272"
+              config.api_secret = "Bv9KguwYaSSr3BtcNuhCU2YpE84"
+              config.secure = true
+            end
+
+            Cloudinary::Uploader.upload @image_path, public_id: @customer.phone
+
+            @cloudinary_image_url = Cloudinary::Utils.cloudinary_url(
+              @customer.phone,
+              gravity: "face",
+              width: 200,
+              height: 200,
+              crop: "thumb",
+            )
+
+            # attache it to customer
+            @face_init = Down.download(@cloudinary_image_url)
+            FileUtils.mv(@face_init.path, "face_#{@customer.phone}.png")
+
+            #call remove.bg
+            RemoveBg.configure do |config|
+              config.api_key = "Qp7kGiHaf2KSuhhEXAz3YMav"
+            end
+            removebg = RemoveBg.from_file("face_#{@customer.phone}.png")
+            removebg.save("face_#{@customer.phone}.png", overwrite: true)
+
+            @image_face = File.open("face_#{@customer.phone}.png")
+            @customer.face.attach(
+              io: @image_face,
+              filename: "face_#{@customer.phone}.png",
+              content_type: "image/jpg",
+            )
+
+            first_image = MiniMagick::Image.open(
+              "http://coeur-vie.org/wp-content/uploads/2023/06/challenge-1_new.jpg"
+            )
+            second_image = MiniMagick::Image.open(@image_face)
+            result = first_image.composite(second_image) do |c|
+              c.compose "Over" # OverCompositeOp
+              c.geometry "+340+200" # copy second_image onto first_image from (20, 20)
+            end
+            @tmp_name = SecureRandom.hex(10)
+
+            result.write "challenge_#{@customer.phone}.jpg"
+
+            # reimport this image
+            finale_challenge = MiniMagick::Image.open("challenge_#{@customer.phone}.jpg")
+            finale_challenge.combine_options do |c|
+              c.font "helvetica"
+              c.fill "white"
+              c.pointsize 20
+              c.gravity "center"
+              c.draw "text 150,160 '#{@customer.real_name}'"
+            end
+
+            finale_challenge.write "challenge_#{@customer.phone}.jpg"
+
+            # attache challenge
+            @image_challenge = File.open("challenge_#{@customer.phone}.jpg")
+            @customer.challenge.attach(
+              io: @image_challenge,
+              filename: "challenge_#{@customer.phone}.jpg",
+              content_type: "image/jpg",
+            )
+
+            # send notification
+            image_wa = Whatsapp::WhatsappImages.new(
+              {
+                phone: @phone,
+                file: "#{request.base_url}#{Rails.application.routes.url_helpers.rails_blob_path(@customer.challenge, only_path: true)}",
+                caption: "Your photo challenge is available #{@customer.appelation}, please share it in your profile picture. \nDid you know that you can also share this link and save lives around you? Just by sharing your ambassador link \n\n #{@customer.linked}",
+              }
+            )
+            image_wa.send_image
+
+            sleep 1
+            linked = Whatsapp::WhatsappMessages.new(
+              @phone,
+              "#{@customer.appelation}, we believe that your commitment hides a greater desire...that of being an *ambassador* of the program. Your *ambassador* share link is as follows \n\n#{@customer.linked} \nShare it around you, in your family, on social networks, among your colleagues...save lives."
+            )
+            linked.send_message
+          end
+        elsif @body == "nouveau" || @body == "new"
+          case @customer.lang
+          when "fr"
+            query = Whatsapp::WhatsappImages.new(
+              {
+                phone: @phone,
+                file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
+                caption: "Bonjour #{@customer.appelation}\nComment vous allez? Je vois que vous souhaitez passer le challenge à un de vos proche.\nMerci de me confirmer que c'est bien cela.",
+              }
+            )
+            query.send_image
+
+            sleep 1
+            a = Whatsapp::WhatsappMessages.new(
+              @phone, "Saisir *A* pour confirmer le nouveau challenge"
+            )
+            a.send_message
+            b = Whatsapp::WhatsappMessages.new(
+              @phone, "Saisir *B* pour annuler"
+            )
+            b.send_message
+          when "en"
+            query = Whatsapp::WhatsappImages.new(
+              {
+                phone: @phone,
+                file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
+                caption: "Hello #{@customer.appelation}\nHo are you doing ? I see that you would like to pass the challenge on to someone close to you.\nPlease confirm that this is it.",
+              }
+            )
+            query.send_image
+
+            sleep 1
+            a = Whatsapp::WhatsappMessages.new(
+              @phone, "Enter *A* to confirm the new challenge"
+            )
+            a.send_message
+            b = Whatsapp::WhatsappMessages.new(
+              @phone, "Enter *B* to cancel"
+            )
+            b.send_message
+          end
+          @customer.update(steps: "request_new_challenge")
+        elsif @customer.steps == "request_new_challenge"
+          if %w[A B].include? @body
+            case @customer.lang
+            when "fr"
+              case @body
+              when "A"
+                a = Whatsapp::WhatsappMessages.new(
+                  @phone, "Vous confirmez le démarrage d'un nouveau *challenge*"
+                )
+                a.send_message
+              when "B"
+                a = Whatsapp::WhatsappMessages.new(
+                  @phone, "Action de demande d'un nouveau challenge annulée"
+                )
+                a.send_message
+              end
+            when "en"
+              case @body
+              when "A"
+                a = Whatsapp::WhatsappMessages.new(
+                  @phone, "You confirm the start of a new *challenge*"
+                )
+                a.send_message
+              when "B"
+                a = Whatsapp::WhatsappMessages.new(
+                  @phone, "Request action for a new challenge canceled"
+                )
+                a.send_message
+              end
+            end
+          else
+            query = Whatsapp::WhatsappImages.new(
+              {
+                phone: @phone,
+                file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
+                caption: "Hello #{@customer.appelation}\nHo are you doing ? I see that you would like to pass the challenge on to someone close to you.\nPlease confirm that this is it.",
+              }
+            )
+            query.send_image
+
+            sleep 1
+            a = Whatsapp::WhatsappMessages.new(
+              @phone, "Enter *A* to confirm the new challenge"
+            )
+            a.send_message
+            b = Whatsapp::WhatsappMessages.new(
+              @phone, "Enter *B* to cancel"
+            )
+            b.send_message
+          end
+        elsif @customer.lang.nil?
+          puts "#{@customer.pushname} has no language set"
+          query = Whatsapp::WhatsappImages.new(
+            {
+              phone: @phone,
+              file: "http://coeur-vie.org/wp-content/uploads/2023/06/translate.png",
+              caption: "*Bonjour!* Veillez selectionner votre langue de conversation\n\n_*Hello!* Please select your conversation language_",
+            }
+          )
+          query.send_image
+
+          sleep 1
 
           a = Whatsapp::WhatsappMessages.new(
-            @phone, "Saisir *A* pour le FRANCAIS \n\n_Type *A* for FRENCH_"
+            @phone, "Saisir *A* pour le 🇫🇷 FRANCAIS \n====\n_Type *A* for 🇫🇷 FRENCH_"
           )
           a.send_message
 
           b = Whatsapp::WhatsappMessages.new(
-            @phone, "Saisir *B* pour l'ANGLAIS \n\n_Type *B* for ENGLISH_"
+            @phone, "Saisir *B* pour 🇬🇧 l'ANGLAIS \n====\n_Type *B* for 🇬🇧 ENGLISH_"
           )
           b.send_message
 
@@ -1039,6 +1763,46 @@ class FocevController < ApiController
         # end
       else
         # create new customer
+        puts "customer not found"
+
+        begin
+
+          # save this customer before continue
+          @customer = Customer.new(
+            pushname: params["data"]["pushname"],
+            phone: params["data"]["from"].delete("@c.us"),
+            ip: "",
+          )
+
+          if @customer.save
+            query = Whatsapp::WhatsappImages.new(
+              {
+                phone: @phone,
+                file: "http://coeur-vie.org/wp-content/uploads/2023/06/translate.png",
+                caption: "*Bonjour!* Veillez selectionner votre langue de conversation\n\n_*Hello!* Please select your conversation language_",
+              }
+            )
+            query.send_image
+
+            sleep 1
+
+            a = Whatsapp::WhatsappMessages.new(
+              @phone, "Saisir *A* pour le 🇫🇷 FRANCAIS \n====\n_Type *A* for 🇫🇷 FRENCH_"
+            )
+            a.send_message
+
+            b = Whatsapp::WhatsappMessages.new(
+              @phone, "Saisir *B* pour 🇬🇧 l'ANGLAIS \n====\n_Type *B* for 🇬🇧 ENGLISH_"
+            )
+            b.send_message
+
+            @customer.update(steps: "select_language")
+          else
+            puts "Impossible de sauvegarder cet enregistrement"
+          end
+        rescue => exception
+          puts "Une erreur est survenue #{exception}"
+        end
       end
     else
       # mal formed informations
@@ -1094,12 +1858,6 @@ class FocevController < ApiController
 
     # update steps
     @customer.update(steps: 1)
-  end
-
-  def sexe
-  end
-
-  def age
   end
 
   def get_tension_first_value(value)
@@ -1162,22 +1920,6 @@ class FocevController < ApiController
   def get_lang
   end
 
-  # add user profession
-  # def ask_profession(optional, get_response){
-  #   #request questions
-  #   query =
-  #   Whatsapp::WhatsappMessages.new(
-  #     @phone,
-  #     "Serait-il possible de connaitre votre profession #{@customer.appelation}?"
-  #   )
-  # query.send_message
-  # }
-
-  # read user response
-  # def read_user_response(){
-  #   responser = @body.get_response
-  # }
-
   def send_message(phone, message)
     @phone = phone
     @message = message
@@ -1203,6 +1945,244 @@ class FocevController < ApiController
       puts response.read_body
     rescue => exception
       puts "Une erreur est survenue : #{exception}"
+    end
+  end
+
+  def welcome_fr
+    image = Whatsapp::WhatsappImages.new(
+      {
+        phone: @phone,
+        file: "http://coeur-vie.org/wp-content/uploads/2023/06/WhatsApp-Image-2023-06-06-a-11.40.55.jpg",
+        caption: "Bienvenue dans le challenge *JE CONNAIS MA TENSION*. Dont le thème est : Se *dépister et faire dépister les autres*",
+      }
+    )
+    image.send_image
+    # message.send_message
+    sleep 1
+    query = Whatsapp::WhatsappImages.new(
+      {
+        phone: @phone,
+        file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
+        caption: "Notre challenge vise à ce que tout le monde autour de nous connaisse sa tension artérielle et ainsi réduire les cas d'AVC. Acceptes tu le challenge? \nJe suis le Dr *CARDIO* de la Fondation Coeur et Vie et c'est moi qui vais t'accompagner durant cette courte aventure.",
+      }
+    )
+    query.send_image
+
+    sleep 2
+
+    query1 = Whatsapp::WhatsappMessages.new(
+      @phone, "Pour confirmer que vous acceptez le *challenge*, comment je vous appelle?\n\n_En acceptant le challenge *Je Connais ma Tension* vous acceptez les regles de confidentialités disponibles sur notre site web http://coeur-vie.org/privacy_"
+    )
+    query1.send_message
+  end
+
+  def welcome_en
+    image = Whatsapp::WhatsappImages.new(
+      {
+        phone: @phone,
+        file: "http://coeur-vie.org/wp-content/uploads/2023/06/WhatsApp-Image-2023-06-06-a-11.40.55.jpg",
+        caption: "Welcome to the *I KNOW MY TENSION* challenge. Whose theme is: *Test yourself and get others tested*",
+      }
+    )
+    image.send_image
+    # message.send_message
+    sleep 1
+    query = Whatsapp::WhatsappImages.new(
+      {
+        phone: @phone,
+        file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
+        caption: "Our challenge aims for everyone around us to know their blood pressure and thus reduce cases of stroke. Do you accept the challenge? \nI'm Dr *CARDIO* from the Heart and Life Foundation and I'm the one who will accompany you during this short adventure.",
+      }
+    )
+    query.send_image
+
+    sleep 2
+
+    query1 = Whatsapp::WhatsappMessages.new(
+      @phone, "To confirm that you accept the *challenge*, what do I call you?\n\n_By accepting the *I Know My Blood Pressure* challenge you agree to the privacy policy available on our website http://coeur-vie.org/privacy_"
+    )
+    query1.send_message
+  end
+
+  # request customer language
+  def request_language
+    query = Whatsapp::WhatsappImages.new(
+      {
+        phone: @phone,
+        file: "http://coeur-vie.org/wp-content/uploads/2023/06/translate.png",
+        caption: "*Bonjour!* Veillez selectionner votre langue de conversation\n\n_*Hello!* Please select your conversation language_",
+      }
+    )
+    query.send_image
+
+    sleep 1
+
+    a = Whatsapp::WhatsappMessages.new(
+      @phone, "Saisir *A* pour le 🇫🇷 FRANCAIS \n====\n_Type *A* for 🇫🇷 FRENCH_"
+    )
+    a.send_message
+
+    b = Whatsapp::WhatsappMessages.new(
+      @phone, "Saisir *B* pour 🇬🇧 l'ANGLAIS \n====\n_Type *B* for 🇬🇧 ENGLISH_"
+    )
+    b.send_message
+  end
+
+  # request sexe informations
+  def request_sexe_fr
+    a = Whatsapp::WhatsappMessages.new(
+      @phone, "Merci, j'enregistre *#{@customer.real_name.upcase}* comme votre nom. En passant, pourrais-je avoir votre *sexe*?"
+    )
+    a.send_message
+
+    sleep 1
+    sm = Whatsapp::WhatsappMessages.new(
+      @phone, "Saisir *A* pour le sexe *MASCULIN*"
+    )
+    sm.send_message
+
+    sf = Whatsapp::WhatsappMessages.new(
+      @phone, "Saisir *B* pour le sexe *FEMININ*"
+    )
+    sf.send_message
+  end
+
+  # request sexe informations
+  def request_sexe_en
+    a = Whatsapp::WhatsappMessages.new(
+      @phone, "Thanks, I'm recording *#{@customer.real_name.upcase}* like your name. By the way, could I have your *gender*?"
+    )
+    a.send_message
+
+    sleep 1
+    sm = Whatsapp::WhatsappMessages.new(
+      @phone, "Enter *A* for *MALE* gender"
+    )
+    sm.send_message
+
+    sf = Whatsapp::WhatsappMessages.new(
+      @phone, "Enter *B* for *FEMALE* gender"
+    )
+    sf.send_message
+  end
+
+  # request tensiome information french
+  def request_tensiometre_fr
+    query = Whatsapp::WhatsappMessages.new(
+      @phone, "Maintenant nous allons passer aux informations *médicales*, à savoir prendre votre tension arterielle #{@customer.appelation}. Mais avant nous souhaiterions nous rassurer d'une chose"
+    )
+    query.send_message
+
+    sleep 1
+    # check if customer have tools
+    query0 = Whatsapp::WhatsappMessages.new(
+      @phone, "Avez-vous un *tensiomètre* à votre disposition actuellement #{@customer.appelation}."
+    )
+    query0.send_message
+
+    sleep 1
+    a = Whatsapp::WhatsappMessages.new(
+      @phone, "Saisir *A* si vous avez pris votre tension artérielle"
+    )
+    a.send_message
+
+    sleep 1
+    b = Whatsapp::WhatsappMessages.new(
+      @phone, "Saisir *B* si vous allez le faire plus tard car ne disposant pas de tensiomètre"
+    )
+    b.send_message
+
+    sleep 1
+    c = Whatsapp::WhatsappMessages.new(
+      @phone, "Saisir *C* pour savoir ce que c'est un *tensiomètre*"
+    ) #https://fr.wikipedia.org/wiki/Tensiomètre #https://fr.wikihow.com/lire-sa-tension-artérielle-avec-un-tensiomètre
+    c.send_message
+  end
+
+  # request tensiometre information english
+  def request_tensiometre_en
+    query = Whatsapp::WhatsappMessages.new(
+      @phone, "Now we are going to move on to the *medical* information, namely taking your blood pressure #{@customer.appelation}. But before we would like to reassure ourselves of one thing"
+    )
+    query.send_message
+
+    # ====== other
+    sleep 1
+    query = Whatsapp::WhatsappImages.new(
+      {
+        phone: @phone,
+        file: "http://coeur-vie.org/wp-content/uploads/2023/06/Screenshot-2023-06-21-at-13-08-44-Premium-Vector-Electronic-blood-pressure-monitor-isolated-on-white-modern-medical-device.-vector-illustration.png",
+        caption: "Do you currently have a *blood pressure monitor* at your disposal? #{@customer.appelation}.",
+      }
+    )
+    query.send_image
+
+    sleep 1
+    a = Whatsapp::WhatsappMessages.new(
+      @phone, "Enter *A* if you took your blood pressure"
+    )
+    a.send_message
+
+    sleep 1
+    b = Whatsapp::WhatsappMessages.new(
+      @phone, "Enter *B* if you are going to do it later because you don't have a blood pressure monitor"
+    )
+    b.send_message
+
+    sleep 1
+    c = Whatsapp::WhatsappMessages.new(
+      @phone, "Enter *C* to find out what a *blood pressure monitor* is"
+    ) #https://fr.wikipedia.org/wiki/Tensiomètre #https://fr.wikihow.com/lire-sa-tension-artérielle-avec-un-tensiomètre
+    c.send_message
+  end
+
+  # private method
+  private
+
+  def check_language
+    puts "hello"
+    if (params["data"].present?)
+      @instance = "none"
+      puts params
+      @body = params["data"]["body"]
+      @image_type = params["data"]["type"]
+      @image_path = params["data"]["media"]
+      @name = params["data"]["pushname"]
+      @phone = params["data"]["from"].delete("@c.us")
+
+      # search customer
+      @customer = Customer.find_by_phone(@phone)
+      if @customer
+        if @customer.lang.nil?
+          # return nos informations found for this customer, it's theoricaly a new customer
+          puts "no settings language found : #{@customer.lang}"
+
+          sleep 2
+          query = Whatsapp::WhatsappMessages.new(
+            @phone, "Bonjour! Avant de commencer notre voyage dans ce *challenge*, j'aimerais savoir quelle langue vous parlez?\n\n_Hi! Before we start our journey in this *challenge*, I would like to know what language you speak?_"
+          )
+          query.send_message
+
+          a = Whatsapp::WhatsappMessages.new(
+            @phone, "Saisir *A* pour le 🇫🇷 FRANCAIS \n\n_Type *A* for FRENCH_"
+          )
+          a.send_message
+
+          b = Whatsapp::WhatsappMessages.new(
+            @phone, "Saisir *B* pour l'ANGLAIS \n\n_Type *B* for 🇬🇧 ENGLISH_"
+          )
+          b.send_message
+
+          @customer.update(steps: "select_language")
+        else
+          # we found new customer
+          puts "foud setting language : #{@customer.lang}"
+        end
+      else
+        # not new customer find
+        puts "No customer found, we have to create new"
+      end
+    else
     end
   end
 end

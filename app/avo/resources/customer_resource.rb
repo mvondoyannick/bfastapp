@@ -20,7 +20,10 @@ class CustomerResource < Avo::BaseResource
 
   field :id, as: :id
   field :created_at, as: :date_time
-  field :face, as: :file, is_image: true, radius: "25"
+  # field :face, as: :file, is_image: true, radius: "25"
+  field :lang, as: :text, name: "Langue" do |model|
+    model.lang == "fr" ? "🇫🇷 Français" : "🇬🇧 English"
+  end
   # Fields generated from the model
   heading "Information d'identication"
   field :pushname, as: :text, link_to_resource: true
@@ -44,18 +47,27 @@ class CustomerResource < Avo::BaseResource
   field :steps, as: :text, hide_on: [:index]
   field :link, as: :text, hide_on: [:index]
   field :code, as: :text, hide_on: [:index]
-  field :linked, as: :text, hide_on: [:index]
+  field :linked, as: :text, hide_on: [:index] do |model|
+    model.linked.nil? ? "Aucun lien généré" : model.linked
+  end
   heading "Information de rappel"
-  field :rappel, as: :text, hide_on: [:index]
-  field :rappel_day, as: :text, hide_on: [:index]
-  field :date_rappel, as: :text, hide_on: [:index]
+  field :rappel, as: :text, hide_on: [:index] do |model|
+    model.rappel.present? ? "Aucun rappel" : model.rappel
+  end
+  field :rappel_day, as: :text, hide_on: [:index] do |model|
+    model.rappel_day.present? ? "Aucun jour de rappel" : model.rappel_day
+  end
+  field :date_rappel, as: :text, hide_on: [:index] do |model|
+    model.date_rappel.nil? ? "Aucune date de rappel" : model.date_rappel
+  end
   heading "Information interne supplementaires"
   field :body, as: :trix
   field :qr_code, as: :file, is_image: true, hide_on: [:index]
   field :photo, as: :text, hide_on: [:index]
   field :photo, as: :external_image, hide_on: [:index]
   field :challenge, as: :file, is_image: true, hide_on: [:index]
-  field :settings, as: :has_many, name: "Paremetres patients"
+  field :settings, as: :has_many, name: "Paramètres patients"
+  field :erreurs, as: :has_many, name: "Journal des erreurs"
 
   # add fields here
   filter SexeFilter
