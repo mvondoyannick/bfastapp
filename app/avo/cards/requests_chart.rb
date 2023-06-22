@@ -57,7 +57,7 @@ class RequestsChart < Avo::Dashboards::ChartkickCard
       end
     end
 
-    request = Customer.group("date(created_at)").where(sexe: "masculin").where(created_at: from..to).count(:id)
+    request = Journal.group("date(created_at)").where(created_at: from..to).count(:id)
 
     result [
       { name: "Requetes", data: request.map { |k, v| [k, v] }.to_h },
