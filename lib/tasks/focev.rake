@@ -56,7 +56,7 @@ namespace :me do
             c.send_message
 
             # nous devons reset les informations de date_rappel à nil
-            customer.update(date_rappel: nil, steps: "QT")
+            customer.update(date_rappel: nil, steps: "request_tension")
           end
         end
       end
@@ -94,10 +94,5 @@ namespace :me do
       )
       query.send_image
     end
-
-    # b = Whatsapp::WhatsappMessages.new(
-    #   237691451189, "Bonjour, j'aimerais partager une information avec vous ce matin. \n\n http://coeur-vie.org/2023/06/12/les-effets-de-la-cigarette-sur-le-coeur-sont-pires-que-ce-que-lon-pensait/, \n\n_Partage à quelqu'unu pour sauver des vies_"
-    # )
-    # b.send_message
   end
 end

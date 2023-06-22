@@ -1,7 +1,7 @@
-class UsersMale < Avo::Dashboards::MetricCard
-  self.id = "users_male"
-  self.label = "Hommes"
-  self.description = "Statistique des hommes"
+class RequestMetric < Avo::Dashboards::MetricCard
+  self.id = "request_metric"
+  self.label = "Nombre requetes"
+  self.description = "Some description"
   # self.cols = 1
   self.initial_range = 30
   self.ranges = {
@@ -41,8 +41,6 @@ class UsersMale < Avo::Dashboards::MetricCard
       end
     end
 
-    result Customer.where(sexe: "masculin", created_at: from..to).count
-
-    # result 101
+    result Journal.where(created_at: from..to).count
   end
 end

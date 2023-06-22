@@ -12,6 +12,7 @@ class MyDashboard < Avo::Dashboards::BaseDashboard
   card UsersFemale
   card UsersMale
   card UsersUnknow
+  card RequestMetric
   card UsersChart
   # card UsersCount
 end

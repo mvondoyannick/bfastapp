@@ -102,7 +102,8 @@ Avo.configure do |config|
       group "Fondation" do
         resource :customer, label: "Utilisateurs"
         resource :settings, label: "Parametres"
-        resource :erreurs, label: "Logs - Erreurs"
+        resource :erreurs, label: "Erreurs"
+        resource :journals, label: "Journal"
       end
 
       # group "activités" do
