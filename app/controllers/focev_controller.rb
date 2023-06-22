@@ -1024,27 +1024,29 @@ class FocevController < ApiController
 
                 sleep 1
                 d = Whatsapp::WhatsappMessages.new(
-                  @phone, "Entrez 1 Pour être rappelé dans 24h *(demain)*" # get the next day in french
+                  @phone, "Entrez *1* Pour être rappelé dans 24h *(demain)*" # get the next day in french
                 )
                 d.send_message
 
                 sleep 1
                 c = Whatsapp::WhatsappMessages.new(
-                  @phone, "Entrez 2 Pour être rappelé sous 72h *(3 jours)*" # the new 3 day in frech with some date
+                  @phone, "Entrez *2* Pour être rappelé sous 72h *(3 jours)*" # the new 3 day in frech with some date
                 )
                 c.send_message
 
                 sleep 1
                 e = Whatsapp::WhatsappMessages.new(
-                  @phone, "Entrez 3 Pour être rappelé dans *5 jours*" # the new day appelation in french"
+                  @phone, "Entrez *3* Pour être rappelé dans *5 jours*" # the new day appelation in french"
                 )
                 e.send_message
 
                 sleep 1
                 f = Whatsapp::WhatsappMessages.new(
-                  @phone, "Entrez 4 pour me donner un peu de temps, je vous recontacterai."
+                  @phone, "Entrez *4* pour me donner un peu de temps, je vous recontacterai."
                 )
                 f.send_message
+
+                @customer.update(steps: "read_rappel")
               when "C"
                 query =
                   Whatsapp::WhatsappMessages.new(
@@ -1084,27 +1086,29 @@ class FocevController < ApiController
 
                 sleep 1
                 d = Whatsapp::WhatsappMessages.new(
-                  @phone, "Enter 1 To be called back in 24 hours *(tomorrow)*" # get the next day in french
+                  @phone, "Enter *1* To be called back in 24 hours *(tomorrow)*" # get the next day in french
                 )
                 d.send_message
 
                 sleep 1
                 c = Whatsapp::WhatsappMessages.new(
-                  @phone, "Enter 2 To be called back within 72 hours *(3 days)*" # the new 3 day in frech with some date
+                  @phone, "Enter *2* To be called back within 72 hours *(3 days)*" # the new 3 day in frech with some date
                 )
                 c.send_message
 
                 sleep 1
                 e = Whatsapp::WhatsappMessages.new(
-                  @phone, "Enter 3 To be called back in *5 days*" # the new day appelation in french"
+                  @phone, "Enter *3* To be called back in *5 days*" # the new day appelation in french"
                 )
                 e.send_message
 
                 sleep 1
                 f = Whatsapp::WhatsappMessages.new(
-                  @phone, "Enter 4 to give me some time, I'll get back to you."
+                  @phone, "Enter *4* to give me some time, I'll get back to you."
                 )
                 f.send_message
+
+                @customer.update(steps: "read_rappel")
               when "C"
                 query =
                   Whatsapp::WhatsappMessages.new(
@@ -1134,6 +1138,42 @@ class FocevController < ApiController
               request_tensiometre_en
             end
             @customer.update(steps: "request_tension")
+          end
+        elsif @customer.steps == "read_rappel"
+          if %w[1 2 3 4].include? @body
+            @customer.settings.last.update(
+              rappel_day: @body.to_i,
+              date_rappel: DateTime.now + @body.to_i.day,
+            )
+
+            sleep 1
+            if Date.today.monday?
+              message = "Passez un bon debut de semaine"
+            elsif Date.today.friday?
+              message = "Passez un bon debut de weekend"
+            else
+              message = "Passez une bonne semaine"
+            end
+
+            text = Whatsapp::WhatsappMessages.new(
+              @phone, "Merci, nous allons vous revenir dans un delais de #{@customer.rappel} jour(s). #{message}. \n\nPensez à visiter le site de la *Fondation Coeur et Vie* à l'adresse \nwww.coeur-vie.org"
+            )
+            text.send_message
+          else
+            case @customer.lang
+            when "fr"
+              # relaunche selection choice
+              q = Whatsapp::WhatsappMessages.new(
+                @phone, "Je n'ai pas bien compris votre choix, pouvez-vous encore répondre #{@customer.appelation}?"
+              )
+              q.send_message
+            when "en"
+              # relaunche selection choice
+              q = Whatsapp::WhatsappMessages.new(
+                @phone, "I did not quite understand your choice, can you still answer #{@customer.appelation}?"
+              )
+              q.send_message
+            end
           end
         elsif @customer.steps == "read_systole"
           @settings = @customer.settings.new(
