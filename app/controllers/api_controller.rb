@@ -5,7 +5,17 @@ class ApiController < ActionController::API
   # Rails.Application.load_tasks # providing your application name is 'sample'
   before_action :read_url
   before_action :say_hello
-  before_action :run
+  before_action :r
+
+  def r
+    puts "voila"
+    @ip_address = request.remote_ip
+    Rails::logger::info "Entering request"
+    jrnal = Journal.new(
+      ip: @ip_address,
+    )
+    jrnal.save
+  end
 
   private
 
@@ -15,19 +25,6 @@ class ApiController < ActionController::API
 
   def say_hello
     puts "bonjour"
-  end
-
-  def journal
-    @ip_address = request.remote_ip
-    Rails::logger::info "Entering request"
-    jrnal = journal.new(
-      ip: @ip_address,
-    )
-    if jrnal.save
-      puts "saved"
-    else
-      # send msg to admin
-    end
   end
 
   def run

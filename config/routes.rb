@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   get "main/index"
   get "home/index"
   #devise_for :users
-  root :to => redirect("/avo")
+  root :to => redirect("/avo/dashboards/my_dashboard")
   post "whatsappbot", to: "focev#index"
   post "chatboot", to: "focev#chatbot"
 
