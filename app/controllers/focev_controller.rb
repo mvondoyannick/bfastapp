@@ -1062,10 +1062,8 @@ class FocevController < ApiController
           end
         elsif @customer.steps == "request_tension"
           if %w(A B C).include? @body
-            case @customer.lang
-            when "fr"
-              case @body
-              when "A"
+            if @customer.lang == "fr"
+              if @body == "A"
                 # j'ai un tensiometre
                 img = Whatsapp::WhatsappImages.new(
                   {
@@ -1078,7 +1076,7 @@ class FocevController < ApiController
 
                 # read systole
                 @customer.update(steps: "read_systole")
-              when "B"
+              elsif @body == "B"
                 no = Whatsapp::WhatsappMessages.new(
                   @phone, "Vous ne semblez pas avoir de tensiomètre à portée de main. Pourrions-nous revenir vers vous selon les options proposées ? #{@customer.appelation}?"
                 )
@@ -1109,7 +1107,7 @@ class FocevController < ApiController
                 f.send_message
 
                 @customer.update(steps: "read_rappel")
-              when "C"
+              elsif @body == "C"
                 query =
                   Whatsapp::WhatsappMessages.new(
                     @phone, "Vous souhaitez en savoir plus sur le tensiomètre, nous avons deux articles pour vous #{@customer.appelation}."
@@ -1138,9 +1136,8 @@ class FocevController < ApiController
                   customer.update(steps: "request_tension")
                 end
               end
-            when "en"
-              case @body
-              when "A"
+            elsif @customer.lang == "en"
+              if @body == "A"
                 img = Whatsapp::WhatsappImages.new(
                   {
                     phone: @phone,
@@ -1150,7 +1147,7 @@ class FocevController < ApiController
                 )
                 img.send_image
                 @customer.update(steps: "read_systole")
-              when "B"
+              elsif @body == "B"
                 no = Whatsapp::WhatsappMessages.new(
                   @phone, "Um, you don't seem to have a blood pressure monitor handy. Could we get back to you according to the options offered? #{@customer.appelation}?"
                 )
@@ -1181,7 +1178,7 @@ class FocevController < ApiController
                 f.send_message
 
                 @customer.update(steps: "read_rappel")
-              when "C"
+              elsif @body == "C"
                 query =
                   Whatsapp::WhatsappMessages.new(
                     @phone, "You want to learn more about the blood pressure monitor, we have two articles for you #{@customer.appelation}."
@@ -1199,15 +1196,26 @@ class FocevController < ApiController
                   @phone, "*WikiHow* to learn how to read a blood pressure monitor \n\nhttps://fr.wikihow.com/lire-sa-tension-artérielle-avec-un-tensiomètre"
                 )
                 pedia.send_message
-              else
               end
             end
           else
             case @customer.lang
             when "fr"
+              text = Whatsapp::WhatsappMessages.new(
+                @phone, "Hummmmm... attends, je n'ai pas bien compris, peux-tu reprendre?"
+              )
+              text.send_message
+
+              sleep 1
               request_tensiometre_fr
               @customer.update(steps: "request_tension")
             when "en"
+              text = Whatsapp::WhatsappMessages.new(
+                @phone, "Hummmmm... wait, I didn't quite understand, can you repeat?"
+              )
+              text.send_message
+
+              sleep 1
               request_tensiometre_en
               @customer.update(steps: "request_tension")
             end
