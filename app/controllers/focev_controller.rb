@@ -2401,8 +2401,12 @@ class FocevController < ApiController
 
   # request tensiome information french
   def request_tensiometre_fr
-    query = Whatsapp::WhatsappMessages.new(
-      @phone, "Maintenant nous allons passer aux informations *médicales*, à savoir prendre votre tension arterielle #{@customer.appelation}. Mais avant nous souhaiterions nous rassurer d'une chose"
+    query = Whatsapp::WhatsappImages.new(
+      {
+        phone: @phone,
+        file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
+        caption: "Maintenant nous allons passer aux informations *médicales*, à savoir prendre votre tension arterielle #{@customer.appelation}. Mais avant nous souhaiterions nous rassurer d'une chose.\n\n_Ne vous inquietez pas, aucune piqûre ne vous sera faite.",
+      }
     )
     query.send_message
 
@@ -2434,8 +2438,12 @@ class FocevController < ApiController
 
   # request tensiometre information english
   def request_tensiometre_en
-    query = Whatsapp::WhatsappMessages.new(
-      @phone, "Now we are going to move on to the *medical* information, namely taking your blood pressure #{@customer.appelation}. But before we would like to reassure ourselves of one thing"
+    query = Whatsapp::WhatsappImages.new(
+      {
+        phone: @phone,
+        file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
+        caption: "Now we are going to move on to the *medical* information, namely taking your blood pressure #{@customer.appelation}. But before we would like to reassure ourselves of one thing.\n\n_Ne vous inquietez pas, aucune piqûre ne vous sera faite.",
+      }
     )
     query.send_message
 
