@@ -570,10 +570,14 @@ class FocevController < ApiController
 
                 sleep 2
 
-                photo = Whatsapp::WhatsappMessages.new(
-                  @phone, "Ah j'oubliais ... \nTu peux partager ton lien et inviter egalement d'autres personnes à participer au challenge ...devient un ambassadeur en partageant ton lien et fais toi l'ambassadeur des *ambassadeurs* ton lien \n\nLe tien est #{@customer.linked}"
+                query = Whatsapp::WhatsappImages.new(
+                  {
+                    phone: @phone,
+                    file: "http://coeur-vie.org/wp-content/uploads/2023/06/share_challenge.png",
+                    caption: "Ah j'oubliais ... \nTu peux partager ton lien et inviter egalement d'autres personnes à participer au challenge ...devient un ambassadeur en partageant ton lien et fais toi l'ambassadeur des *ambassadeurs*. Ton lien est le suivant\n\n#{@customer.linked}",
+                  }
                 )
-                photo.send_message
+                query.send_image
               end
             else
               q = Whatsapp::WhatsappMessages.new(
@@ -899,12 +903,12 @@ class FocevController < ApiController
             sleep 1
 
             a = Whatsapp::WhatsappMessages.new(
-              @phone, "Saisir *A* pour le 🇫🇷 FRANCAIS \n====\n_Type *A* for 🇫🇷 FRENCH_"
+              @phone, "Saisir *A* pour le 🇫🇷 FRANCAIS \n_Type *A* for 🇫🇷 FRENCH_"
             )
             a.send_message
 
             b = Whatsapp::WhatsappMessages.new(
-              @phone, "Saisir *B* pour 🇬🇧 l'ANGLAIS \n====\n_Type *B* for 🇬🇧 ENGLISH_"
+              @phone, "Saisir *B* pour 🇬🇧 l'ANGLAIS \n_Type *B* for 🇬🇧 ENGLISH_"
             )
             b.send_message
 
@@ -1039,10 +1043,10 @@ class FocevController < ApiController
             case @customer.lang
             when "fr"
               request_tensiometre_fr
-              customer.update(steps: "request_tension")
+              @customer.update(steps: "request_tension")
             when "en"
               request_tensiometre_en
-              customer.update(steps: "request_tension")
+              @customer.update(steps: "request_tension")
             end
           else
             case @customer.lang
@@ -1069,7 +1073,7 @@ class FocevController < ApiController
                   {
                     phone: @phone,
                     file: "https://mppp-goshen.com/wp-content/uploads/2023/04/sys.png",
-                    caption: "OK #{@customer.appelation} merci de nous fournir la valeur du haut affichée sur le tensiometre placé sur votre bras droit *(SYS)*. \n_Celle encadrée en rouge, mais sur votre tensiomètre_",
+                    caption: "OK #{@customer.appelation} merci de nous fournir la valeur du haut affichée sur le tensiometre placé sur votre bras droit *(SYS)*. \n_Celle encadrée en rouge, mais sur votre tensiomètre_\n\n_Si vous n'avez pas cette information, vous pouvez mettre 0 (zero)_",
                   }
                 )
                 img.send_image
@@ -1261,16 +1265,53 @@ class FocevController < ApiController
             case @customer.lang
             when "fr"
               age = Whatsapp::WhatsappMessages.new(
-                @phone, "Je pense qu'il doit avoir un petit problème avec ce que vous avez ecris, essayer de modifier et de recommencer.\n\n_Inserer uniquement une valeur à la fois, si votre valeur est *118*, inserer uniquement *118*_"
+                @phone, "Je pense qu'il doit avoir un petit problème avec ce que vous avez ecris, essayer de modifier et de recommencer.\n\n_Inserer uniquement une valeur à la fois, si votre valeur est *118*, inserer uniquement *118*_\n\n_Si vous souhaitez annuler, saisir *0* (zero)_"
               )
               age.send_message
             when "en"
               age = Whatsapp::WhatsappMessages.new(
-                @phone, "I think there must be a little problem with what you wrote, try to modify and start again.\n\n_Insert only one value at a time, if your value is *118*, insert only *118*_"
+                @phone, "I think there must be a little problem with what you wrote, try to modify and start again.\n\n_Insert only one value at a time, if your value is *118*, insert only *118*_\n\nif you want to cancel, enter *0* (zero)_"
               )
               age.send_message
             end
             @customer.update(steps: "read_systole")
+          elsif @body == "0"
+            # jump to the end
+
+            case @customer.lang
+            when "fr"
+              age = Whatsapp::WhatsappMessages.new(
+                @phone, "C'est dommage de ne pas avoir ces informations sur votre tension artérielle, mais nous allons tout de même continuer."
+              )
+              age.send_message
+
+              sleep 1
+              img = Whatsapp::WhatsappImages.new(
+                {
+                  phone: @phone,
+                  file: "http://coeur-vie.org/wp-content/uploads/2023/06/Screenshot-2023-06-21-at-11-28-39-Free-Vector-City-road-turn-empty-street-with-transport-highway-1.png",
+                  caption: "On a les informations médicales, mais j'aimerais savoir #{@customer.appelation}, dans quelle *ville/Quartier* est ce que tu vies? \n\n_Si tu habites à Douala, makepe, ecris juste *Douala, Makepe*_",
+                }
+              )
+              img.send_image
+              @customer.update(steps: "read_quartier")
+            when "en"
+              age = Whatsapp::WhatsappMessages.new(
+                @phone, "It's a shame we don't have this information about your blood pressure, but we'll continue anyway."
+              )
+              age.send_message
+
+              sleep 1
+              img = Whatsapp::WhatsappImages.new(
+                {
+                  phone: @phone,
+                  file: "http://coeur-vie.org/wp-content/uploads/2023/06/Screenshot-2023-06-21-at-11-28-39-Free-Vector-City-road-turn-empty-street-with-transport-highway-1.png",
+                  caption: "We have at this time \n\n✅ Personnal informations\n✅medical informations\n\nNow I would like to know #{@customer.appelation}, What *city/district* do you live in? \n\n_If you live in Douala, makepe, just write *Douala, Makepe*_",
+                }
+              )
+              img.send_image
+              @customer.update(steps: "read_quartier")
+            end
           else
             @settings = @customer.settings.new(
               tension_droite: @body,
@@ -1460,10 +1501,14 @@ class FocevController < ApiController
 
                 sleep 2
 
-                photo = Whatsapp::WhatsappMessages.new(
-                  @phone, "Ah j'oubliais ... \nTu peux partager ton lien et inviter egalement d'autres personnes à participer au challenge ...devient un ambassadeur en partageant ton lien et fais toi l'ambassadeur des *ambassadeurs*. Ton lien est le suivant\n\n#{@customer.linked}"
+                query = Whatsapp::WhatsappImages.new(
+                  {
+                    phone: @phone,
+                    file: "http://coeur-vie.org/wp-content/uploads/2023/06/share_challenge.png",
+                    caption: "Ah j'oubliais ... \nTu peux partager ton lien et inviter egalement d'autres personnes à participer au challenge ...devient un ambassadeur en partageant ton lien et fais toi l'ambassadeur des *ambassadeurs*. Ton lien est le suivant\n\n#{@customer.linked}",
+                  }
                 )
-                photo.send_message
+                query.send_image
               when "en"
                 query = Whatsapp::WhatsappImages.new(
                   {
@@ -1476,10 +1521,14 @@ class FocevController < ApiController
 
                 sleep 2
 
-                photo = Whatsapp::WhatsappMessages.new(
-                  @phone, "Oh I forgot... \nYou can share your link and also invite other people to participate in the challenge ... become an ambassador by sharing your link and make yourself the ambassador of the *ambassadors* your link to share is\n*#{@customer.linked}"
+                query = Whatsapp::WhatsappImages.new(
+                  {
+                    phone: @phone,
+                    file: "http://coeur-vie.org/wp-content/uploads/2023/06/share_challenge.png",
+                    caption: "Oh I forgot... \nYou can share your link and also invite other people to participate in the challenge ... become an ambassador by sharing your link and make yourself the ambassador of the *ambassadors* your link to share is\n*#{@customer.linked}",
+                  }
                 )
-                photo.send_message
+                query.send_image
               end
             when "NO"
               case @customer.lang
@@ -1494,11 +1543,14 @@ class FocevController < ApiController
                 query.send_image
 
                 sleep 2
-
-                photo = Whatsapp::WhatsappMessages.new(
-                  @phone, "Ah j'oubliais ... \nTu peux partager ton lien et inviter egalement d'autres personnes à participer au challenge ...devient un ambassadeur en partageant ton lien et fais toi l'ambassadeur des *ambassadeurs*. Ton lien est le suivant\n\n#{@customer.linked}"
+                query = Whatsapp::WhatsappImages.new(
+                  {
+                    phone: @phone,
+                    file: "http://coeur-vie.org/wp-content/uploads/2023/06/share_challenge.png",
+                    caption: "Ah j'oubliais ... \nTu peux partager ton lien et inviter egalement d'autres personnes à participer au challenge ...devient un ambassadeur en partageant ton lien et fais toi l'ambassadeur des *ambassadeurs*. Ton lien est le suivant\n\n#{@customer.linked}",
+                  }
                 )
-                photo.send_message
+                query.send_image
               when "en"
                 query = Whatsapp::WhatsappImages.new(
                   {
@@ -1510,11 +1562,14 @@ class FocevController < ApiController
                 query.send_image
 
                 sleep 2
-
-                photo = Whatsapp::WhatsappMessages.new(
-                  @phone, "Oh I forgot... \nYou can share your link and also invite other people to participate in the challenge ... become an ambassador by sharing your link and make yourself the ambassador of the *ambassadors* your link to share is\n*#{@customer.linked}"
+                query = Whatsapp::WhatsappImages.new(
+                  {
+                    phone: @phone,
+                    file: "http://coeur-vie.org/wp-content/uploads/2023/06/share_challenge.png",
+                    caption: "Oh I forgot... \nYou can share your link and also invite other people to participate in the challenge ... become an ambassador by sharing your link and make yourself the ambassador of the *ambassadors* your link to share is\n*#{@customer.linked}",
+                  }
                 )
-                photo.send_message
+                query.send_image
               end
             end
             #mise à jour du des etapes
@@ -2044,12 +2099,12 @@ class FocevController < ApiController
           sleep 1
 
           a = Whatsapp::WhatsappMessages.new(
-            @phone, "Saisir *A* pour le 🇫🇷 FRANCAIS \n====\n_Type *A* for 🇫🇷 FRENCH_"
+            @phone, "Saisir *A* pour le 🇫🇷 FRANCAIS \n_Type *A* for 🇫🇷 FRENCH_"
           )
           a.send_message
 
           b = Whatsapp::WhatsappMessages.new(
-            @phone, "Saisir *B* pour 🇬🇧 l'ANGLAIS \n====\n_Type *B* for 🇬🇧 ENGLISH_"
+            @phone, "Saisir *B* pour 🇬🇧 l'ANGLAIS \n_Type *B* for 🇬🇧 ENGLISH_"
           )
           b.send_message
 
@@ -2120,12 +2175,12 @@ class FocevController < ApiController
             sleep 1
 
             a = Whatsapp::WhatsappMessages.new(
-              @phone, "Saisir *A* pour le 🇫🇷 FRANCAIS \n====\n_Type *A* for 🇫🇷 FRENCH_"
+              @phone, "Saisir *A* pour le 🇫🇷 FRANCAIS \n_Type *A* for 🇫🇷 FRENCH_"
             )
             a.send_message
 
             b = Whatsapp::WhatsappMessages.new(
-              @phone, "Saisir *B* pour 🇬🇧 l'ANGLAIS \n====\n_Type *B* for 🇬🇧 ENGLISH_"
+              @phone, "Saisir *B* pour 🇬🇧 l'ANGLAIS \n_Type *B* for 🇬🇧 ENGLISH_"
             )
             b.send_message
 
@@ -2351,12 +2406,12 @@ class FocevController < ApiController
     sleep 1
 
     a = Whatsapp::WhatsappMessages.new(
-      @phone, "Saisir *A* pour le 🇫🇷 FRANCAIS \n====\n_Type *A* for 🇫🇷 FRENCH_"
+      @phone, "Saisir *A* pour le 🇫🇷 FRANCAIS \n_Type *A* for 🇫🇷 FRENCH_"
     )
     a.send_message
 
     b = Whatsapp::WhatsappMessages.new(
-      @phone, "Saisir *B* pour 🇬🇧 l'ANGLAIS \n====\n_Type *B* for 🇬🇧 ENGLISH_"
+      @phone, "Saisir *B* pour 🇬🇧 l'ANGLAIS \n_Type *B* for 🇬🇧 ENGLISH_"
     )
     b.send_message
   end
@@ -2405,10 +2460,10 @@ class FocevController < ApiController
       {
         phone: @phone,
         file: "https://mppp-goshen.com/wp-content/uploads/2023/05/WhatsApp-Image-2023-04-21-a-07.14.34.jpg",
-        caption: "Maintenant nous allons passer aux informations *médicales*, à savoir prendre votre tension arterielle #{@customer.appelation}. Mais avant nous souhaiterions nous rassurer d'une chose.\n\n_Ne vous inquietez pas, aucune piqûre ne vous sera faite.",
+        caption: "Maintenant nous allons passer aux informations *médicales*, à savoir prendre votre tension arterielle #{@customer.appelation}. Mais avant nous souhaiterions nous rassurer d'une chose.\n\n_Ne vous inquietez pas, aucune piqûre ne vous sera faite_.",
       }
     )
-    query.send_message
+    query.send_image
 
     sleep 1
     # check if customer have tools
@@ -2445,7 +2500,7 @@ class FocevController < ApiController
         caption: "Now we are going to move on to the *medical* information, namely taking your blood pressure #{@customer.appelation}. But before we would like to reassure ourselves of one thing.\n\n_Ne vous inquietez pas, aucune piqûre ne vous sera faite.",
       }
     )
-    query.send_message
+    query.send_image
 
     # ====== other
     sleep 1
@@ -2505,12 +2560,12 @@ class FocevController < ApiController
           query.send_message
 
           a = Whatsapp::WhatsappMessages.new(
-            @phone, "Saisir *A* pour le 🇫🇷 FRANCAIS \n\n_Type *A* for FRENCH_"
+            @phone, "Saisir *A* pour le 🇫🇷 FRANCAIS \n_Type *A* for FRENCH_"
           )
           a.send_message
 
           b = Whatsapp::WhatsappMessages.new(
-            @phone, "Saisir *B* pour l'ANGLAIS \n\n_Type *B* for 🇬🇧 ENGLISH_"
+            @phone, "Saisir *B* pour l'ANGLAIS \n_Type *B* for 🇬🇧 ENGLISH_"
           )
           b.send_message
 
