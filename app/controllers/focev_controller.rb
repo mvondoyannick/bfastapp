@@ -1024,7 +1024,7 @@ class FocevController < ApiController
             @customer.update(steps: "request_poids")
           end
         elsif @customer.steps == "request_taille"
-          if (50..250).include? @body.to_i
+          if (0..250).include? @body.to_i
             @customer.update(taille: @body)
             case @customer.lang
             when "fr"
@@ -1034,20 +1034,6 @@ class FocevController < ApiController
               request_tensiometre_en
               customer.update(steps: "request_tension")
             end
-          elsif @body.to_i == 0
-            case @customer.lang
-            when "fr"
-              age = Whatsapp::WhatsappMessages.new(
-                @phone, "Nous validons qu'actuellement vous n'avez pas l'information sur votre taille maintenant #{@customer.appelation}.\n\n_Pensez tout de même à avoir cette information, il est important de pouvoir la connaitre._"
-              )
-              age.send_message
-            when "en"
-              age = Whatsapp::WhatsappMessages.new(
-                @phone, "We validate that currently you do not have the information on your size now. #{@customer.appelation}.\n\n_Remember to have this information all the same, it is important to be able to know it._"
-              )
-              age.send_message
-            end
-            customer.update(steps: "request_tension", taille: 0)
           else
             case @customer.lang
             when "fr"
