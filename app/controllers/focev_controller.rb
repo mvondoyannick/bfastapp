@@ -956,7 +956,17 @@ class FocevController < ApiController
           else
             case @customer.lang
             when "fr"
+              age = Whatsapp::WhatsappMessages.new(
+                @phone, "Hummmm #{@customer.appelation}, vous n'avez pas selectionner la bonne réponse\n\n_Saisir *A* pour le sexe masculin si vous êtes un *hommes*_\n_Saisir *B* pour le sexe féminin si vous êtes une *femme*_"
+              )
+              age.send_message
+              @customer.update(steps: "request_sexe")
             when "en"
+              age = Whatsapp::WhatsappMessages.new(
+                @phone, "hummmm #{@customer.appelation}. you did not select the correct answer\n\n_Enter *A* for male gender if you are *male*_\n_Enter *B* for female gender if you are *female*_"
+              )
+              age.send_message
+              @customer.update(steps: "request_sexe")
             end
           end
         elsif @customer.steps == "request_age"
@@ -1041,17 +1051,17 @@ class FocevController < ApiController
                 @phone, "Je n'arrive pas correctement à determiner votre taille, merci de saisir de nouveau votre taille #{@customer.appelation}.\n\n_Si vous avez 1m75, saisir seulement *175*, si vous avez 1m, saisir *100*_"
               )
               age.send_message
+              @customer.update(steps: "request_taille")
             when "en"
               age = Whatsapp::WhatsappMessages.new(
                 @phone, "I can't correctly determine your height, please enter your height again #{@customer.appelation}.\n\n_If you are 1m75 height, enter only *175*, else if you have 1m, juste type *100*_"
               )
               age.send_message
+              @customer.update(steps: "request_taille")
             end
-
-            @customer.update(steps: "request_taille")
           end
         elsif @customer.steps == "request_tension"
-          if %w[A B C].include? @body
+          if %w(A B C).include? @body
             case @customer.lang
             when "fr"
               case @body
@@ -1117,6 +1127,16 @@ class FocevController < ApiController
                   @phone, "*WikiHow* pour apprendre à lire un tensiomètre \n\nhttps://fr.wikihow.com/lire-sa-tension-artérielle-avec-un-tensiomètre"
                 )
                 pedia.send_message
+
+                sleep 5
+                case @customer.lang
+                when "fr"
+                  request_tensiometre_fr
+                  customer.update(steps: "request_tension")
+                when "en"
+                  request_tensiometre_en
+                  customer.update(steps: "request_tension")
+                end
               end
             when "en"
               case @body
