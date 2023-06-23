@@ -71,6 +71,7 @@ class CustomerResource < Avo::BaseResource
 
   # add fields here
   filter SexeFilter
+  filter TensionEleveFilter
 
   # actions
   action SendMessage

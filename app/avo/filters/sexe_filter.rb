@@ -1,5 +1,5 @@
 class SexeFilter < Avo::Filters::SelectFilter
-  self.name = "Sexe filter"
+  self.name = "Filtre par sexe"
   # self.visible = -> do
   #   true
   # end

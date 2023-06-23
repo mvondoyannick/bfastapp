@@ -8,10 +8,16 @@ class SettingResource < Avo::BaseResource
   field :id, as: :id
   # Fields generated from the model
   field :created_at, as: :date_time, link_to_resource: true
-  field :name, as: :text, link_to_resource: true
-  field :quartier, as: :text
+  field "name", as: :text, link_to_resource: true do |model|
+    model.customer.real_name.nil? ? model.customer.pushname : model.customer.real_name
+  end
+  field :quartier, as: :text do |model|
+    model.quartier.nil? ? "Not defined" : model.quartier
+  end
   heading "Information de parcours"
-  field :steps, as: :text
+  field "steps", as: :text do |model|
+    model.customer.steps.nil? ? "Aucune etape" : model.customer.steps
+  end
   field :code, as: :text
   heading "Informations médicale"
   field :tension_droite, as: :text, hide_on: [:index]
