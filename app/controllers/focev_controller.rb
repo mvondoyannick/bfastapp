@@ -925,7 +925,7 @@ class FocevController < ApiController
             @customer.update(steps: "request_sexe")
           else
             a = Whatsapp::WhatsappMessages.new(
-              @phone, "Le nom que vous avez fourni n'est pas valide, merci de saisir un nom valide"
+              @phone, "Il semblerait que *#{@body}* ne soit pas un nom valide, merci de saisir un nom valide"
             )
             a.send_message
             @customer.update(steps: "request_name")
@@ -960,44 +960,95 @@ class FocevController < ApiController
             end
           end
         elsif @customer.steps == "request_age"
-          @customer.update(age: @body)
-          case @customer.lang
-          when "fr"
-            age = Whatsapp::WhatsappMessages.new(
-              @phone, "Vous avez donc *#{@customer.age}* ans #{@customer.appelation}, dans la même lancée, serait-il également possible que je puisse avoir votre poids en Kilogramme?\n\n_Si vous avez un poinds de 70Kg vous allez simplement ecrire *70*. Si vous n'avez pas cette information, saisir *0* (zero)_"
-            )
-            age.send_message
-          when "en"
-            age = Whatsapp::WhatsappMessages.new(
-              @phone, "So you have *#{@customer.age}* years #{@customer.appelation}, in the same vein, would it also be possible for me to have your weight in Kilograms?\n\n_If you have a weight of 70Kg you will simply write *70*. If you do not have this information, enter *0* (zero)_"
-            )
-            age.send_message
+          if (15..100).include? @body.to_i
+            @customer.update(age: @body)
+            case @customer.lang
+            when "fr"
+              age = Whatsapp::WhatsappMessages.new(
+                @phone, "Vous avez donc *#{@customer.age}* ans #{@customer.appelation}, dans la même lancée, serait-il également possible que je puisse avoir votre poids en Kilogramme?\n\n_Si vous avez un poinds de 70Kg vous allez simplement ecrire *70*. Si vous n'avez pas cette information, saisir *0* (zero)_"
+              )
+              age.send_message
+            when "en"
+              age = Whatsapp::WhatsappMessages.new(
+                @phone, "So you have *#{@customer.age}* years #{@customer.appelation}, in the same vein, would it also be possible for me to have your weight in Kilograms?\n\n_If you have a weight of 70Kg you will simply write *70*. If you do not have this information, enter *0* (zero)_"
+              )
+              age.send_message
+            end
+            @customer.update(steps: "request_poids")
+          else
+            case @customer.lang
+            when "fr"
+              age = Whatsapp::WhatsappMessages.new(
+                @phone, "Je n'arrive pas correctement à determiner votre âge, merci de saisir de nouveau votre age #{@customer.appelation}.\n\n_Si vous avez 20 ans, saisir seulement *20*_"
+              )
+              age.send_message
+            when "en"
+              age = Whatsapp::WhatsappMessages.new(
+                @phone, "I can't correctly determine your age, please enter your age again #{@customer.appelation}.\n\n_If you are 20 years old, enter only *20*_"
+              )
+              age.send_message
+            end
+
+            @customer.update(steps: "request_age")
           end
-          @customer.update(steps: "request_poids")
         elsif @customer.steps == "request_poids"
-          @customer.update(poids: @body)
-          case @customer.lang
-          when "fr"
-            taille = Whatsapp::WhatsappMessages.new(
-              @phone, "Merci #{@customer.appelation}, Serait'il également possible d'avoir votre *taille*? #{@customer.appelation}\n_Si vous avez une taille de 1m59, ecrire juste *159*_\n\n_Si vous n'avez pas cette information, merci de mettre juste un *0*_"
-            )
-            taille.send_message
-          when "en"
-            taille = Whatsapp::WhatsappMessages.new(
-              @phone, "Thanks #{@customer.appelation}, Would it also be possible to have your *size*? #{@customer.appelation}\n_If you are 1m59 tall, just write *159*_\n\n_If you don't have this information, please just put a *0*_"
-            )
-            taille.send_message
+          if (12..400).include? @body.to_i
+            @customer.update(poids: @body)
+            case @customer.lang
+            when "fr"
+              taille = Whatsapp::WhatsappMessages.new(
+                @phone, "Merci #{@customer.appelation}, Serait'il également possible d'avoir votre *taille*? #{@customer.appelation}\n_Si vous avez une taille de 1m59, ecrire juste *159*_\n\n_Si vous n'avez pas cette information, merci de mettre juste un *0*_"
+              )
+              taille.send_message
+            when "en"
+              taille = Whatsapp::WhatsappMessages.new(
+                @phone, "Thanks #{@customer.appelation}, Would it also be possible to have your *size*? #{@customer.appelation}\n_If you are 1m59 tall, just write *159*_\n\n_If you don't have this information, please just put a *0*_"
+              )
+              taille.send_message
+            end
+            @customer.update(steps: "request_taille")
+          else
+            case @customer.lang
+            when "fr"
+              age = Whatsapp::WhatsappMessages.new(
+                @phone, "Je n'arrive pas correctement à determiner votre poids, merci de saisir de nouveau votre poids #{@customer.appelation}.\n\n_Si vous avez 75Kg ans, saisir seulement *75*_"
+              )
+              age.send_message
+            when "en"
+              age = Whatsapp::WhatsappMessages.new(
+                @phone, "I can't correctly determine your weight, please enter your weight again #{@customer.appelation}.\n\n_If you are 75 Kg old, enter only *75*_"
+              )
+              age.send_message
+            end
+
+            @customer.update(steps: "request_poids")
           end
-          @customer.update(steps: "request_taille")
         elsif @customer.steps == "request_taille"
-          @customer.update(taille: @body)
-          case @customer.lang
-          when "fr"
-            request_tensiometre_fr
-          when "en"
-            request_tensiometre_en
+          if (1..3).include? @body.to_i
+            @customer.update(taille: @body)
+            case @customer.lang
+            when "fr"
+              request_tensiometre_fr
+            when "en"
+              request_tensiometre_en
+            end
+            customer.update(steps: "request_tension")
+          else
+            case @customer.lang
+            when "fr"
+              age = Whatsapp::WhatsappMessages.new(
+                @phone, "Je n'arrive pas correctement à determiner votre taille, merci de saisir de nouveau votre taille #{@customer.appelation}.\n\n_Si vous avez 1m75, saisir seulement *175*, si vous avez 1m, saisir *100*_"
+              )
+              age.send_message
+            when "en"
+              age = Whatsapp::WhatsappMessages.new(
+                @phone, "I can't correctly determine your height, please enter your height again #{@customer.appelation}.\n\n_If you are 1m75 height, enter only *175*, else if you have 1m, juste type *100*_"
+              )
+              age.send_message
+            end
+
+            @customer.update(steps: "request_taille")
           end
-          @customer.update(steps: "request_tension")
         elsif @customer.steps == "request_tension"
           if %w[A B C].include? @body
             case @customer.lang
@@ -1176,75 +1227,107 @@ class FocevController < ApiController
             end
           end
         elsif @customer.steps == "read_systole"
-          @settings = @customer.settings.new(
-            tension_droite: @body,
-          )
-          if @settings.save
+          if (@body.length > 3) || (@body.to_i == 0)
             case @customer.lang
             when "fr"
-              img = Whatsapp::WhatsappImages.new(
-                {
-                  phone: @phone,
-                  file: "https://mppp-goshen.com/wp-content/uploads/2023/04/dia.png",
-                  caption: "Merci, cette valeur de *#{@customer.settings.last.tension_droite}* a été enregistré. Maintenant nous aurons besoin que vous nous fournissiez la valeur situé au milieu de votre tensiometre placé toujours sur votre bras droit *(DIA)*. \n_Celle encadrée en rouge, mais sur votre tensiomètre_",
-                }
+              age = Whatsapp::WhatsappMessages.new(
+                @phone, "Je pense qu'il doit avoir un petit problème avec ce que vous avez ecris, essayer de modifier et de recommencer.\n\n_Inserer uniquement une valeur à la fois, si votre valeur est *118*, inserer uniquement *118*_"
               )
-              img.send_image
-              @customer.update(steps: "read_diastole")
+              age.send_message
             when "en"
-              img = Whatsapp::WhatsappImages.new(
-                {
-                  phone: @phone,
-                  file: "https://mppp-goshen.com/wp-content/uploads/2023/04/dia.png",
-                  caption: "Thank you, this value of *#{@customer.settings.last.tension_droite}* has been registered. Now we will need you to provide us with the value located in the middle of your blood pressure monitor placed always on your right arm *(DIA)*. \n_The one framed in red, but on your blood pressure monitor_",
-                }
+              age = Whatsapp::WhatsappMessages.new(
+                @phone, "I think there must be a little problem with what you wrote, try to modify and start again.\n\n_Insert only one value at a time, if your value is *118*, insert only *118*_"
               )
-              img.send_image
-              @customer.update(steps: "read_diastole")
+              age.send_message
             end
+            @customer.update(steps: "read_systole")
           else
-            # creation of error logs
-            @erreur = Erreur.new(
-              description: @settings.errors.message,
-              customer_id: @customer.id,
+            @settings = @customer.settings.new(
+              tension_droite: @body,
             )
-            @erreur.save
+            if @settings.save
+              case @customer.lang
+              when "fr"
+                img = Whatsapp::WhatsappImages.new(
+                  {
+                    phone: @phone,
+                    file: "https://mppp-goshen.com/wp-content/uploads/2023/04/dia.png",
+                    caption: "Merci, cette valeur de *#{@customer.settings.last.tension_droite}* a été enregistré. Maintenant nous aurons besoin que vous nous fournissiez la valeur situé au milieu de votre tensiometre placé toujours sur votre bras droit *(DIA)*. \n_Celle encadrée en rouge, mais sur votre tensiomètre_",
+                  }
+                )
+                img.send_image
+                @customer.update(steps: "read_diastole")
+              when "en"
+                img = Whatsapp::WhatsappImages.new(
+                  {
+                    phone: @phone,
+                    file: "https://mppp-goshen.com/wp-content/uploads/2023/04/dia.png",
+                    caption: "Thank you, this value of *#{@customer.settings.last.tension_droite}* has been registered. Now we will need you to provide us with the value located in the middle of your blood pressure monitor placed always on your right arm *(DIA)*. \n_The one framed in red, but on your blood pressure monitor_",
+                  }
+                )
+                img.send_image
+                @customer.update(steps: "read_diastole")
+              end
+            else
+              # creation of error logs
+              @erreur = Erreur.new(
+                description: @settings.errors.message,
+                customer_id: @customer.id,
+              )
+              @erreur.save
+            end
           end
         elsif @customer.steps == "read_diastole"
-          @settings = @customer.settings.last.update(
-            diastole_droit: @body,
-          )
-          if @settings
+          if (@body.length > 3) || (@body.to_i == 0)
             case @customer.lang
             when "fr"
-              img = Whatsapp::WhatsappImages.new(
-                {
-                  phone: @phone,
-                  file: "https://mppp-goshen.com/wp-content/uploads/2023/04/pulse.png",
-                  caption: "Merci, cette valeur de *#{@customer.settings.last.diastole_droit}* a été enregistré. \nMaintenant nous aurons besoin que vous nous fournissiez la dernière valeur située en dernière position de votre tensiometre placé toujours sur votre bras droit *(PULSE)*. \n_Celle encadrée en rouge, mais sur votre tensiomètre_",
-                }
+              age = Whatsapp::WhatsappMessages.new(
+                @phone, "Je pense qu'il doit avoir un petit problème avec ce que vous avez ecris, essayer de modifier et de recommencer.\n\n_Inserer uniquement une valeur à la fois, si la veuleur que vous souhaitez inserer est *118*, inserer uniquement *118*_"
               )
-              img.send_image
-              @customer.update(steps: "read_poul")
+              age.send_message
             when "en"
-              img =
-                Whatsapp::WhatsappImages.new(
+              age = Whatsapp::WhatsappMessages.new(
+                @phone, "I think there must be a little problem with what you wrote, try to modify and start again.\n\n_Insert only one value at a time, if your value is *118*, insert only *118*_"
+              )
+              age.send_message
+            end
+            @customer.update(steps: "read_diastole")
+          else
+            @settings = @customer.settings.last.update(
+              diastole_droit: @body,
+            )
+            if @settings
+              case @customer.lang
+              when "fr"
+                img = Whatsapp::WhatsappImages.new(
                   {
                     phone: @phone,
                     file: "https://mppp-goshen.com/wp-content/uploads/2023/04/pulse.png",
-                    caption: "Thank you, this value of *#{@customer.settings.last.diastole_droit}* has been registered. \nNow we will need you to provide us with the last value located in the last position of your blood pressure monitor still placed on your right arm *(PULSE)*. \n_The one framed in red, but on your blood pressure monitor_",
+                    caption: "Merci, cette valeur de *#{@customer.settings.last.diastole_droit}* a été enregistré. \nMaintenant nous aurons besoin que vous nous fournissiez la dernière valeur située en dernière position de votre tensiometre placé toujours sur votre bras droit *(PULSE)*. \n_Celle encadrée en rouge, mais sur votre tensiomètre_",
                   }
                 )
-              img.send_image
-              @customer.update(steps: "read_poul")
+                img.send_image
+                @customer.update(steps: "read_poul")
+              when "en"
+                img =
+                  Whatsapp::WhatsappImages.new(
+                    {
+                      phone: @phone,
+                      file: "https://mppp-goshen.com/wp-content/uploads/2023/04/pulse.png",
+                      caption: "Thank you, this value of *#{@customer.settings.last.diastole_droit}* has been registered. \nNow we will need you to provide us with the last value located in the last position of your blood pressure monitor still placed on your right arm *(PULSE)*. \n_The one framed in red, but on your blood pressure monitor_",
+                    }
+                  )
+                img.send_image
+                @customer.update(steps: "read_poul")
+              end
+            else
+              # creation of error logs
+              @erreur = Erreur.new(
+                description: @settings.errors.message,
+                customer_id: @customer.id,
+              )
+              @erreur.save
             end
-          else
-            # creation of error logs
-            @erreur = Erreur.new(
-              description: @settings.errors.message,
-              customer_id: @customer.id,
-            )
-            @erreur.save
           end
         elsif @customer.steps == "read_poul"
           @settings = @customer.settings.last.update(

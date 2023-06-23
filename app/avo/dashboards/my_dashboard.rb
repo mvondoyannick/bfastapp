@@ -16,5 +16,6 @@ class MyDashboard < Avo::Dashboards::BaseDashboard
   card UsersChart
   card RequestsChart
   card LangChart
+  card StepsUsersChart
   # card UsersCount
 end

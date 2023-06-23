@@ -1,5 +1,5 @@
 class CustomerResource < Avo::BaseResource
-  self.title = :real_name
+  self.title = :pushname
   self.includes = []
   self.search_query = -> do
     scope.ransack(
@@ -34,20 +34,20 @@ class CustomerResource < Avo::BaseResource
   field :age, as: :text, hide_on: [:index]
   field :taille, as: :text, hide_on: [:index]
   field :poids, as: :text, hide_on: [:index]
-  heading "Parametres bras droit"
-  field :tension_droit, as: :text, hide_on: [:index]
-  field :diastole_droit, as: :text, hide_on: [:index]
-  field :poul_droit, as: :text, hide_on: [:index]
-  heading "Parametres bras gauche"
-  field :tension_gauche, as: :text, hide_on: [:index]
-  field :diastole_gauche, as: :text, hide_on: [:index]
-  field :poul_gauche, as: :text, hide_on: [:index]
+  # heading "Parametres bras droit"
+  # field :tension_droit, as: :text, hide_on: [:index]
+  # field :diastole_droit, as: :text, hide_on: [:index]
+  # field :poul_droit, as: :text, hide_on: [:index]
+  heading "Localisation"
+  # field :tension_gauche, as: :text, hide_on: [:index]
+  # field :diastole_gauche, as: :text, hide_on: [:index]
+  # field :poul_gauche, as: :text, hide_on: [:index]
   field :quartier, as: :text, hide_on: [:index]
   heading "Etape de progression"
-  field :steps, as: :text, hide_on: [:index]
+  field :steps, as: :text, hide_on: [:index], name: "Etape courante"
   field :link, as: :text, hide_on: [:index]
   field :code, as: :text, hide_on: [:index]
-  field :linked, as: :text, hide_on: [:index] do |model|
+  field :linked, as: :text, hide_on: [:index], name: "Lien ambassadeur" do |model|
     model.linked.nil? ? "Aucun lien généré" : model.linked
   end
   heading "Information de rappel"
