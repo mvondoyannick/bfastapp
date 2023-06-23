@@ -1024,7 +1024,7 @@ class FocevController < ApiController
             @customer.update(steps: "request_poids")
           end
         elsif @customer.steps == "request_taille"
-          if (1..3).include? @body.to_i
+          if (50..250).include? @body.to_i
             @customer.update(taille: @body)
             case @customer.lang
             when "fr"
