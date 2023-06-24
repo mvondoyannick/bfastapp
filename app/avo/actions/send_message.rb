@@ -14,7 +14,7 @@ class SendMessage < Avo::BaseAction
     models.each do |model|
       # set new question
       query = Whatsapp::WhatsappMessages.new(
-        model.phone, "#{fields["message"]} \nQuel est actuellement votre age?"
+        model.phone, "#{fields["message"]}"
       )
       query.send_message
     end

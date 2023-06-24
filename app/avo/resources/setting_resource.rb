@@ -15,31 +15,60 @@ class SettingResource < Avo::BaseResource
     model.quartier.nil? ? "Not defined" : model.quartier
   end
   heading "Information de parcours"
-  field "steps", as: :text do |model|
+  field "steps", as: :status do |model|
     model.customer.steps.nil? ? "Aucune etape" : model.customer.steps
   end
-  field :code, as: :text
+  field :code, as: :text, hide_on: [:index] do |model|
+    model.customer.code
+  end
   heading "Informations médicale"
-  field :tension_droite, as: :text, hide_on: [:index]
-  field :tension_gauche, as: :text, hide_on: [:index]
-  field :diastole_droit, as: :text, hide_on: [:index]
-  field :diastole_gauche, as: :text, hide_on: [:index]
-  field :poul_droit, as: :text, hide_on: [:index]
-  field :poul_gauche, as: :text, hide_on: [:index]
+
+  tabs do
+    tab "Bras droit", description: "Informations bras droit" do
+      panel do
+        field :tension_droite, as: :text, hide_on: [:index]
+        field :diastole_droit, as: :text, hide_on: [:index]
+        field :poul_droit, as: :text, hide_on: [:index]
+      end
+    end
+
+    tab "Bras gauche", description: "Informations bras droit" do
+      panel do
+        field :tension_gauche, as: :text, hide_on: [:index]
+        field :diastole_gauche, as: :text, hide_on: [:index]
+        field :poul_gauche, as: :text, hide_on: [:index]
+      end
+    end
+
+    tab "Date & rappels", description: "Informations bras droit" do
+      panel do
+        field :rappel, as: :text, hide_on: [:index]
+        field :rappel_day, as: :text, hide_on: [:index]
+        field :date_rappel, as: :text, hide_on: [:index]
+      end
+    end
+
+    tab "Photos", description: "Informations bras droit" do
+      panel do
+        field :photo, as: :text, hide_on: [:index]
+        field :photo_type, as: :text, hide_on: [:index]
+        field :cropped, as: :text, hide_on: [:index]
+        field :is_cropped, as: :boolean, hide_on: [:index]
+      end
+    end
+  end
+
   field :question_tension, as: :text, hide_on: [:index]
-  heading "Informations de temps"
-  field :rappel, as: :text, hide_on: [:index]
-  field :rappel_day, as: :text, hide_on: [:index]
-  field :date_rappel, as: :text, hide_on: [:index]
   heading "Information personnelle"
-  field :photo, as: :text, hide_on: [:index]
-  field :photo_type, as: :text, hide_on: [:index]
-  field :poids, as: :text, hide_on: [:index]
-  field :taille, as: :text, hide_on: [:index]
-  field :cropped, as: :text, hide_on: [:index]
-  field :is_cropped, as: :boolean, hide_on: [:index]
+
+  field :poids, as: :text, hide_on: [:index] do |model|
+    "#{model.poids.present? ? model.poids : model.customer.poids}Kg"
+  end
+  field :taille, as: :text, hide_on: [:index] do |model|
+    "#{model.taille.present? ? model.taille : model.customer.taille}cm"
+  end
   heading "Liaison patient"
   field :linked, as: :text, hide_on: [:index]
-  field :customer, as: :belongs_to
+  field :customer, as: :belongs_to, name: "Patient"
   # add fields here
 end

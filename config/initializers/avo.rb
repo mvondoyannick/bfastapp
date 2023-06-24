@@ -101,9 +101,6 @@ Avo.configure do |config|
       # all_resources
       group "Fondation" do
         resource :customer, label: "Utilisateurs"
-        resource :settings, label: "Parametres"
-        resource :erreurs, label: "Erreurs"
-        resource :journals, label: "Journal"
       end
 
       # group "activités" do
@@ -112,13 +109,13 @@ Avo.configure do |config|
     end
 
     # gaz et produits petroliers
-    # section "Gaz & petrol", icon: "fire", collapsable: true, collapsed: true do
-    #   group "Fournisseurs" do
-    #     resource :gaz_fournisseur, label: "Vendeurs, commerçant"
-    #     resource :gaz_manufacturer, label: "Fabriquants Gaz"
-    #     resource :gaz_bottles, label: "Bouteilles de gaz"
-    #   end
-    # end
+    section "Journaux", icon: "fire", collapsable: true, collapsed: true do
+      group "Settings" do
+        resource :settings, label: "Parametres"
+        resource :journals, label: "Journal"
+        resource :erreurs, label: "Erreurs"
+      end
+    end
 
     # points relais
     #section "Points relais", icon: "map", collapsable: true, collapsed: true do
