@@ -85,14 +85,58 @@ namespace :me do
     puts "generating collage..."
     puts "done !"
     Customer.all.each do |customer|
-      query = Whatsapp::WhatsappImages.new(
-        {
-          phone: customer.phone,
-          file: "http://coeur-vie.org/wp-content/uploads/2023/06/tabac.png",
-          caption: "Bonjour, c'est le Dr *CARDIO* de la *Fondation Coeur et Vie*, \nj'aimerais partager une actualité avec toi ce matin. \n\n http://coeur-vie.org/2023/06/12/les-effets-de-la-cigarette-sur-le-coeur-sont-pires-que-ce-que-lon-pensait/, \n\n_#{customer.appelation} partage à quelqu'unu pour sauver des vies_",
-        }
+      # query = Whatsapp::WhatsappImages.new(
+      #   {
+      #     phone: customer.phone,
+      #     file: "http://coeur-vie.org/wp-content/uploads/2023/06/tabac.png",
+      #     caption: "Bonjour, c'est le Dr *CARDIO* de la *Fondation Coeur et Vie*, \nj'aimerais partager une actualité avec toi ce matin. \n\n http://coeur-vie.org/2023/06/12/les-effets-de-la-cigarette-sur-le-coeur-sont-pires-que-ce-que-lon-pensait/, \n\n_#{customer.appelation} partage à quelqu'unu pour sauver des vies_",
+      #   }
+      # )
+      # query.send_image
+    end
+  end
+
+  desc "Send end day statistic"
+  task :send_statistics => :environment do
+    puts "Sending statistics"
+    @customer_today = Customer.where(created_at: Date.today.beginning_of_day..Date.today.end_of_day).count
+    @customer_yesterday = Customer.where(created_at: Date.yesterday.beginning_of_day..Date.yesterday.end_of_day).count
+    @percentage = (@customer_today * @customer_yesterday).to_f / 100
+    @rappel = Customer.where(created_at: Date.today.beginning_of_day..Date.today.end_of_day, steps: "need_rappel").count
+
+    puts "#{@customer_today} Personne(s) ont passés le challenge aujourd'hui, soit, une évolution de #{@percentage}%"
+    if Time.now.monday?
+      sleep 1
+      lionel = Whatsapp::WhatsappMessages.new(
+        "23798711769", "Bonjour Lionel,\nAujourd'hui, #{@customer_today} Personne(s) ont passés le challenge *Je connais ma tension*.\n\nEn ce moment #{@rappel} personne(s) ont demandés des rappels pour leur parametres de tension.\n\n_C'est tout pour aujourd'hui_. "
       )
-      query.send_image
+      lionel.send_message
+
+      yannick = Whatsapp::WhatsappMessages.new(
+        "23791451189", "Bonjour Yannick,\nAujourd'hui, #{@customer_today} Personne(s) ont passés le challenge *Je connais ma tension*.\n\nEn ce moment #{@rappel} personne(s) ont demandés des rappels pour leur parametres de tension.\n\n_C'est tout pour aujourd'hui_. "
+      )
+      yannick.send_message
+
+      dr = Whatsapp::WhatsappMessages.new(
+        "23797496699", "Bonjour Dr, j'espère que vous allez bien!\nAujourd'hui, #{@customer_today} Personne(s) ont passés le challenge *Je connais ma tension*.\n\nEn ce moment #{@rappel} personne(s) ont demandés des rappels pour leur parametres de tension.\n\n_C'est tout pour aujourd'hui_. "
+      )
+      dr.send_message
+    else
+      sleep 1
+      lionel = Whatsapp::WhatsappMessages.new(
+        "23798711769", "Bonjour Lionel,\nAujourd'hui, #{@customer_today} Personne(s) ont passés le challenge *Je connais ma tension*, cela represente une évolution de #{@percentage}% par rapport à la journée d'hier #{Date.yesterday}.\n\nEn ce moment #{@rappel} personne(s) ont demandés des rappels pour leur parametres de tension.\n\n_C'est tout pour aujourd'hui_. "
+      )
+      lionel.send_message
+
+      yannick = Whatsapp::WhatsappMessages.new(
+        "23791451189", "Bonjour Lionel,\nAujourd'hui, #{@customer_today} Personne(s) ont passés le challenge *Je connais ma tension*, cela represente une évolution de #{@percentage}% par rapport à la journée d'hier #{Date.yesterday}.\n\nEn ce moment #{@rappel} personne(s) ont demandés des rappels pour leur parametres de tension.\n\n_C'est tout pour aujourd'hui_. "
+      )
+      yannick.send_message
+
+      dr = Whatsapp::WhatsappMessages.new(
+        "23797496699", "Bonjour Lionel,\nAujourd'hui, #{@customer_today} Personne(s) ont passés le challenge *Je connais ma tension*, cela represente une évolution de #{@percentage}% par rapport à la journée d'hier #{Date.yesterday}.\n\nEn ce moment #{@rappel} personne(s) ont demandés des rappels pour leur parametres de tension.\n\n_C'est tout pour aujourd'hui_. "
+      )
+      dr.send_message
     end
   end
 end

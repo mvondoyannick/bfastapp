@@ -80,9 +80,9 @@ Avo.configure do |config|
       600 => "#b91c1c",
     },
     chart_colors: ["#0B8AE2", "#34C683", "#2AB1EE", "#34C6A8"],
-  # logo: "/avo-assets/logo.png",
-  # logomark: "/avo-assets/logomark.png"
-  # placeholder: "/avo-assets/placeholder.svg"
+    logo: "/avo-assets/logo.png",
+    logomark: "/avo-assets/logomark.png",
+    placeholder: "/avo-assets/placeholder.svg",
   }
 
   ## == Breadcrumbs ==

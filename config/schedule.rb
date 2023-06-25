@@ -1,3 +1,4 @@
+# set :environment, "development"
 # Use this file to easily define all of your cron jobs.
 #
 # It's helpful, but not entirely necessary to understand cron before proceeding.
@@ -16,16 +17,24 @@
 #     f.write("lorem")
 #   end
 # end
-every :hour, roles: [:app] do
+every :hour do
   rake "me:manage_photo"
 end
 
-every :hour, roles: [:app] do
+# every :hour, roles: [:app] do
+#   rake "me:update_feed"
+# end
+
+every :day, at: "8:30 am" do
+  rake "me:say_good_morning"
+end
+
+every :day, at: ["09:00 AM", "12:00 AM", "3:00 PM", "6:00 PM"] do
   rake "me:update_feed"
 end
 
-every :day, at: "8:30 am", roles: [:app] do
-  rake "me:say_good_morning"
+every :day, at: ["6:00 PM"] do
+  rake "me:send_statistics"
 end
 
 # Learn more: http://github.com/javan/whenever
